@@ -36,8 +36,8 @@
     "@types/d3-shape": "^2.0.0",
     "@ui-kitten/components": "^5.1.0",
     "@ui-kitten/eva-icons": "^5.1.0",
-    "react": "17.0.1",
-    "react-native": "0.64.0",
+    "react": "17.0.2",
+    "react-native": "0.66.3",
     "react-native-awesome-table": "^1.0.4",
     "react-native-circular-progress": "^1.3.7",
     "react-native-confetti-cannon": "^1.5.2",
@@ -83,6 +83,9 @@
       "jsx",
       "json",
       "node"
+    ],
+    "modulePathIgnorePatterns": [
+      "xmrig"
     ],
     "setupFiles": [
       "./jestSetupFile.js"

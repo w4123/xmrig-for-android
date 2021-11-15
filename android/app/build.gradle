@@ -147,7 +147,7 @@ android {
             include "armeabi-v7a", "arm64-v8a", "x86_64", "x86"
         }
     }
-    signingConfigs {
+    /*signingConfigs {
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -155,7 +155,7 @@ android {
             keyPassword 'android'
         }
 	release {
-	   storeFile file('debug.keystore')
+	    storeFile file('debug.keystore')
         storePassword 'android'
         keyAlias 'androiddebugkey'
         keyPassword 'android'
@@ -166,11 +166,11 @@ android {
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
 	    }
-    }
+    }*/
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            //signingConfig signingConfigs.debug
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -233,7 +233,7 @@ dependencies {
     }
 
 
-    def room_version = "2.3.0"
+    def room_version = "2.4.0-alpha03"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"

@@ -6,6 +6,9 @@
  */
 
 module.exports = {
+  resolver: {
+    blockList: /xmrig/
+    },  
   transformer: {
     getTransformOptions: async () => ({
       transform: {

@@ -8,6 +8,8 @@ module.exports = {
   // this is specific to the Jest repo, not generally needed (the files we ignore will be in node_modules which is ignored by default)
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|@react-native-community|@react-navigation|@ui-kitten)',
+    'xmrig/',
+    'android/'
   ],
   setupFiles: ["./jestSetupFile.js"],
   snapshotResolver: "./snapshotResolver.js"
