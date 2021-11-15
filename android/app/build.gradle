@@ -1,5 +1,5 @@
 apply plugin: "com.android.application"
-apply plugin: 'com.google.gms.google-services'
+// sapply plugin: 'com.google.gms.google-services'
 
 // import com.android.build.OutputFile
 
@@ -79,38 +79,6 @@ apply plugin: 'com.google.gms.google-services'
  * ]
  */
 
-task buildDeps(type: Exec){
-    commandLine 'bash', '../libuv/libuv-1.42.0/BASHCOMPILE.sh'
-}
-
-task copyDeps(type: Exec, dependsOn: 'buildDeps'){
-    commandLine 'bash', '../libuv/libuv-1.42.0/COPY.sh'
-}
-
-task copyXMRig(type: Exec, dependsOn: 'externalNativeBuildRelease'){
-    commandLine 'bash', 'src/cpp/COPY.sh'
-}
-
-task copyXMRigDebug(type: Exec, dependsOn: 'externalNativeBuildDebug'){
-    commandLine 'bash', 'src/cpp/COPY_DEBUG.sh'
-}
-
-/*task copyXMRigToLibs(type: Copy) {
-    from 'src/main/assets/*'
-    into 'libs'
-}*/
-
-tasks.whenTaskAdded { task ->
-    if (task.name ==  'compileReleaseSources') {
-        task.dependsOn copyXMRig
-    }
-    if (task.name ==  'installDebug') {
-        task.dependsOn copyXMRigDebug
-    }
-    println(task);
-}
-project.tasks.getByName('preBuild').dependsOn copyDeps
-
 project.ext.react = [
     enableHermes: true,  // clean and rebuild if changing
 ]
@@ -170,21 +138,13 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 27
         versionName "1.2.0"
-        externalNativeBuild {
-            cmake {
-                arguments "-DUV_INCLUDE_DIR=app/src/cpp/include"
-                cppFlags "-std=gnu++11"
-                // -std=c++11 or -std=gnu++11
-
-            }
-        }
     }
     splits {
         abi {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            include "armeabi-v7a", "arm64-v8a", "x86_64", "x86"
         }
     }
     signingConfigs {
@@ -205,13 +165,7 @@ android {
                 keyAlias MYAPP_UPLOAD_KEY_ALIAS
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
-	}
-    }
-
-    externalNativeBuild {
-        cmake {
-            path file('src/cpp/CMakeLists.txt')
-        }
+	    }
     }
 
     buildTypes {
@@ -234,7 +188,7 @@ android {
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def versionCodes = ["armeabi-v7a": 1, "arm64-v8a": 3, "x86": 2, "x86_64": 4]
             def abi = output.getFilter(com.android.build.OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -257,9 +211,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.2.0'
 
 
-
-
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
+    /*debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
 
@@ -270,7 +222,7 @@ dependencies {
 
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.flipper'
-    }
+    }*/
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
