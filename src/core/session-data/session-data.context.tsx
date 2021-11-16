@@ -7,7 +7,6 @@ import { IPoolSummary, usePool } from "../hooks";
 import { SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter } from "react-native";
 import { parseLogLine } from "../utils/parsers";
-import analytics from '@react-native-firebase/analytics';
 
 const { XMRigModule } = NativeModules;
 
@@ -55,35 +54,8 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
   React.useEffect(() => {
     if (!isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
         hashrateHistory.add(parseFloat(`${minerData?.hashrate.total[0]}`));
-        analytics().logEvent('hashrate', {
-          hashrate: parseFloat(`${minerData?.hashrate.total[0]}`)
-        });
     }
   }, [minerData])
-
-  React.useEffect(() => {
-    analytics().logEvent('algo', {
-      algo: minerData?.algo
-    })
-  }, [minerData?.algo])
-
-  React.useEffect(() => {
-    if (settings.ready) {
-      analytics().setUserId(settings.uuid);
-    }
-  }, [settings.uuid]);
-
-  React.useEffect(() => {
-    if (settings.ready) {
-      analytics().setUserProperty("total_mining", `${totalMining}`);
-    }
-  }, [totalMining]);
-
-  React.useEffect(() => {
-    if (settings.ready) {
-      analytics().setUserProperty("dev_fee", `${settings.dev_fee}`);
-    }
-  }, [settings.dev_fee]);
   
   React.useEffect(() => {
     if (poolData?.hash) {
