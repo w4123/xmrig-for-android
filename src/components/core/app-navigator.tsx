@@ -5,8 +5,6 @@ import { TabBar, Tab, Layout, Icon, IconProps } from '@ui-kitten/components';
 import SplashScreen from 'react-native-splash-screen';
 import { LazyLoader } from './lazy-loader';
 
-import analytics from '@react-native-firebase/analytics';
-
 const Settings = React.lazy(() => import('../settings/settings-view'));
 const Miner = React.lazy(() => import('../miner/miner-view'));
 
@@ -60,13 +58,6 @@ export const AppNavigator = () => {
             onStateChange={async () => {
                 const previousRouteName = routeNameRef.current;
                 const currentRouteName = navigationRef.current.getCurrentRoute().name;
-
-                if (previousRouteName !== currentRouteName) {
-                    await analytics().logScreenView({
-                        screen_name: currentRouteName,
-                        screen_class: currentRouteName,
-                    });
-                    }
                 routeNameRef.current = currentRouteName;
             }}
         >
