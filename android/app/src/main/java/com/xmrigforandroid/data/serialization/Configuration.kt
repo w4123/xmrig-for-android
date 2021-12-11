@@ -1,8 +1,7 @@
-package com.reactnativexmrig.data.serialization
+package com.xmrigforandroid.data.serialization
 
 import androidx.annotation.Keep
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 
 @Keep
 @Serializable

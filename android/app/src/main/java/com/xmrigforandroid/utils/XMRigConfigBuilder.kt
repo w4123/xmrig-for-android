@@ -1,19 +1,13 @@
-package com.reactnativexmrig.utils
+package com.xmrigforandroid.utils
 
 import android.content.Context
 import android.util.Base64
 import android.util.Log
-import com.facebook.react.bridge.ReactContext
-import com.reactnativexmrig.data.serialization.Configuration
-import com.reactnativexmrig.data.serialization.ConfigurationMode
-import com.reactnativexmrig.data.serialization.SimpleConfigurationPropertiesCPU
-import com.reactnativexmrig.data.serialization.SimpleConfigurationPropertiesPool
-import okhttp3.internal.threadName
-import org.json.simple.JSONArray
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
+import com.xmrigforandroid.data.serialization.Configuration
+import com.xmrigforandroid.data.serialization.ConfigurationMode
+import com.xmrigforandroid.data.serialization.SimpleConfigurationPropertiesCPU
+import com.xmrigforandroid.data.serialization.SimpleConfigurationPropertiesPool
 import java.io.*
-import java.lang.Exception
 import java.lang.RuntimeException
 import java.lang.StringBuilder
 import java.io.File

@@ -1,4 +1,4 @@
-package com.reactnativexmrig;
+package com.xmrigforandroid;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -31,7 +31,7 @@ public class MiningService extends Service {
 
 
     private static final String LOG_TAG = "MiningSvc";
-    private static final String NOTIFICATION_CHANNEL_ID = "com.reactnativexmrig.service";
+    private static final String NOTIFICATION_CHANNEL_ID = "com.xmrigforandroid.service";
     private static final String NOTIFICATION_CHANNEL_NAME = "XMRig Service";
     private static final int NOTIFICATION_ID = 200;
     private Notification.Builder notificationbuilder;

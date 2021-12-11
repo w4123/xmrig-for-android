@@ -41,7 +41,7 @@
 #-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
 #-if @kotlinx.serialization.Serializable class
 -if @kotlinx.serialization.Serializable class
-com.reactnativexmrig.data.serialization.Configuration
+com.xmrigforandroid.data.serialization.Configuration
 {
     static **$* *;
 }

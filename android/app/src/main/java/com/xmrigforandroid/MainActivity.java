@@ -1,4 +1,4 @@
-package com.reactnativexmrig;
+package com.xmrigforandroid;
 
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;

@@ -1,5 +1,5 @@
 // IMiningService.aidl
-package com.reactnativexmrig;
+package com.xmrigforandroid;
 
 interface IMiningService {
     /**

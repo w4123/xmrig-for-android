@@ -1,4 +1,4 @@
-package com.reactnativexmrig
+package com.xmrigforandroid
 
 import android.content.ComponentName
 import android.content.Context
@@ -9,9 +9,9 @@ import android.os.RemoteException
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
-import com.reactnativexmrig.MiningService.StdoutEvent
-import com.reactnativexmrig.data.serialization.Configuration
-import com.reactnativexmrig.utils.XMRigConfigBuilder
+import com.xmrigforandroid.MiningService.StdoutEvent
+import com.xmrigforandroid.data.serialization.Configuration
+import com.xmrigforandroid.utils.XMRigConfigBuilder
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.greenrobot.eventbus.EventBus
