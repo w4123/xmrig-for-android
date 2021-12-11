@@ -1,24 +1,12 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Layout, Text } from '@ui-kitten/components';
-import Shimmer from 'react-native-shimmer';
+import { Appbar } from 'react-native-paper';
 
-
-export const AppHeader = () => {
-
+export const AppHeader = ({ navigation, back }: any) => {
     return (
-        <Layout style={style.container} level="4">
-            <Shimmer pauseDuration={10*1000}>
-                <Text category='h1' adjustsFontSizeToFit numberOfLines={1}>React Native XMRig</Text>
-            </Shimmer>
-        </Layout>
-    );
+        <Appbar.Header>
+            {back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
+            <Appbar.Content title="XMRig" subtitle="for Android" />
+            <Appbar.Content title="Version" subtitle="1.2.45" style={{alignItems: 'flex-end'}} />
+        </Appbar.Header>
+    )
 }
-
-const style = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        flexDirection: 'row',
-        padding: 5
-    }
-});

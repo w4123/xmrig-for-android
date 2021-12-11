@@ -7,14 +7,7 @@ export {
     SettingsActionType
 } from './settings.actions';
 
-export {
-    ThemeModes,
-    Themes
-} from './settings.interface'
-
 export type {
     ISettingsReducerAction,
-    ISettings,
-    ISettingsWallet,
-    ThemeType
+    ISettings
 } from './settings.interface';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Spinner, Text } from '@ui-kitten/components';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, Colors, Title } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
 import Shimmer from 'react-native-shimmer';
 
 export const Lazy = (componentImportFn:Function) => React.lazy(async () => {
@@ -9,12 +9,14 @@ export const Lazy = (componentImportFn:Function) => React.lazy(async () => {
 })
 
 export const SpinnerLayout = () => (
-    <Layout style={styles.spinnerContainer} level='2'>
-        <Spinner status='success' size='giant'/>
+    <View style={styles.spinnerContainer}>
+        <ActivityIndicator animating={true} color={Colors.red800} size="large">
+            {' '}
+        </ActivityIndicator>
         <Shimmer>      
-            <Text category="h3">Loading</Text>
+            <Title>Loading</Title>
         </Shimmer>
-    </Layout>
+    </View>
 )
 
 export const LazyLoader:React.FC = ({children}) => (

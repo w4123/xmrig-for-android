@@ -149,16 +149,21 @@ export interface IMinerSummary {
 
 const getDataApi = (port: number):Promise<IMinerSummary | null> => {
     console.log("fetch data")
-    return fetch(`http://127.0.0.1:${port}/2/summary`)
-      .then((response) => response.json())
-      .then((json:IMinerSummary) => {
-          console.log("data", json)
+    return fetch(`http://127.0.0.1:${port}/2/summary`, {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': 'Bearer XMRigForAndroid'
+        })
+    })
+    .then((response) => response.json())
+    .then((json:IMinerSummary) => {
+        console.log("data", json)
         return json;
-      })
-      .catch((error) => {
-          console.log("error", error);
+    })
+    .catch((error) => {
+        console.log("error", error);
         return null;
-      });
+    });
   };
 
 export const useMinerHttpd = (port:number) => {

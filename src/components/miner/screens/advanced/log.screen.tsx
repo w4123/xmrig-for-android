@@ -1,24 +1,23 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import {ScrollView, StyleSheet, View } from 'react-native';
 import { SessionDataContext } from '../../../../core/session-data/session-data.context';
-import { Layout, Text } from '@ui-kitten/components';
 import { StartMode } from '../../../../core/session-data/session-data.interface';
-import { XMRigLogView } from '../../components/miner/xmrig-log';
+import { Headline } from 'react-native-paper';
+import { XMRigLogView } from '../../containers/xmrig-log';
 
 const LogScreen = () => {
     
     const {working, minerLog} = React.useContext(SessionDataContext);
 
     return (
-        <Layout level="2">
+        <View>
             <ScrollView nestedScrollEnabled={true} style={working == StartMode.STOP ? [styles.layout, styles.hidden] : styles.layout}>
-                <View style={styles.section}>
-                    <Text category='h5' style={styles.sectionTitle}>Miner Log</Text>
-                    <Text category='label' style={styles.sectionSubTitle}>STDOUT</Text>
+                <View>
+                    <Headline>Miner Log</Headline>
                 </View>
-                <XMRigLogView data={minerLog} />
+                <XMRigLogView disabled={working == StartMode.STOP} data={minerLog} />
             </ScrollView>
-        </Layout>
+        </View>
     )
 }
 
@@ -26,20 +25,11 @@ const styles = StyleSheet.create({
     layout: {
         marginHorizontal: 15,
         marginBottom: 10,
-        height: '100%',
+        height: '100%'
     },
     hidden: {
         opacity: 1
     },
-    section: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, paddingTop: 0
-    },
-    sectionTitle: {
-        flexDirection:'column'
-    },
-    sectionSubTitle: {
-        backgroundColor: 'rgba(134, 65, 244, 0.1)', flexDirection:'column', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5
-    }
 });
 
 export default LogScreen;

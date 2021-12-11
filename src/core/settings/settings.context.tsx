@@ -1,46 +1,38 @@
-import React, { createContext, Context, useReducer, Dispatch, useEffect, useState, EffectCallback } from "react";
-import { NativeModules } from "react-native";
+import React, { createContext, Context, useReducer, Dispatch, useEffect, useState } from "react";
 import { SettingsActionType } from "./settings.actions";
-import { ISettings, ISettingsReducerAction, ThemeModes, Themes } from "./settings.interface";
+import { ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode } from "./settings.interface";
 import { SettingsReducer } from "./settings.reducer";
 import { SettingsStorageInit, SettingsStorageSave } from "./settings.storage";
 import uuid from 'react-native-uuid';
-import { useInterval } from "../hooks";
-
-const { XMRigModule } = NativeModules;
 
 
 const initialState: ISettings = {
     ready: false,
-    wallet: null,
-    wallet_history: [],
-    theme: Themes.DARK,
-    theme_mode: ThemeModes.ADVANCED,
-    max_threads: 2,
-    total_mining: 0,
-    dev_fee: 20,
-    uuid: uuid.v4().toString()
+    uuid: uuid.v4().toString(),
+    configurations: [],
+    selectedConfiguration: undefined
+};
+
+export const defaultConfiguration: Partial<ISimpleConfiguration> = {
+  properties: {
+    cpu: {
+      yield: true,
+      random_x_mode: RandomXMode.AUTO,
+      max_threads_hint: 100
+    }
+  }
 };
 
 type SettingsContextProps = {
   settings: ISettings,
-  totalMining: number,
   settingsDispatcher: Dispatch<ISettingsReducerAction>,
 }
 
-export const SettingsContext:Context<SettingsContextProps> = createContext<SettingsContextProps>({settings: initialState, settingsDispatcher: ():void => {}, totalMining: 0});
+export const SettingsContext:Context<SettingsContextProps> = createContext<SettingsContextProps>({settings: initialState, settingsDispatcher: ():void => {}});
 
 export const SettingsContextProvider:React.FC = ({children}) =>  {
     const [settings, settingsDispatcher] = useReducer(SettingsReducer, initialState);
     const [asyncLoaderState, setAsyncLoaderState] = useState<boolean>(false);
-    const [nativeTotalMining, setNativeTotalMining] = useState<number>(0);
-    const totalMining = React.useMemo(() => settings.total_mining + nativeTotalMining, [settings.total_mining, nativeTotalMining])
-
-    useInterval(() => {
-      XMRigModule.totalMiningMinutes()
-        .then((value: number) => setNativeTotalMining(value))
-        .catch(() => {})
-    }, 60*1000);
 
     useEffect(() => {
       console.log("settings effect - SettingsStorageInit");
@@ -57,10 +49,7 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
           setAsyncLoaderState(true);
         })
         .catch((e) => console.log(e));
-      
-      XMRigModule.totalMiningMinutes()
-        .then((value: number) => setNativeTotalMining(value))
-        .catch(() => {})
+  
     }, []);
 
     useEffect(() => {
@@ -71,8 +60,8 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
     }, [settings]);
 
     return (
-        <SettingsContext.Provider value={{settings, settingsDispatcher, totalMining}}>
-          {children}
-        </SettingsContext.Provider>
-      );
+      <SettingsContext.Provider value={{settings, settingsDispatcher}}>
+        {children}
+      </SettingsContext.Provider>
+    );
 }

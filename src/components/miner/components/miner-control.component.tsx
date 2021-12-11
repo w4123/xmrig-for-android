@@ -1,82 +1,94 @@
-import { Button, Divider, Icon, IconProps, Layout, LayoutProps } from '@ui-kitten/components';
 import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import { SessionDataContext } from '../../../core/session-data/session-data.context';
-import { StartMode } from '../../../core/session-data/session-data.interface';
-import { SettingsContext } from '../../../core/settings';
+import { StartMode, WorkingState } from '../../../core/session-data/session-data.interface';
+import { SettingsActionType, SettingsContext } from '../../../core/settings';
+import { Button, Caption, List, useTheme } from 'react-native-paper';
+import DropDown from 'react-native-paper-dropdown';
+import { Configuration, ConfigurationMode } from '../../../core/settings/settings.interface';
+
 
 type MinerControlProps = {
     isStartButtonDisabled: boolean;
     handleStart: () => {};
     handleStop: () => {};
-    handleBench: () => {};
-}
-
-const AdvancedMode:React.FC<MinerControlProps> = (
-    {isStartButtonDisabled, handleStart, handleStop, handleBench, ...props}
-) => (
-    <>
-        <Button style={styles.button} disabled={isStartButtonDisabled} onPress={handleStart}>Start</Button>
-        <Button status={'warning'} style={styles.button} disabled={isStartButtonDisabled} onPress={handleBench}>Re-Benchmark</Button>
-        <Button status={'danger'} style={styles.button} disabled={!isStartButtonDisabled} onPress={handleStop}>Stop</Button>
-    </>
-)
-
-const MinerControlFactory:React.FC<MinerControlProps> = (props) => {
-    const {settings} = React.useContext(SettingsContext);
-
-    return (<View style={styles.containerAdvanced}><AdvancedMode {...props} /></View>)
 }
 
 export const MinerControl:React.FC<ViewProps> = () => {
+    const { colors } = useTheme();
 
-    const { working, setWorking } = React.useContext(SessionDataContext);
+    const { working, setWorking, workingState } = React.useContext(SessionDataContext);
 
     const handleStart = React.useCallback(() => setWorking(StartMode.START), []);
     const handleStop = React.useCallback(() => setWorking(StartMode.STOP), []);
-    const handleBench = React.useCallback(() => setWorking(StartMode.REBANCH), []);
-    const isStartButtonDisabled = React.useMemo(() => working != StartMode.STOP, [working]);
+
+    const [ showDropDown, setShowDropDown ] = React.useState(false);
+    const { settings, settingsDispatcher } = React.useContext(SettingsContext);
+    const [ selectedConfiguration, setSelectedConfiguration ] = React.useState<string | undefined>(settings.selectedConfiguration);
+
+    React.useEffect(() => {
+        console.log("working effect", workingState)
+    }, [workingState]);
+
+    React.useEffect(() => {
+        console.log("selectedConfiguration effect", selectedConfiguration)
+    }, [selectedConfiguration]);
+
+    const isStartButtonDisabled = React.useMemo<boolean>(() => workingState != WorkingState.NOT_WORKING && (selectedConfiguration != null && selectedConfiguration != undefined), [workingState]);
+    const isStopButtonDisabled = React.useMemo<boolean>(() => workingState == WorkingState.NOT_WORKING, [workingState]);
+    
+    React.useEffect(() => settingsDispatcher({
+        type: SettingsActionType.SET_SELECTED_CONFIGURAION,
+        value: selectedConfiguration
+    }), [selectedConfiguration]);
 
     return (
-        <Layout style={styles.container} level="2">
-            <MinerControlFactory
-                isStartButtonDisabled={isStartButtonDisabled}
-                handleStart={handleStart}
-                handleBench={handleBench}
-                handleStop={handleStop}
-            />
-        </Layout>   
+        <View style={styles.container}>
+            <View style={styles.subContainer}>
+                <View style={styles.dropdownContainer}>
+                    <DropDown
+                        label={"Configurations"}
+                        mode="flat"
+                        value={settings.selectedConfiguration}
+                        setValue={value => setSelectedConfiguration(value)}
+                        list={settings.configurations.map((item: Configuration) => ({
+                            label: `${item.name}`,
+                            value: `${item.id}`
+                        }))}
+                        visible={showDropDown}
+                        showDropDown={() => setShowDropDown(true)}
+                        onDismiss={() => setShowDropDown(false)}
+                    />
+                    {!selectedConfiguration && <Caption>Please select a Configuration to start mining.</Caption>}
+                </View>
+                <View style={styles.buttonsContainer}>
+                    <Button mode="contained" style={{flex: 1, marginRight: 10}} color={colors.primary} disabled={isStartButtonDisabled} onPress={handleStart}>Start</Button>
+                    <Button mode="contained" style={{flex: 1, marginLeft: 10}} color={colors.error} disabled={isStopButtonDisabled} onPress={handleStop}>Stop</Button>
+                </View>
+            </View>
+        </View>   
     )
-}
+};
 
 const styles = StyleSheet.create({
     container: {
-        
-    },
-    containerAdvanced: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 11,
+        paddingVertical: 15,
         paddingHorizontal: 15
     },
-    containerSimpleYoung: {
+    subContainer: {
+        flexDirection: 'column',
+        flex: 1
+    },
+    dropdownContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    },
+    buttonsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        paddingHorizontal: 15,
-        top: -30
-    },
-    button: {
-        flexGrow: 0.25
-    },
-    buttonSimpleYoung: {
-        flexGrow: 0.25,
-        borderRadius: 100,
-        width: 100,
-        minWidth: 100,
-        maxWidth: 100,
-        height: 100,
-        minHeight: 100, 
-        maxHeight: 100
+        justifyContent: 'space-between',
+        paddingTop: 20,
     },
     buttonIcon: {
         width: 38,

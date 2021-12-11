@@ -1,26 +1,23 @@
 import React from "react";
-import { IMinerSummary, useInterval, useMinerHttpd } from "../hooks";
-import { IMinerBackend, useBackendHttpd } from "../hooks";
+import { IMinerSummary, useMinerHttpd } from "../hooks";
 import { useHashrateHistory } from "../hooks";
-import { IMinerLog, StartMode, IXMRigLogEvent } from "./session-data.interface";
-import { IPoolSummary, usePool } from "../hooks";
+import { IMinerLog, StartMode, IXMRigLogEvent, WorkingState } from "./session-data.interface";
 import { SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter } from "react-native";
-import { parseLogLine } from "../utils/parsers";
+import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
 
-const { XMRigModule } = NativeModules;
+const { XMRigForAndroid } = NativeModules;
+
+import base64 from 'react-native-base64'
+import { Configuration, ConfigurationMode, IAdvanceConfiguration } from "../settings/settings.interface";
 
 
 type SessionDataContextType = {
   minerLog: IMinerLog[],
   hashrateHistoryRef: number[],
-  poolRawHashrateHistoryRef: number[],
-  poolPayoutHashrateHistoryRef: number[],
   working: StartMode,
   workingState: string,
   minerData: IMinerSummary | null,
-  poolData: IPoolSummary | null,
-  backendsData: IMinerBackend | null,
   setWorking: Function
 }
 
@@ -29,27 +26,18 @@ export const SessionDataContext:React.Context<SessionDataContextType> = React.cr
 
 export const SessionDataContextProvider:React.FC = ({children}) =>  {
 
-  const {settings, totalMining} = React.useContext(SettingsContext);
+  const {settings} = React.useContext(SettingsContext);
   
   const [minerLog, setMinerLog] = React.useState<IMinerLog[]>([]);
 
   const hashrateHistory = useHashrateHistory([0,0]);
   const hashrateHistoryRef = React.useMemo(() => hashrateHistory.history, [hashrateHistory.history]);
 
-  const poolRawHashrateHistory = useHashrateHistory([0,0]);
-  const poolRawHashrateHistoryRef = React.useMemo(() => poolRawHashrateHistory.history, [poolRawHashrateHistory.history]);
-
-  const poolPayoutHashrateHistory = useHashrateHistory([0,0]);
-  const poolPayoutHashrateHistoryRef = React.useMemo(() => poolPayoutHashrateHistory.history, [poolPayoutHashrateHistory.history]);
-
   const [working, setWorking] = React.useState<StartMode>(StartMode.STOP);
 
-  const [workingState, setWorkingState] = React.useState<string>("Not Working");
+  const [workingState, setWorkingState] = React.useState<WorkingState>(WorkingState.NOT_WORKING);
 
   const { minerStatus, minerData } = useMinerHttpd(50080);
-  const poolData = usePool(settings.wallet?.address)
-
-  const { backendsStatus, backendsData } = useBackendHttpd(50080);
 
   React.useEffect(() => {
     if (!isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
@@ -58,57 +46,65 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
   }, [minerData])
   
   React.useEffect(() => {
-    if (poolData?.hash) {
-        poolRawHashrateHistory.add(poolData?.hash);
-    }
-    if (poolData?.hash2) {
-        poolPayoutHashrateHistory.add(poolData?.hash2);
-    }
-  }, [poolData]);
-
-  React.useEffect(() => {
     if (minerStatus) {
-      setWorkingState("Minning");
+      setWorkingState(WorkingState.MINING);
     }
-    if (!minerStatus && workingState == "Minning") {
+    if (!minerStatus && workingState == WorkingState.MINING) {
       setWorking(StartMode.STOP);
     }
   }, [minerStatus]);
 
   React.useEffect(() => {
-    console.log("working", working);
     switch(working) {
         case StartMode.START:
-            setWorkingState("Benchmarking");
-            XMRigModule.start(settings.wallet?.address, settings.max_threads, settings.dev_fee);
-            break;
-        case StartMode.REBANCH:
-            setWorkingState("Benchmarking");
-            XMRigModule.rebench(settings.wallet?.address, settings.max_threads, settings.dev_fee);
+            setWorkingState(WorkingState.BENCHMARKING);
+            if (settings.selectedConfiguration) {
+              const cConfig:Configuration | undefined = settings.configurations.find(
+                config => config.id == settings.selectedConfiguration
+              );
+              if (cConfig) {
+                const configCopy:Configuration = {
+                  ...cConfig
+                }
+                if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
+                  (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
+                }
+                console.log(cConfig);
+                XMRigForAndroid.start(
+                  JSON.stringify(
+                    configCopy, 
+                    (k, v) => {
+                      if (v !== null) return v
+                    }
+                  )
+                )
+              }
+            }
             break;
         case StartMode.STOP:
-            setWorkingState("Stopped");
-            XMRigModule.stop();
+            setWorkingState(WorkingState.NOT_WORKING);
+            XMRigForAndroid.stop();
             break;
     }
   }, [working]);
 
   React.useEffect(() => {
-    const MinerEmitter = new NativeEventEmitter(XMRigModule);
+    const MinerEmitter = new NativeEventEmitter(XMRigForAndroid);
 
     MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
         console.log(data);
-        setMinerLog(old => [...data.log.reverse().map(value => parseLogLine(value)), ...old])
+        const cleanData = [...data.log.filter(item => !filterLogLineRegex.test(item))]
+        setMinerLog(old => [...cleanData.reverse().map(value => parseLogLine(value)), ...old])
     });
 
     return () => {
         MinerEmitter.removeAllListeners('onLog');
-        XMRigModule.stop();
+        XMRigForAndroid.stop();
     }
 }, [])
 
   return (
-    <SessionDataContext.Provider value={{minerLog, hashrateHistoryRef, poolRawHashrateHistoryRef, poolPayoutHashrateHistoryRef, working, workingState, minerData, poolData, backendsData, setWorking}}>
+    <SessionDataContext.Provider value={{minerLog, hashrateHistoryRef, working, workingState, minerData, setWorking}}>
       {children}
     </SessionDataContext.Provider>
   );

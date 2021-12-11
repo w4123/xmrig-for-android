@@ -139,22 +139,14 @@ public class XMRigModule extends ReactContextBaseJavaModule {
     public void start(String wallet, int threads, int devFee) {
         Log.d("XMRigModule", "Create event called with wallet: " + wallet);
         //this.startMining(wallet, false);
-        try {
-            iMiningService.startMiner(wallet, false, threads, devFee);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @ReactMethod
     public void rebench(String wallet, int threads, int devFee) {
         this.stop();
         Log.d("XMRigModule", "Create event called with wallet: " + wallet);
-        try {
-            iMiningService.startMiner(wallet, true, threads, devFee);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @ReactMethod

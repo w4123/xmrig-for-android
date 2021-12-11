@@ -1,42 +1,57 @@
 import { Dispatch } from "react";
 import { SettingsActionType } from "./settings.actions";
 
-export enum ThemeModes {
-    ADVANCED = "Advanced",
-    SIMPLE_YOUNG = "Simple Young"
+export enum ConfigurationMode {
+    SIMPLE = "simple",
+    ADVANCE = "advance"
+}
+export interface IConfiguratioPropertiesPool {
+    hostname?: string;
+    port?: number;
+    password?: string;
 }
 
-export enum Themes {
-    LIGHT = "light",
-    DARK = "dark"
+export enum RandomXMode {
+    AUTO = "auto",
+    FAST = "fast",
+    LIGHT = "light"
+};
+export interface IConfiguratioPropertiesCPU {
+    yield?: boolean;
+    priority?: number;
+    max_threads_hint?: number;
+    random_x_mode?: RandomXMode;
+}
+export interface IConfiguratioProperties {
+    wallet?: string;
+    pool?: IConfiguratioPropertiesPool;
+    cpu?: IConfiguratioPropertiesCPU;
+}
+export interface IConfiguration {
+    id?: string;
+    name: string;
+    mode: ConfigurationMode;
+}
+export interface ISimpleConfiguration extends IConfiguration {
+    properties?: IConfiguratioProperties;
+}
+export interface IAdvanceConfiguration extends IConfiguration {
+    config?: string;
 }
 
-export interface ISettingsWallet {
-    address: string;
-    timestamp: string;
-}
-
-
+export type Configuration = ISimpleConfiguration | IAdvanceConfiguration;
 export interface ISettings {
     ready: boolean;
-    wallet: ISettingsWallet | null;
-    wallet_history: ISettingsWallet[];
-    theme: Themes;
-    theme_mode: ThemeModes;
-    max_threads: number;
-    total_mining: number;
-    dev_fee: number;
     uuid: string;
+    configurations: Array<Configuration>;
+    selectedConfiguration?: string;
 }
-
 export interface ISettingsReducerAction {
     type: SettingsActionType;
-    value?: ISettingsWallet | ISettings | string | number;
+    value?: ISettings | string | number | Configuration | string[];
 }
 
 export interface ISettingsContext {
     state: ISettings;
     dispatch: Dispatch<ISettingsReducerAction>
 }
-
-export type ThemeType = Themes.LIGHT | Themes.DARK;

@@ -1,10 +1,9 @@
 import React from 'react';
 import { LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
 import { SessionDataContext } from '../../../../core/session-data/session-data.context';
-import { Layout, Text } from '@ui-kitten/components';
-import { XMRigView } from '../../components/miner/xmrig-view';
+import { XMRigView } from '../../containers/xmrig-view';
 import { StartMode } from '../../../../core/session-data/session-data.interface';
-import { Benchmarking } from '../../components/benchmarking.component';
+import { Headline } from 'react-native-paper';
 
 const MinerScreen = () => {
     
@@ -12,18 +11,14 @@ const MinerScreen = () => {
     const [sparklineWidth, setSparklineWidth] = React.useState<number>(0);
 
     return (
-        <Layout level="2">
+        <View>
             <ScrollView nestedScrollEnabled={true} style={working == StartMode.STOP ? [styles.layout, styles.hidden] : styles.layout}>
-                <View style={styles.section} onLayout={(event:LayoutChangeEvent) => setSparklineWidth(event.nativeEvent.layout.width)}>
-                    <Text category='h5' style={styles.sectionTitle}>Miner Statistics</Text>
-                    <Text category='label' style={styles.sectionSubTitle}>XMRig</Text>
+                <View onLayout={(event:LayoutChangeEvent) => setSparklineWidth(event.nativeEvent.layout.width)}>
+                    <Headline>Miner Statistics</Headline>
                 </View>
-                {workingState == "Benchmarking" && 
-                    <Benchmarking />
-                }
-                <XMRigView workingState={workingState} fullWidth={sparklineWidth} minerData={minerData} hashrateHistory={hashrateHistoryRef} />
+                <XMRigView disabled={working == StartMode.STOP} workingState={workingState} fullWidth={sparklineWidth} minerData={minerData} hashrateHistory={hashrateHistoryRef} />
             </ScrollView>
-        </Layout>
+        </View>
     )
 }
 
@@ -36,15 +31,6 @@ const styles = StyleSheet.create({
     hidden: {
         opacity: 1
     },
-    section: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, paddingTop: 0
-    },
-    sectionTitle: {
-        flexDirection:'column'
-    },
-    sectionSubTitle: {
-        backgroundColor: 'rgba(134, 65, 244, 0.1)', flexDirection:'column', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 5
-    }
 });
 
 export default MinerScreen;

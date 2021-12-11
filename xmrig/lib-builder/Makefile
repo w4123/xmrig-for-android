@@ -14,7 +14,8 @@ libuv: toolchain libuv_dl
 libuv_dl:
 	script/libuv-fetch.sh
 
-xmrig: toolchain xmrig_dl
+xmrig: 
+	toolchain xmrig_dl
 	script/xmrig-build.sh
 
 xmrig_dl:
@@ -26,7 +27,11 @@ hwloc: toolchain hwloc_dl
 hwloc_dl:
 	script/hwloc-fetch.sh
 
-install: all
+install: 
+	all
+	install_only
+
+install_only:
 	script/install.sh
 
 clean:

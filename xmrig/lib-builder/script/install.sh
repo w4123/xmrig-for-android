@@ -1,10 +1,9 @@
 #!/bin/bash
-#
-#  -D BOOST_ROOT=/opt/android/boost_1_58_0
 
 set -e
 
-packages=(boost openssl scala libsodium)
+source script/env.sh
+
 archs=(arm arm64 x86 x86_64)
 
 for arch in ${archs[@]}; do
@@ -26,19 +25,12 @@ for arch in ${archs[@]}; do
             ;;
     esac
 
-	for package in ${packages[@]}; do
-    INPUT_DIR=`pwd`/build/build/$package
-		OUTPUT_DIR=`pwd`/$package/lib/$xarch
-		mkdir -p $OUTPUT_DIR
-		rm -f $OUTPUT_DIR/*.a
-		cp -a $INPUT_DIR/$arch/lib/*.a $OUTPUT_DIR
+	ROOT_DIR=`pwd`/../../
+	XMRIG_DIR=`pwd`/build/src/xmrig/build/$xarch
 
-		if [ $package = "scala" ]; then
-			rm -rf $OUTPUT_DIR/../../include
-		  cp -a $INPUT_DIR/include $OUTPUT_DIR/../..
-		fi
+	rm -Rf $ROOT_DIR/android/app/src/main/jniLibs/$xarch/*
+	cp $XMRIG_DIR/xmrig-notls $ROOT_DIR/android/app/src/main/jniLibs/$xarch/libxmrig.so
 
-	done
 done
 exit 0
 

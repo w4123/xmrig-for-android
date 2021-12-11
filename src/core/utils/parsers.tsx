@@ -17,3 +17,5 @@ export const parseLogLine = (line:string):IMinerLog => {
         message: line
     }
 }
+
+export const filterLogLineRegex = /GET\s\/2\//;

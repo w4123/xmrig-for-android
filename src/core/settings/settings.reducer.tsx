@@ -1,6 +1,9 @@
 import { Reducer } from 'react';
 import { SettingsActionType } from './settings.actions';
-import { ISettings, ISettingsReducerAction, ISettingsWallet, ThemeModes, ThemeType } from './settings.interface';
+import { defaultConfiguration } from './settings.context';
+import { Configuration, ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction } from './settings.interface';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 export const SettingsReducer:Reducer<ISettings, ISettingsReducerAction> = (prevState: ISettings, action: ISettingsReducerAction) => {
     console.log("reducer", action);
@@ -9,37 +12,41 @@ export const SettingsReducer:Reducer<ISettings, ISettingsReducerAction> = (prevS
             return {
                 ...action.value as ISettings
             } as ISettings;
-        case SettingsActionType.SET_WALLET:
-            return {
-                wallet: action.value as ISettingsWallet,
-                wallet_history: [action.value, ...prevState.wallet_history] as ISettingsWallet[]
-            } as ISettings;
-        case SettingsActionType.SET_THEME:
-            return {
-                ...prevState,
-                theme: action.value as ThemeType
-            } as ISettings;
-        case SettingsActionType.SET_THEME_MODE:
+        case SettingsActionType.ADD_CONFIGURATION:
+            const newConfig: Configuration = (action.value as Configuration).mode === ConfigurationMode.SIMPLE ? 
+                {...defaultConfiguration, ...action.value as Configuration} : 
+                action.value as Configuration;
+            
             return {
                 ...prevState,
-                theme_mode: action.value as ThemeModes
+                configurations: [
+                    ...prevState.configurations,
+                    {
+                        ...newConfig,
+                        id: uuidv4()
+                    }
+                ]
             } as ISettings;
-        case SettingsActionType.SET_THREADS:
-            console.log("set thread to ", action.value)
+        case SettingsActionType.UPDATE_CONFIGURATION:
             return {
                 ...prevState,
-                max_threads: action.value as number
+                configurations: prevState.configurations.map(config => {
+                    if (config.id == (action.value as IConfiguration).id) {
+                        return action.value;
+                    }
+                    return config;
+                })
             } as ISettings;
-        case SettingsActionType.RESET_HISTORY:
+        case SettingsActionType.DELETE_CONFIGURATIONS:
             return {
                 ...prevState,
-                wallet_history: []
+                configurations: prevState.configurations.filter(config => !(action.value as string[]).includes(`${config.id}`))
             } as ISettings;
-        case SettingsActionType.SET_DEV_FEE:
+        case SettingsActionType.SET_SELECTED_CONFIGURAION:
             return {
                 ...prevState,
-                dev_fee: action.value as number
-            }
+                selectedConfiguration: action.value
+            } as ISettings
     }
     return prevState;
 };
