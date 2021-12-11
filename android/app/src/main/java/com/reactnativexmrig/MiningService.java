@@ -11,22 +11,12 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-
 import com.facebook.soloader.SoLoader;
-import com.reactnativexmrig.utils.XMRigConfigBuilder;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-enum MinnerState  {
-    BENCHMARKING,
-    MINNING,
-    STOPPED
-}
 
 public class MiningService extends Service {
 

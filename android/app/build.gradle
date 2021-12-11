@@ -1,10 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
-// sapply plugin: 'com.google.gms.google-services'
-
-// import com.android.build.OutputFile
-
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -212,28 +208,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:0.66.3"  // From node_modules
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.ext.kotlinVersion}"
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation project(':react-native-splash-screen')
     implementation 'org.greenrobot:eventbus:3.2.0'
-
-
-    /*debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }*/
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
@@ -242,7 +222,6 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-
 
     def room_version = "2.4.0-alpha03"
 

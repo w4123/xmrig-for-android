@@ -7,7 +7,7 @@ import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValid
 import { useNavigation } from '@react-navigation/native';
 import DropDown from "react-native-paper-dropdown";
 
-const { XMRigModule } = NativeModules;
+const { XMRigForAndroid } = NativeModules;
 
 
 type ConfigurationEditSimpleProps = ViewProps & {
@@ -33,7 +33,7 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
     const [deviceCores, setDeviceCores] = React.useState<number>(2);
 
     React.useEffect(() => {
-        XMRigModule.availableProcessors()
+        XMRigForAndroid.availableProcessors()
             .then((cores:number) => setDeviceCores(cores))
             .catch(() => setDeviceCores(2))
     }, []);

@@ -4,14 +4,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.reactnativexmrig.MiningService.StdoutEvent
-import com.reactnativexmrig.data.MinerDatabase
 import com.reactnativexmrig.data.serialization.Configuration
 import com.reactnativexmrig.utils.XMRigConfigBuilder
 import kotlinx.serialization.decodeFromString
@@ -29,11 +27,9 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             miningService = IMiningService.Stub.asInterface(service)
         }
-
         override fun onServiceDisconnected(className: ComponentName?) {
             miningService = null
         }
-
     };
 
     init {
@@ -71,7 +67,7 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
 
     @ReactMethod
     fun stop() {
-        Log.d(this.name, "Create event stop")
+        Log.d(this.name, "Stop has benn called from RN")
         try {
             miningService?.stopMiner()
         } catch (e: RemoteException) {

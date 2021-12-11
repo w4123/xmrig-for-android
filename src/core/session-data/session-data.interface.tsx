@@ -1,13 +1,11 @@
 export enum StartMode {
     START,
-    REBANCH,
     STOP
 }
 
 export enum WorkingState {
     NOT_WORKING = "Not Working",
-    MINING = "Mining",
-    BENCHMARKING = "Benchmarking"
+    MINING = "Mining"
 }
 
 export interface IXMRigLogEvent {

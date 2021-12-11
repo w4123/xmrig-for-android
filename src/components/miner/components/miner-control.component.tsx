@@ -25,16 +25,11 @@ export const MinerControl:React.FC<ViewProps> = () => {
     const [ showDropDown, setShowDropDown ] = React.useState(false);
     const { settings, settingsDispatcher } = React.useContext(SettingsContext);
     const [ selectedConfiguration, setSelectedConfiguration ] = React.useState<string | undefined>(settings.selectedConfiguration);
+    const selectedConfigurationName = React.useMemo<string | undefined>(() => {
+        return settings.configurations.find(config => config.id == settings.selectedConfiguration)?.name
+    }, [settings.selectedConfiguration])
 
-    React.useEffect(() => {
-        console.log("working effect", workingState)
-    }, [workingState]);
-
-    React.useEffect(() => {
-        console.log("selectedConfiguration effect", selectedConfiguration)
-    }, [selectedConfiguration]);
-
-    const isStartButtonDisabled = React.useMemo<boolean>(() => workingState != WorkingState.NOT_WORKING && (selectedConfiguration != null && selectedConfiguration != undefined), [workingState]);
+    const isStartButtonDisabled = React.useMemo<boolean>(() => workingState != WorkingState.NOT_WORKING && (selectedConfiguration != null || selectedConfiguration != undefined), [workingState]);
     const isStopButtonDisabled = React.useMemo<boolean>(() => workingState == WorkingState.NOT_WORKING, [workingState]);
     
     React.useEffect(() => settingsDispatcher({
@@ -46,20 +41,25 @@ export const MinerControl:React.FC<ViewProps> = () => {
         <View style={styles.container}>
             <View style={styles.subContainer}>
                 <View style={styles.dropdownContainer}>
-                    <DropDown
-                        label={"Configurations"}
-                        mode="flat"
-                        value={settings.selectedConfiguration}
-                        setValue={value => setSelectedConfiguration(value)}
-                        list={settings.configurations.map((item: Configuration) => ({
-                            label: `${item.name}`,
-                            value: `${item.id}`
-                        }))}
-                        visible={showDropDown}
-                        showDropDown={() => setShowDropDown(true)}
-                        onDismiss={() => setShowDropDown(false)}
-                    />
-                    {!selectedConfiguration && <Caption>Please select a Configuration to start mining.</Caption>}
+                    {workingState == WorkingState.NOT_WORKING && 
+                        <DropDown
+                            label={"Configurations"}
+                            mode="flat"
+                            value={settings.selectedConfiguration}
+                            setValue={value => setSelectedConfiguration(value)}
+                            list={settings.configurations.map((item: Configuration) => ({
+                                label: `${item.name}`,
+                                value: `${item.id}`
+                            }))}
+                            visible={showDropDown}
+                            showDropDown={() => setShowDropDown(true)}
+                            onDismiss={() => setShowDropDown(false)}
+                        />
+                    }
+                    {workingState == WorkingState.MINING &&
+                        <Caption>Using configuration: {selectedConfigurationName}</Caption>
+                    }
+                    {!settings.selectedConfiguration && <Caption>Please select a Configuration to start mining.</Caption>}
                 </View>
                 <View style={styles.buttonsContainer}>
                     <Button mode="contained" style={{flex: 1, marginRight: 10}} color={colors.primary} disabled={isStartButtonDisabled} onPress={handleStart}>Start</Button>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingTop: 20,
+        paddingTop: 15,
     },
     buttonIcon: {
         width: 38,
