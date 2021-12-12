@@ -133,6 +133,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "0.0.1"
+        multiDexEnabled true
     }
 
     kotlinOptions {
@@ -214,6 +215,7 @@ dependencies {
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation project(':react-native-splash-screen')
     implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'com.android.support:multidex:2.0.1'
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
