@@ -63,7 +63,7 @@ for arch in ${archs[@]}; do
         -DBUILD_SHARED_LIBS=OFF \
         -DWITH_OPENCL=OFF \
         -DWITH_CUDA=OFF \
-        -DBUILD_STATIC=ON \
+        -DBUILD_STATIC=OFF \
         -DWITH_TLS=OFF \
         -DHWLOC_LIBRARY="$EXTERNAL_LIBS_ROOT/hwloc/$ANDROID_ABI/lib/libhwloc.a" \
         -DHWLOC_INCLUDE_DIR="$EXTERNAL_LIBS_ROOT/hwloc/$ANDROID_ABI/include " \
