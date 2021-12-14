@@ -11,7 +11,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import com.facebook.soloader.SoLoader;
 import org.greenrobot.eventbus.EventBus;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -118,15 +117,12 @@ public class MiningService extends Service {
         if (process != null) {
             process.destroy();
         }
-        try {
-            Log.d(LOG_TAG, "libxmrig: " + SoLoader.getLibraryPath("libxmrig.so"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        Log.d(LOG_TAG, "libxmrig: " + getApplicationInfo().nativeLibraryDir + "/libxmrig.so");
 
         try {
             String[] args = {
-                    "./"+SoLoader.getLibraryPath("libxmrig.so"),
+                    "./"+getApplicationInfo().nativeLibraryDir + "/libxmrig.so",
                     "-c", configPath,
                     "--no-color",
                     "--http-host=127.0.0.1",
