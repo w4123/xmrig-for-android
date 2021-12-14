@@ -91,12 +91,12 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore.
@@ -184,6 +184,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             //signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources true
             debuggable false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -212,7 +213,6 @@ dependencies {
     implementation "com.facebook.react:react-native:0.66.3"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation project(':react-native-splash-screen')
     implementation 'org.greenrobot:eventbus:3.2.0'
     implementation 'com.android.support:multidex:2.0.1'
