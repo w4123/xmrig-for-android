@@ -7,7 +7,7 @@ source script/env.sh
 cd $EXTERNAL_LIBS_BUILD_ROOT/libuv
 mkdir build && cd build
 
-TOOLCHAIN=$ANDROID_HOME/ndk/21.1.6352462/build/cmake/android.toolchain.cmake
+TOOLCHAIN=$ANDROID_HOME/ndk/$NDK_VERSION/build/cmake/android.toolchain.cmake
 CMAKE=$ANDROID_HOME/cmake/3.18.1/bin/cmake
 ANDROID_PLATFORM=android-29
 

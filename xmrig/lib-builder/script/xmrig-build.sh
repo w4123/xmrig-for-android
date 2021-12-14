@@ -5,15 +5,14 @@ set -e
 source script/env.sh
 
 cd $EXTERNAL_LIBS_BUILD_ROOT/xmrig
+sed -e "s/pthread rt dl log/dl/g" CMakeLists.txt > TempCMakeLists.txt
+rm -f CMakeLists.txt
+mv TempCMakeLists.txt CMakeLists.txt
 mkdir build && cd build
 
-TOOLCHAIN=$ANDROID_HOME/ndk/21.1.6352462/build/cmake/android.toolchain.cmake
+TOOLCHAIN=$ANDROID_HOME/ndk/$NDK_VERSION/build/cmake/android.toolchain.cmake
 CMAKE=$ANDROID_HOME/cmake/3.18.1/bin/cmake
 ANDROID_PLATFORM=android-29
-
-#if [ ! -f "configure" ]; then
-#  ./autogen.sh
-#fi
 
 archs=(arm arm64 x86 x86_64)
 for arch in ${archs[@]}; do
@@ -60,15 +59,19 @@ for arch in ${archs[@]}; do
         -DANDROID_ABI="$ANDROID_ABI" \
         -DANDROID_PLATFORM=$ANDROID_PLATFORM \
         -DCMAKE_INSTALL_PREFIX=$TARGET_DIR \
+        -DANDROID_CROSS_COMPILE=ON \
         -DBUILD_SHARED_LIBS=OFF \
         -DWITH_OPENCL=OFF \
         -DWITH_CUDA=OFF \
         -DBUILD_STATIC=OFF \
-        -DWITH_TLS=OFF \
+        -DWITH_TLS=ON \
         -DHWLOC_LIBRARY="$EXTERNAL_LIBS_ROOT/hwloc/$ANDROID_ABI/lib/libhwloc.a" \
         -DHWLOC_INCLUDE_DIR="$EXTERNAL_LIBS_ROOT/hwloc/$ANDROID_ABI/include " \
         -DUV_LIBRARY="$EXTERNAL_LIBS_ROOT/libuv/$ANDROID_ABI/lib/libuv_a.a" \
         -DUV_INCLUDE_DIR="$EXTERNAL_LIBS_ROOT/libuv/$ANDROID_ABI/include " \
+        -DOPENSSL_SSL_LIBRARY="$EXTERNAL_LIBS_ROOT/openssl/$ANDROID_ABI/lib/libssl.a" \
+        -DOPENSSL_CRYPTO_LIBRARY="$EXTERNAL_LIBS_ROOT/openssl/$ANDROID_ABI/lib/libcrypto.a" \
+        -DOPENSSL_INCLUDE_DIR="$EXTERNAL_LIBS_ROOT/openssl/$ANDROID_ABI/include " \
         ../../ && make -j 4  && make install && make clean
 
 done

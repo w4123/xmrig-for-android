@@ -29,7 +29,7 @@ for arch in ${archs[@]}; do
 	XMRIG_DIR=`pwd`/build/src/xmrig/build/$xarch
 
 	rm -Rf $ROOT_DIR/android/app/src/main/jniLibs/$xarch/*
-	cp $XMRIG_DIR/xmrig-notls $ROOT_DIR/android/app/src/main/jniLibs/$xarch/libxmrig.so
+	cp $XMRIG_DIR/xmrig $ROOT_DIR/android/app/src/main/jniLibs/$xarch/libxmrig.so
 
 done
 exit 0
