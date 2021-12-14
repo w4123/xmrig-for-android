@@ -45,6 +45,6 @@ com.xmrigforandroid.data.serialization.Configuration
 {
     static **$* *;
 }
-#-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
-#    static <1>$$serializer INSTANCE;
-#}
+-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+    static <1>$$serializer INSTANCE;
+}
