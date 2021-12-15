@@ -1,6 +1,6 @@
 import "text-encoding-polyfill";
 import Joi from "joi"
-import { RandomXMode } from "../settings/settings.interface";
+import { ConfigurationMode, RandomXMode } from "../settings/settings.interface";
 
 export const hostnameValidator = Joi.string().min(3).max(30).required();
 export const passwordValidator = Joi.string().min(1).max(25).optional();
@@ -24,4 +24,12 @@ export const cpuValidator = Joi.object({
     priority: priorityValidator,
     max_threads_hint: maxThreadsHintValidator,
     random_x_mode: randomXModedValidator
+});
+
+export const configurationNameValidator = Joi.string().min(1).max(30).required();
+export const configurationModeValidator = Joi.string().valid(ConfigurationMode.SIMPLE, ConfigurationMode.ADVANCE).required()
+
+export const configurationValidator = Joi.object({
+    name: configurationNameValidator,
+    mode: configurationModeValidator
 });
