@@ -18,6 +18,10 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.Exception
+import com.facebook.react.bridge.ReactMethod
+
+
+
 
 class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
 
@@ -98,6 +102,16 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
         EventBus.getDefault().unregister(this)
+    }
+
+    @ReactMethod
+    fun addListener(eventName: String?) {
+        // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int?) {
+        // Keep: Required for RN built in Event Emitter Calls.
     }
 
 
