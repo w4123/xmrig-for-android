@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Avatar, Button, Caption, Colors, Dialog, Divider, Portal, RadioButton, Subheading, TextInput } from 'react-native-paper';
 import Shimmer from 'react-native-shimmer';
 import { ConfigurationMode } from '../../../core/settings/settings.interface';
+import { configurationNameValidator, configurationValidator } from '../../../core/utils/validators';
 
 export type AddConfigurationsModalProps = {
     onAdd: (name: string, mode: ConfigurationMode) => void;
@@ -29,6 +30,13 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
 
     React.useEffect(() => { if (!visible) { onClose() }}, [visible]);
 
+    const isValid = React.useMemo(() => {
+        return configurationValidator.validate({
+            name: name,
+            mode: configMode
+        }).error == null;
+    }, [name, configMode]);
+
     const hide = (isOk: boolean = false) => {
         if (isOk === true) {
             onAdd(name, configMode);
@@ -48,7 +56,8 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
                         value={name}
                         onChangeText={text => setName(text)}
                         children={undefined}
-                        autoComplete={undefined}                    
+                        autoComplete={undefined}
+                        error={configurationNameValidator.validate(name).error != null}                  
                     />
                     <Divider style={styles.divider} />
                     <Subheading>Editor Mode</Subheading>
@@ -64,7 +73,7 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
                     )}
                 </Dialog.Content>
                 <Dialog.Actions>
-                    <Button mode="contained" onPress={() => hide(true)} icon="check" style={{marginRight: 10}}>Add</Button>
+                    <Button disabled={!isValid} mode="contained" onPress={() => hide(true)} icon="check" style={{marginRight: 10}}>Add</Button>
                     <Button onPress={hide} icon="close">Cancel</Button>
                 </Dialog.Actions>
             </Dialog>
