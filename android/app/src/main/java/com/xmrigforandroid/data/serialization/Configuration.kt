@@ -1,6 +1,7 @@
 package com.xmrigforandroid.data.serialization
 
 import androidx.annotation.Keep
+import com.facebook.infer.annotation.FalseOnNull
 import kotlinx.serialization.*
 
 @Keep
@@ -23,7 +24,8 @@ enum class RandomXMode {
 data class SimpleConfigurationPropertiesPool (
         val hostname: String,
         val port: Int,
-        val password: String?
+        val password: String?,
+        val sslEnabled: Boolean = false
 )
 
 @Keep

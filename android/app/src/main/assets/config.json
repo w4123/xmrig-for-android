@@ -79,7 +79,7 @@
       "nicehash": false,
       "keepalive": true,
       "enabled": true,
-      "tls": false,
+      "tls": {ssl_enabled},
       "tls-fingerprint": null,
       "daemon": false,
       "socks5": null,

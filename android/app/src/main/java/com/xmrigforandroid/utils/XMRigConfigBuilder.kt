@@ -69,6 +69,7 @@ class XMRigConfigBuilder(val context: Context) {
         } else {
             config = config.replace("{pool_password}", "")
         }
+        config = config.replace("{ssl_enabled}", if (data.sslEnabled) "true" else "false")
     }
 
     fun setWallet(wallet: String) {

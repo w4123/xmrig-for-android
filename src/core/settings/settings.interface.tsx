@@ -9,6 +9,7 @@ export interface IConfiguratioPropertiesPool {
     hostname?: string;
     port?: number;
     password?: string;
+    sslEnabled?: boolean;
 }
 
 export enum RandomXMode {
