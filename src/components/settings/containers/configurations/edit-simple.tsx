@@ -159,6 +159,24 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             error={passwordValidator.validate(localState.properties?.pool?.password).error != null}
                             autoComplete={undefined}                    
                         />
+                        <View style={[styles.row, {margin: 0, marginTop: 20}]}>
+                            <Paragraph>SSL</Paragraph>
+                            <Switch
+                                value={localState.properties?.pool?.sslEnabled}
+                                onValueChange={value => setLocalState(oldState => {
+                                    return {
+                                        ...oldState,
+                                        properties: {
+                                            ...oldState.properties,
+                                            pool: {
+                                                ...oldState.properties?.pool,
+                                                sslEnabled: value
+                                            }
+                                        }
+                                    }
+                                })}
+                            />
+                        </View>
                     </Card.Content>
                 </Card>
 
