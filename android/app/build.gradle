@@ -79,6 +79,7 @@ apply plugin: 'kotlinx-serialization'
 
 project.ext.react = [
     enableHermes: true,  // clean and rebuild if changing
+    nodeExecutableAndArgs: ["node", "--openssl-legacy-provider"]
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
