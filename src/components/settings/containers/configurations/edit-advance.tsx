@@ -48,7 +48,7 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
                 </Button>
             </View>
             
-            <ScrollView contentContainerStyle={{flex: 1}}>
+            <ScrollView contentContainerStyle={{height: '97%'}}>
                 <Card style={[styles.card, {marginTop: 0}]} onLayout={event => setCardHeight(event.nativeEvent.layout.height)}>
                     <Card.Title
                         title="Config JSON"
