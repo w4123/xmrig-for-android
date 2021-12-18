@@ -78,7 +78,7 @@ export const XMRigView = (props: PoolViewProps):React.ReactElement<PoolViewProps
                 <MinerCard title="Accepted" style={{ flex: 2, marginRight: 10 }} disabled={props.disabled}>
                     <Paragraph adjustsFontSizeToFit numberOfLines={1}>{props.minerData?.results.shares_good}</Paragraph>
                 </MinerCard>
-                <MinerCard title="Difficult" style={{ flex: 2 }} disabled={props.disabled}>
+                <MinerCard title="Difficulty" style={{ flex: 2 }} disabled={props.disabled}>
                     <Paragraph adjustsFontSizeToFit numberOfLines={1}>{props.minerData?.results.diff_current}</Paragraph>
                 </MinerCard>
             </View>
