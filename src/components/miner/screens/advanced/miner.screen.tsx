@@ -4,6 +4,7 @@ import { SessionDataContext } from '../../../../core/session-data/session-data.c
 import { XMRigView } from '../../containers/xmrig-view';
 import { StartMode } from '../../../../core/session-data/session-data.interface';
 import { Headline } from 'react-native-paper';
+import { MinerControl } from '../../components/miner-control.component';
 
 const MinerScreen = () => {
     
@@ -13,6 +14,7 @@ const MinerScreen = () => {
     return (
         <View>
             <ScrollView nestedScrollEnabled={true} style={working == StartMode.STOP ? [styles.layout, styles.hidden] : styles.layout}>
+                <MinerControl />
                 <View onLayout={(event:LayoutChangeEvent) => setSparklineWidth(event.nativeEvent.layout.width)}>
                     <Headline>Miner Statistics</Headline>
                 </View>
