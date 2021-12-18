@@ -3,7 +3,7 @@ import { IMinerSummary, useMinerHttpd } from "../hooks";
 import { useHashrateHistory } from "../hooks";
 import { IMinerLog, StartMode, IXMRigLogEvent, WorkingState } from "./session-data.interface";
 import { SettingsContext } from "../settings";
-import { NativeModules, NativeEventEmitter } from "react-native";
+import { NativeModules, NativeEventEmitter, EmitterSubscription } from "react-native";
 import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
 
 const { XMRigForAndroid } = NativeModules;
@@ -57,7 +57,7 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
   React.useEffect(() => {
     switch(working) {
         case StartMode.START:
-            setWorkingState(WorkingState.BENCHMARKING);
+            setWorkingState(WorkingState.MINING);
             if (settings.selectedConfiguration) {
               const cConfig:Configuration | undefined = settings.configurations.find(
                 config => config.id == settings.selectedConfiguration
@@ -91,14 +91,14 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
   React.useEffect(() => {
     const MinerEmitter = new NativeEventEmitter(XMRigForAndroid);
 
-    MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
+    const onLogSub:EmitterSubscription = MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
         console.log(data);
         const cleanData = [...data.log.filter(item => !filterLogLineRegex.test(item))]
         setMinerLog(old => [...cleanData.reverse().map(value => parseLogLine(value)), ...old])
     });
 
     return () => {
-        MinerEmitter.removeAllListeners('onLog');
+        onLogSub.remove();
         XMRigForAndroid.stop();
     }
 }, [])
