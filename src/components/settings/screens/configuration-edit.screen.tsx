@@ -1,7 +1,7 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import React from "react";
 import { View } from "react-native";
-import { Button, Headline } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { SettingsActionType, SettingsContext } from "../../../core/settings";
 import { Configuration, ConfigurationMode, IAdvanceConfiguration, ISimpleConfiguration } from "../../../core/settings/settings.interface";
 import { ConfigurationEditAdvance } from "../containers/configurations/edit-advance";
@@ -9,8 +9,8 @@ import { ConfigurationEditSimple } from "../containers/configurations/edit-simpl
 
 
 const ConfigurationEditScreen = () => {
-    const navigation = useNavigation();
     const route = useRoute();
+    const theme = useTheme();
 
     const {settings, settingsDispatcher} = React.useContext(SettingsContext);
     const [configuration, setConfiguration] = React.useState<Configuration>();
@@ -19,7 +19,7 @@ const ConfigurationEditScreen = () => {
     }, [route.params])
 
     return (
-        <>
+        <View style={{backgroundColor: theme.colors.background}}>
             {configuration?.mode === ConfigurationMode.SIMPLE && 
                 <ConfigurationEditSimple 
                     configuration={configuration} 
@@ -44,7 +44,7 @@ const ConfigurationEditScreen = () => {
                     }}
                 />
             }
-        </>
+        </View>
     );
   }
 
