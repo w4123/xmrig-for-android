@@ -63,6 +63,7 @@ class XMRigConfigBuilder(val context: Context) {
 
     fun setPool(data: SimpleConfigurationPropertiesPool) {
         config = config.replace("{pool_hostname}", data.hostname)
+        config = config.replace("{pool_username}", data.username)
         config = config.replace("{pool_port}", data.port.toString())
         if (data.password != null) {
             config = config.replace("{pool_password}", data.password)
@@ -83,9 +84,6 @@ class XMRigConfigBuilder(val context: Context) {
             }
             if (data.properties?.pool != null) {
                 setPool(data.properties.pool)
-            }
-            if (data.properties?.wallet != null) {
-                setWallet(data.properties.wallet)
             }
         }
         if (data.mode == ConfigurationMode.ADVANCE) {

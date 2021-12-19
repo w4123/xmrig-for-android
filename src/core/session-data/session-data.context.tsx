@@ -5,11 +5,12 @@ import { IMinerLog, StartMode, IXMRigLogEvent, WorkingState } from "./session-da
 import { SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from "react-native";
 import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
+import _ from 'lodash';
 
 const { XMRigForAndroid } = NativeModules;
 
 import base64 from 'react-native-base64'
-import { Configuration, ConfigurationMode, IAdvanceConfiguration } from "../settings/settings.interface";
+import { Configuration, ConfigurationMode, IAdvanceConfiguration, ISimpleConfiguration } from "../settings/settings.interface";
 
 
 type SessionDataContextType = {
@@ -68,6 +69,19 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                 }
                 if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
                   (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
+                }
+                // Temp workaround to use deprecated wallet field as username 
+                if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
+                  if (!(configCopy as ISimpleConfiguration).properties?.pool?.username && (configCopy as ISimpleConfiguration).properties?.wallet) {
+                    (configCopy as ISimpleConfiguration).properties = _.merge(
+                      (configCopy as ISimpleConfiguration).properties,
+                      {
+                        pool: {
+                          username: (configCopy as ISimpleConfiguration).properties?.wallet
+                        }
+                      }
+                    );
+                  }
                 }
                 console.log(cConfig);
                 XMRigForAndroid.start(

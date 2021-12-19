@@ -8,6 +8,7 @@ export enum ConfigurationMode {
 export interface IConfiguratioPropertiesPool {
     hostname?: string;
     port?: number;
+    username?: string;
     password?: string;
     sslEnabled?: boolean;
 }
