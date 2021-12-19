@@ -23,6 +23,7 @@ enum class RandomXMode {
 @Serializable
 data class SimpleConfigurationPropertiesPool (
         val hostname: String,
+        val username: String = "",
         val port: Int,
         val password: String?,
         val sslEnabled: Boolean = false

@@ -3,9 +3,10 @@ import {View, StyleSheet, ViewProps, ScrollView, NativeModules} from 'react-nati
 import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption } from 'react-native-paper';
 import { ISimpleConfiguration, RandomXMode } from '../../../../core/settings/settings.interface';
 import { validateWalletAddress } from '../../../../core/utils';
-import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator } from '../../../../core/utils/validators';
+import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator, usernameValidator } from '../../../../core/utils/validators';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from "react-native-paper-dropdown";
+import merge from 'lodash/fp/merge';
 
 const { XMRigForAndroid } = NativeModules;
 
@@ -67,33 +68,8 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                 </Button>
             </View>
             
-            <ScrollView>
+            <ScrollView contentContainerStyle={{paddingBottom: 60}}>
                 <Card style={[styles.card, {marginTop: 0}]}>
-                    <Card.Title
-                        title="Wallet"
-                        right={isWalletValid ? ListIconSuccess : ListIconError}
-                    />
-                    <Card.Content>
-                        <TextInput
-                            label="Wallet XMR Address"
-                            dense
-                            value={localState.properties?.wallet}
-                            onChangeText={text => setLocalState(oldState => {
-                                return {
-                                    ...oldState,
-                                    properties: {
-                                        ...oldState.properties,
-                                        wallet: text
-                                    }
-                                }
-                            })}
-                            autoComplete={undefined}
-                            error={!isWalletValid}                     
-                        />
-                    </Card.Content>
-                </Card>
-
-                <Card style={styles.card}>
                     <Card.Title
                         title="Pool"
                         right={isPoolValid ? ListIconSuccess : ListIconError}
@@ -104,18 +80,16 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             label="Hostname / IP"
                             dense
                             value={localState.properties?.pool?.hostname}
-                            onChangeText={text => setLocalState(oldState => {
-                                return {
-                                    ...oldState,
+                            onChangeText={text => setLocalState(oldState => merge(
+                                oldState,
+                                {
                                     properties: {
-                                        ...oldState.properties,
                                         pool: {
-                                            ...oldState.properties?.pool,
                                             hostname: text
                                         }
                                     }
                                 }
-                            })}
+                            ))}
                             autoComplete={undefined}
                             error={hostnameValidator.validate(localState.properties?.pool?.hostname).error != null}               
                         />
@@ -124,38 +98,52 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             label="Port"
                             dense
                             value={`${localState.properties?.pool?.port || ''}`}
-                            onChangeText={text => setLocalState(oldState => {
-                                return {
-                                    ...oldState,
+                            onChangeText={text => setLocalState(oldState => merge(
+                                oldState,
+                                {
                                     properties: {
-                                        ...oldState.properties,
                                         pool: {
-                                            ...oldState.properties?.pool,
-                                            port: Number(text)
+                                            port: text
                                         }
                                     }
                                 }
-                            })}
+                            ))}
                             error={portValidator.validate(localState.properties?.pool?.port).error != null}
                             autoComplete={undefined}
                             keyboardType="numeric"           
                         />
                         <TextInput
-                            label="Password"
+                            style={styles.input}
+                            label="Username"
                             dense
-                            value={`${localState.properties?.pool?.password || ''}`}
-                            onChangeText={text => setLocalState(oldState => {
-                                return {
-                                    ...oldState,
+                            value={localState.properties?.pool?.username || localState.properties?.wallet}
+                            onChangeText={text => setLocalState(oldState => merge(
+                                oldState,
+                                {
                                     properties: {
-                                        ...oldState.properties,
                                         pool: {
-                                            ...oldState.properties?.pool,
-                                            password: text || undefined
+                                            username: text
                                         }
                                     }
                                 }
-                            })}
+                            ))}
+                            autoComplete={undefined}
+                            error={usernameValidator.validate(localState.properties?.pool?.username).error != null}               
+                        />
+                        <TextInput
+                            label="Password"
+                            dense
+                            value={`${localState.properties?.pool?.password || ''}`}
+                            onChangeText={text => setLocalState(oldState => merge(
+                                oldState,
+                                {
+                                    properties: {
+                                        pool: {
+                                            password: text || ''
+                                        }
+                                    }
+                                }
+                            ))}
                             error={passwordValidator.validate(localState.properties?.pool?.password).error != null}
                             autoComplete={undefined}                    
                         />
@@ -163,18 +151,16 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             <Paragraph>SSL</Paragraph>
                             <Switch
                                 value={localState.properties?.pool?.sslEnabled}
-                                onValueChange={value => setLocalState(oldState => {
-                                    return {
-                                        ...oldState,
+                                onValueChange={value => setLocalState(oldState => merge(
+                                    oldState,
+                                    {
                                         properties: {
-                                            ...oldState.properties,
                                             pool: {
-                                                ...oldState.properties?.pool,
                                                 sslEnabled: value
                                             }
                                         }
                                     }
-                                })}
+                                ))}
                             />
                         </View>
                     </Card.Content>
@@ -191,18 +177,16 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                 <Paragraph>Yield</Paragraph>
                                 <Switch
                                     value={localState.properties?.cpu?.yield}
-                                    onValueChange={value => setLocalState(oldState => {
-                                        return {
-                                            ...oldState,
+                                    onValueChange={value => setLocalState(oldState => merge(
+                                        oldState,
+                                        {
                                             properties: {
-                                                ...oldState.properties,
                                                 cpu: {
-                                                    ...oldState.properties?.cpu,
                                                     yield: value
                                                 }
                                             }
                                         }
-                                    })}
+                                    ))}
                                 />
                             </View>
                             <Caption>Prefer system better system response/stability `ON` (default value) or maximum hashrate `OFF`.</Caption>
@@ -214,18 +198,16 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                 mode="flat"
                                 
                                 value={localState.properties?.cpu?.random_x_mode}
-                                setValue={text => setLocalState(oldState => {
-                                    return {
-                                        ...oldState,
+                                setValue={text => setLocalState(oldState => merge(
+                                    oldState,
+                                    {
                                         properties: {
-                                            ...oldState.properties,
                                             cpu: {
-                                                ...oldState.properties?.cpu,
                                                 random_x_mode: text
                                             }
                                         }
                                     }
-                                })}
+                                ))}
                                 list={[
                                     { label: "Auto", value: RandomXMode.AUTO },
                                     { label: "Fast", value: RandomXMode.FAST },
@@ -241,21 +223,19 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                         <View style={styles.input}>
                             <TextInput
                                 label="Priority"
-                                placeholder="1 - 12"
+                                placeholder="1 - 5"
                                 dense
                                 value={localState.properties?.cpu?.priority ? String(localState.properties?.cpu?.priority) : ''}
-                                onChangeText={text => setLocalState(oldState => {
-                                    return {
-                                        ...oldState,
+                                onChangeText={text => setLocalState(oldState => merge(
+                                    oldState,
+                                    {
                                         properties: {
-                                            ...oldState.properties,
                                             cpu: {
-                                                ...oldState.properties?.cpu,
-                                                priority: Number(text) || undefined
+                                                priority: Number(text) || null
                                             }
                                         }
                                     }
-                                })}
+                                ))}
                                 autoComplete={undefined}
                                 error={priorityValidator.validate(localState.properties?.cpu?.priority).error != null}     
                                 keyboardType="numeric"          
@@ -269,18 +249,16 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                 dense
                                 value={localState.properties?.cpu?.max_threads_hint ? `${localState.properties?.cpu?.max_threads_hint}` : ''}
                                 right={<TextInput.Affix text={`% of ${deviceCores} cores`} />}
-                                onChangeText={text => setLocalState(oldState => {
-                                    return {
-                                        ...oldState,
+                                onChangeText={text => setLocalState(oldState => merge(
+                                    oldState,
+                                    {
                                         properties: {
-                                            ...oldState.properties,
                                             cpu: {
-                                                ...oldState.properties?.cpu,
-                                                max_threads_hint: Number(text)
+                                                max_threads_hint: Number(text) || undefined
                                             }
                                         }
                                     }
-                                })}
+                                ))}
                                 error={maxThreadsHintValidator.validate(localState.properties?.cpu?.max_threads_hint).error != null}
                                 autoComplete={undefined}
                                 keyboardType="numeric"              

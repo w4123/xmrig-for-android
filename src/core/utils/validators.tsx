@@ -3,11 +3,13 @@ import Joi from "joi"
 import { ConfigurationMode, RandomXMode } from "../settings/settings.interface";
 
 export const hostnameValidator = Joi.string().min(3).max(30).required();
+export const usernameValidator = Joi.string().min(3).max(30).required();
 export const passwordValidator = Joi.string().min(1).max(25).optional();
 export const portValidator = Joi.number().integer().min(10).max(65550).required();
 
 export const poolValidator = Joi.object({
     hostname: hostnameValidator,
+    username: usernameValidator,
     password: passwordValidator,
     port: portValidator
 });
