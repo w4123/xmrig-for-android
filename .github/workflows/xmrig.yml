@@ -3,7 +3,7 @@ name: Makefile CI
 on:
   push:
     branches: [ issue-31-CI_continuous_integration ]
-  pull_request:
+  commit:
     branches: [ issue-31-CI_continuous_integration ]
 
 jobs:
