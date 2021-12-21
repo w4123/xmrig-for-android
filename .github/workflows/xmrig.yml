@@ -1,0 +1,26 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ issue-31-CI_continuous_integration ]
+  pull_request:
+    branches: [ issue-31-CI_continuous_integration ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '2.x'
+        architecture: 'x64'
+    - uses: nttld/setup-ndk@v1.0.6
+      with:
+        ndk-version: r21e
+    - uses: actions/checkout@v2
+    
+    - name: build
+      run: cd xmrig/lib-builder && make all
+      
