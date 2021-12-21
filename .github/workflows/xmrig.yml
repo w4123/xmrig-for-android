@@ -46,7 +46,7 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release create -dp -a android/app/release/app-release.aab ${{ steps.package_version.outputs.version }}
+           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab ${{ steps.package_version.outputs.version }}
       
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
