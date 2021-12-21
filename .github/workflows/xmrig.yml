@@ -1,8 +1,6 @@
 name: Makefile CI
 
-on:
-  push:
-    branches: [ issue-31-CI_continuous_integration ]
+on: push
 
 jobs:
   build:
