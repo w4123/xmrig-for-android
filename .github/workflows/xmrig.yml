@@ -18,5 +18,5 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: build
-      run: cd xmrig/lib-builder && make all
+      run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
       
