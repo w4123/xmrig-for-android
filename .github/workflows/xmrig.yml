@@ -36,14 +36,16 @@ jobs:
     - run: yarn
     - run: cd android && ./gradlew bundleRelease && cd ..
     
-    - name: Create a Release
-      uses: elgohr/Github-Hub-Action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        args: release create -dp -a android/app/release/app-release.aab ${{ steps.package_version.outputs.version }}
-      
+    - name: Install hub
+      uses: geertvdc/setup-hub@master
     
+    - name: run hub commands
+      env:
+        GITHUB_USER: ${{ secrets.USER }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+           hub release create -dp -a android/app/release/app-release.aab ${{ steps.package_version.outputs.version }}
+      
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
       
