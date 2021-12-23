@@ -39,7 +39,7 @@ jobs:
     - name: install bundletool
       uses: enniel/bundletool-runner@v1.1.0
     
-    - run: bundletool build-apks --mode=universal --bundle=./android/app/build/outputs/bundle/release/app-release.aab --output=./android/app/build/outputs/bundle/release/app-release.apks
+    - run: java -jar /home/runner/bundletool/bundletool.jar build-apks --mode=universal --bundle=./android/app/build/outputs/bundle/release/app-release.aab --output=./android/app/build/outputs/bundle/release/app-release.apks
     - run: mv ./android/app/build/outputs/bundle/release/app-release.apks ./android/app/build/outputs/bundle/release/app-release-apk.zip
     
     - name: Install hub
