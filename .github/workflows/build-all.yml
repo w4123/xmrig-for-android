@@ -78,6 +78,6 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release edit -dp -a ${{ steps.sign_app.signedReleaseFile0 }} -a ${{ steps.sign_app.signedReleaseFile1 }} -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
+           hub release edit -dp -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.apk -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.aab -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
       
       
