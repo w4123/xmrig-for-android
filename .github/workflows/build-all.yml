@@ -38,8 +38,8 @@ jobs:
         node-version: '17.1.0'
         cache: 'yarn'
         
-    - name: Build XMRig, libUV, OpenSSL & hwloc
-      run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all && cd .. && cd .. 
+    #- name: Build XMRig, libUV, OpenSSL & hwloc
+    #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all && cd .. && cd .. 
         
     - run: yarn
     - run: cd android && ./gradlew bundleRelease && cd ..
