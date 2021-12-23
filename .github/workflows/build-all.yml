@@ -38,6 +38,9 @@ jobs:
         node-version: '17.1.0'
         cache: 'yarn'
         
+    - name: Build XMRig, libUV, OpenSSL & hwloc
+      run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all && cd .. && cd .. 
+        
     - run: yarn
     - run: cd android && ./gradlew bundleRelease && cd ..
     
@@ -51,20 +54,12 @@ jobs:
       uses: geertvdc/setup-hub@master
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        
-    - name: Create changelog text
-      id: changelog
-      uses: loopwerk/tag-changelog@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: run hub commands
       env:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release edit -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${GITHUB_REF##*/}
+           hub release edit -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
       
-    #- name: build
-    #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
       
