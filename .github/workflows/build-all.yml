@@ -36,17 +36,29 @@ jobs:
     - run: yarn
     - run: cd android && ./gradlew bundleRelease && cd ..
     
+    - name: install bundletool
+      uses: enniel/bundletool-runner@v1
+    
+    - run: bundletool build-apks --mode=universal --bundle=./android/app/build/outputs/bundle/release/app-release.aab --output=./android/app/build/outputs/bundle/release/app-release.apks
+    - run: mv ./android/app/build/outputs/bundle/release/app-release.apks ./android/app/build/outputs/bundle/release/app-release-apk.zip
+    
     - name: Install hub
       uses: geertvdc/setup-hub@master
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        
+    - name: Create changelog text
+      id: changelog
+      uses: loopwerk/tag-changelog@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: run hub commands
       env:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -m "Version: ${{ steps.package_version.outputs.version }}, Build: ${{ github.run_number }}" ${{ steps.package_version.outputs.version }}-${{ github.run_number }}
+           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${{ steps.package_version.outputs.version }}-${{ github.run_number }}
       
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
