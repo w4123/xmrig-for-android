@@ -46,7 +46,15 @@ jobs:
     
     - name: install bundletool
       uses: enniel/bundletool-runner@v1.1.0
-      
+    
+    - run: java -jar /home/runner/bundletool/bundletool.jar build-apks --mode=universal --bundle=${{steps.sign_app.outputs.signedReleaseFile}} --output=./android/app/build/outputs/bundle/release/app-release.apks
+    - run: mv ./android/app/build/outputs/bundle/release/app-release.apks ./android/app/build/outputs/bundle/release/app-release-apk.zip
+    - run: unzip ./android/app/build/outputs/bundle/release/app-release-apk.zip
+    - run: mv universal.apk ./android/app/build/outputs/bundle/release/app-release.apk
+    - run: rm ./android/app/build/outputs/bundle/release/app-release-apk.zip
+    - run: mv ./android/app/build/outputs/bundle/release/app-release.apk ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.apk
+    - run: mv ./android/app/build/outputs/bundle/release/app-release.aab ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.aab
+    
     - name: Sign app APK
       uses: r0adkll/sign-android-release@v1
       # ID used to access action output
@@ -59,10 +67,7 @@ jobs:
         keyPassword: ${{ secrets.KEY_PASSWORD }}
       env:
         BUILD_TOOLS_VERSION: "30.0.2"
-    
-    - run: java -jar /home/runner/bundletool/bundletool.jar build-apks --mode=universal --bundle=${{steps.sign_app.outputs.signedReleaseFile}} --output=./android/app/build/outputs/bundle/release/app-release.apks
-    - run: mv ./android/app/build/outputs/bundle/release/app-release.apks ./android/app/build/outputs/bundle/release/app-release-apk.zip
-    
+        
     - name: Install hub
       uses: geertvdc/setup-hub@master
       env:
@@ -73,6 +78,6 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release edit -dp -a ${{steps.sign_app.outputs.signedReleaseFile}} -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
+           hub release edit -dp -a ${{ steps.sign_app.signedReleaseFile0 }} -a ${{ steps.sign_app.signedReleaseFile1 }} -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
       
       
