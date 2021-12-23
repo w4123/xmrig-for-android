@@ -1,4 +1,4 @@
-name: Makefile CI
+name: BuildAll
 
 on: workflow_dispatch
 
@@ -46,7 +46,7 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -m ${{ steps.package_version.outputs.version }} ${{ steps.package_version.outputs.version }}
+           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -m "Version: ${{ steps.package_version.outputs.version }}, Build: ${{ github.run_number }}" ${{ steps.package_version.outputs.version }}-${{ github.run_number }}
       
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
