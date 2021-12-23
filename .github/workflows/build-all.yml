@@ -1,7 +1,12 @@
 name: BuildAll
 
-on: workflow_dispatch
+#on: workflow_dispatch
 
+on:
+  push:
+    tags:
+      - '*'
+      
 jobs:
   build:
 
@@ -58,7 +63,7 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${{ steps.package_version.outputs.version }}-${{ github.run_number }}
+           hub release create -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${{ github.ref }}
       
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
