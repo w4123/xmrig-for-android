@@ -63,7 +63,7 @@ jobs:
         GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-           hub release edit -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${{ github.ref }}
+           hub release edit -dp -a android/app/build/outputs/bundle/release/app-release.aab -a android/app/build/outputs/bundle/release/app-release-apk.zip -m "${{ steps.changelog.outputs.changelog }}" ${GITHUB_REF##*/}
       
     #- name: build
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all
