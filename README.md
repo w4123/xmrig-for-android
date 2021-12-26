@@ -7,3 +7,6 @@ Support multiple configuration profiles. Each configuration can be added with si
 
 ![](https://i.imgur.com/hIuB6Wo.png)
 ![](https://i.imgur.com/NqZAZPl.png)
+
+#### Credits
+* Splash Screen Artwork by [AOICARD](https://www.reddit.com/user/AOICARD/)
