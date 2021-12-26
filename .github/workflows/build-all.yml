@@ -3,9 +3,13 @@ name: BuildAll
 #on: workflow_dispatch
 
 on:
-  push:
-    tags:
-      - '*'
+  pull_request:
+    types: [closed]
+
+#on:
+#  push:
+#    tags:
+#      - '*'
       
 jobs:
   build:
@@ -38,6 +42,15 @@ jobs:
         node-version: '17.1.0'
         cache: 'yarn'
         
+    - name: Bump version
+      id: bump_version
+      uses: oflynned/Android-Semantic-Release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - run: yarn
+    - run: node update_version.js
+    
     #- name: Build XMRig, libUV, OpenSSL & hwloc
     #  run: cd xmrig/lib-builder && mkdir build && mkdir build/src && mkdir build/build && make all && cd .. && cd .. 
         
@@ -68,16 +81,27 @@ jobs:
       env:
         BUILD_TOOLS_VERSION: "30.0.2"
         
-    - name: Install hub
-      uses: geertvdc/setup-hub@master
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
       env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-    
-    - name: run hub commands
-      env:
-        GITHUB_USER: ${{ secrets.USER }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-           hub release edit -dp -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}-signed.apk -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.apk -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.aab -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
+      with:
+        tag_name: ${{ steps.bump_version.outputs.new_tag }}
+        release_name: ${{ steps.bump_version.outputs.new_tag }}
+        draft: false
+        prerelease: true
+        
+    #- name: Install hub
+    #  uses: geertvdc/setup-hub@master
+    #  env:
+    #    ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    
+    #- name: run hub commands
+    #  env:
+    #    GITHUB_USER: ${{ secrets.USER }}
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  run: |
+    #       hub release edit -dp -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}-signed.apk -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.apk -a ./android/app/build/outputs/bundle/release/xmrig-for-android_v${GITHUB_REF##*/}.aab -m "${GITHUB_REF##*/}" ${GITHUB_REF##*/}
       
       
