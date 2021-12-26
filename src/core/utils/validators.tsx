@@ -31,6 +31,28 @@ export const cpuValidator = Joi.object({
 export const configurationNameValidator = Joi.string().min(1).max(30).required();
 export const configurationModeValidator = Joi.string().valid(ConfigurationMode.SIMPLE, ConfigurationMode.ADVANCE).required()
 
+
+export const getConfigurationNameValidator = (names: string[]) => {
+    return Joi
+        .string()
+        .min(1)
+        .max(30)
+        .custom((value, helper:Joi.CustomHelpers) => {
+            if (names.includes(value))  {
+                return helper.message({"*": 'Configuration name already exists'})
+            }
+            return value
+        })
+        .required();
+}
+
+export const getConfigurationValidator = (names: string[]) => {
+    return Joi.object({
+        name: getConfigurationNameValidator(names),
+        mode: configurationModeValidator
+    })
+}
+
 export const configurationValidator = Joi.object({
     name: configurationNameValidator,
     mode: configurationModeValidator

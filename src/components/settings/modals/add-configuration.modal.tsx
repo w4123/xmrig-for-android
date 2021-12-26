@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Button, Caption, Colors, Dialog, Divider, Portal, RadioButton, Subheading, TextInput } from 'react-native-paper';
+import { Avatar, Button, Caption, Colors, Dialog, Divider, HelperText, Portal, RadioButton, Subheading, TextInput } from 'react-native-paper';
 import Shimmer from 'react-native-shimmer';
+import { SettingsContext } from '../../../core/settings';
 import { ConfigurationMode } from '../../../core/settings/settings.interface';
-import { configurationNameValidator, configurationValidator } from '../../../core/utils/validators';
+import { configurationNameValidator, configurationValidator, getConfigurationNameValidator, getConfigurationValidator } from '../../../core/utils/validators';
 
 export type AddConfigurationsModalProps = {
     onAdd: (name: string, mode: ConfigurationMode) => void;
@@ -19,6 +20,11 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
     }
 ) => {
 
+    const {settings, settingsDispatcher} = React.useContext(SettingsContext);
+    const existsNames = React.useMemo<string[]>(
+        () => settings.configurations.map(c => c.name), [settings.configurations]
+    );
+
     const [name, setName] = React.useState('');
     const [configMode, setConfigMode] = React.useState(ConfigurationMode.SIMPLE);
 
@@ -31,7 +37,7 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
     React.useEffect(() => { if (!visible) { onClose() }}, [visible]);
 
     const isValid = React.useMemo(() => {
-        return configurationValidator.validate({
+        return getConfigurationValidator(existsNames).validate({
             name: name,
             mode: configMode
         }).error == null;
@@ -57,8 +63,13 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
                         onChangeText={text => setName(text)}
                         children={undefined}
                         autoComplete={undefined}
-                        error={configurationNameValidator.validate(name).error != null}                  
+                        error={getConfigurationNameValidator(existsNames).validate(name).error != null}                  
                     />
+                    {getConfigurationNameValidator(existsNames).validate(name).error != null && 
+                        <HelperText type='error' visible={getConfigurationNameValidator(existsNames).validate(name).error != null}>
+                            {getConfigurationNameValidator(existsNames).validate(name).error?.message}
+                        </HelperText>
+                    }
                     <Divider style={styles.divider} />
                     <Subheading>Editor Mode</Subheading>
                     <RadioButton.Group onValueChange={value => setConfigMode(value as ConfigurationMode)} value={configMode}>
