@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, ViewProps, ScrollView, NativeModules} from 'react-native';
-import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption } from 'react-native-paper';
+import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption, HelperText } from 'react-native-paper';
 import { ISimpleConfiguration, RandomXMode } from '../../../../core/settings/settings.interface';
 import { validateWalletAddress } from '../../../../core/utils';
 import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator, usernameValidator } from '../../../../core/utils/validators';
@@ -113,7 +113,6 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             keyboardType="numeric"           
                         />
                         <TextInput
-                            style={styles.input}
                             label="Username"
                             dense
                             value={localState.properties?.pool?.username || localState.properties?.wallet}
@@ -130,6 +129,9 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             autoComplete={undefined}
                             error={usernameValidator.validate(localState.properties?.pool?.username).error != null}               
                         />
+                        <HelperText type='info' style={{marginBottom: 2}}>
+                            Wallet address on most pools
+                        </HelperText>
                         <TextInput
                             label="Password"
                             dense
@@ -147,6 +149,9 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             error={passwordValidator.validate(localState.properties?.pool?.password).error != null}
                             autoComplete={undefined}                    
                         />
+                        <HelperText type='info' style={{marginBottom: 2}}>
+                        Optional on most pools
+                        </HelperText>
                         <View style={[styles.row, {margin: 0, marginTop: 20}]}>
                             <Paragraph>SSL</Paragraph>
                             <Switch
