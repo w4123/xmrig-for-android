@@ -262,7 +262,7 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                     {
                                         properties: {
                                             cpu: {
-                                                max_threads_hint: Number(text) || undefined
+                                                max_threads_hint: Number(text) || null
                                             }
                                         }
                                     }
