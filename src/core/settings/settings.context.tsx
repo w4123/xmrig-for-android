@@ -1,6 +1,6 @@
 import React, { createContext, Context, useReducer, Dispatch, useEffect, useState } from "react";
 import { SettingsActionType } from "./settings.actions";
-import { ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode } from "./settings.interface";
+import { ConfigurationMode, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode } from "./settings.interface";
 import { SettingsReducer } from "./settings.reducer";
 import { SettingsStorageInit, SettingsStorageSave } from "./settings.storage";
 import uuid from 'react-native-uuid';
@@ -38,11 +38,20 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
       console.log("settings effect - SettingsStorageInit");
       SettingsStorageInit(initialState)
         .then((value:ISettings) => {
+          const fixValue:ISettings = {
+            ...value,
+            configurations: value.configurations.map((item) => {
+              return {
+                ...item,
+                mode: item.mode as any == "advance" ? ConfigurationMode.ADVANCE : item.mode
+              }
+            })
+          }
           settingsDispatcher({
             type: SettingsActionType.SET,
             value: {
               ...initialState, 
-              ...value,
+              ...fixValue,
               ready: true
             }
           })

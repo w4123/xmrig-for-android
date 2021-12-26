@@ -3,7 +3,7 @@ import { SettingsActionType } from "./settings.actions";
 
 export enum ConfigurationMode {
     SIMPLE = "simple",
-    ADVANCE = "advance"
+    ADVANCE = "advanced"
 }
 export interface IConfiguratioPropertiesPool {
     hostname?: string;
