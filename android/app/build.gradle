@@ -2,6 +2,15 @@ apply plugin: "com.android.application"
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 
+Properties props = new Properties()
+props.load(new FileInputStream("$project.rootDir/../version.properties"))
+props.each { prop ->
+    project.ext.set(prop.key, prop.value)
+}
+
+project.ext.set("versionName", "${project.ext.majorVersion}.${project.ext.minorVersion}.${project.ext.patchVersion}")
+project.ext.set("versionCode", project.ext.majorVersion as Integer * 1000 + project.ext.minorVersion as Integer * 100 + project.ext.patchVersion as Integer)
+
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -132,8 +141,8 @@ android {
         applicationId 'com.xmrigforandroid'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "0.0.7"
+        versionCode project.ext.get("versionCode")
+        versionName project.ext.get("versionName")
         multiDexEnabled true
     }
 
@@ -199,7 +208,7 @@ android {
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
             def versionCodes = ["armeabi-v7a": 1, "arm64-v8a": 3, "x86": 2, "x86_64": 4]
             def abi = output.getFilter(com.android.build.OutputFile.ABI)
-            if (abi != null) {  // null for the universal-debug, universal-release variants
+            if (abi != null &&  defaultConfig.versionCode != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
