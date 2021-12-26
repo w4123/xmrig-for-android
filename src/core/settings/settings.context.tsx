@@ -17,7 +17,7 @@ export const defaultConfiguration: Partial<ISimpleConfiguration> = {
   properties: {
     cpu: {
       yield: true,
-      random_x_mode: RandomXMode.AUTO,
+      random_x_mode: RandomXMode.FAST,
       max_threads_hint: 100
     }
   }
