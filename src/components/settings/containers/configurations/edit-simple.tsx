@@ -223,6 +223,9 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                 onDismiss={() => setShowDropDown(false)}
                             />
                             <Caption>RandomX mining mode: "auto", "fast" (2 GB memory), "light" (256 MB memory).</Caption>
+                            {localState.properties?.cpu?.random_x_mode == RandomXMode.FAST && <HelperText type="error" visible={localState.properties?.cpu?.random_x_mode == RandomXMode.FAST}>
+                                Warning: The App may crash if the phone doesn't have enough ram
+                            </HelperText>}
                         </View>
 
                         <View style={styles.input}>
