@@ -74,12 +74,12 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
                     <Subheading>Editor Mode</Subheading>
                     <RadioButton.Group onValueChange={value => setConfigMode(value as ConfigurationMode)} value={configMode}>
                         <RadioButton.Item label="Simple Mode" value={ConfigurationMode.SIMPLE} style={styles.radioItem} />
-                        <RadioButton.Item label="Advance Mode" value={ConfigurationMode.ADVANCE} style={styles.radioItem} />
+                        <RadioButton.Item label="Advanced Mode" value={ConfigurationMode.ADVANCE} style={styles.radioItem} />
                     </RadioButton.Group>
                     {configMode == ConfigurationMode.ADVANCE && (
                         <View style={styles.warningContainer}>
                             <Avatar.Icon style={styles.warningIcon} size={24} icon="information-variant" />
-                            <Shimmer opacity={0.7}><Caption style={styles.warningText}>Warning for Advance mode: Direct XMRig`s configuration JSON file edit.</Caption></Shimmer>
+                            <Shimmer opacity={0.7}><Caption style={styles.warningText}>Warning for Advanced mode: Direct XMRig`s configuration JSON file edit.</Caption></Shimmer>
                         </View>
                     )}
                 </Dialog.Content>
