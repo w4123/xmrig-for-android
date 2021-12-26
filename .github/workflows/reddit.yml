@@ -2,7 +2,7 @@ name: PublishReleaseToReddit
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
 
 jobs:
   test:
