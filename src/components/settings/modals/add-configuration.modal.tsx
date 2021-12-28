@@ -4,7 +4,7 @@ import { Avatar, Button, Caption, Colors, Dialog, Divider, HelperText, Portal, R
 import Shimmer from 'react-native-shimmer';
 import { SettingsContext } from '../../../core/settings';
 import { ConfigurationMode } from '../../../core/settings/settings.interface';
-import { configurationNameValidator, configurationValidator, getConfigurationNameValidator, getConfigurationValidator } from '../../../core/utils/validators';
+import { getConfigurationNameValidator, getConfigurationValidator } from '../../../core/utils/validators';
 
 export type AddConfigurationsModalProps = {
     onAdd: (name: string, mode: ConfigurationMode) => void;
