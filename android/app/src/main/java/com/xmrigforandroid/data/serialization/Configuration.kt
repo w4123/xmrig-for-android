@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 @Serializable
 enum class ConfigurationMode {
     @SerialName("simple") SIMPLE,
-    @SerialName("advance") ADVANCE
+    @SerialName("advanced") ADVANCE
 }
 
 @Keep
