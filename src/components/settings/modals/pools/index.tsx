@@ -9,6 +9,47 @@ export type IPool = {
     onChange: (state: IPoolState) => void
 }
 
+export enum PredefinedPoolName {
+    MoneroOcean = 'p1',
+    MineXMR = 'p2',
+    SupportXMR = 'p3',
+    nanopool = 'p4',
+    C3Pool = 'p5',
+    XMRPoolEU = 'p6',
+    HashVault = 'p7'
+}
+
+export type IPredefinedPoolInfo = {
+    displayName: string;
+    fee: number;
+    method: 'PPS' | 'FPPS' | 'PPLNS' ;
+    threshold: number;
+}
+
+export type IPredefinedPool = {
+    name: PredefinedPoolName;
+    info: IPredefinedPoolInfo;
+}
+
+export type IPredefinedPools = Record<PredefinedPoolName, IPredefinedPoolInfo>;
+
+export const predefinedPools:IPredefinedPools = {
+    [PredefinedPoolName.MoneroOcean]: { displayName: 'MoneroOcean', fee: 0, method: 'PPLNS', threshold: 0.003 },
+    [PredefinedPoolName.MineXMR]: { displayName: 'MineXMR', fee: 1, method: 'PPLNS', threshold: 0.004 },
+    [PredefinedPoolName.SupportXMR]: { displayName: 'SupportXMR', fee: 0.6, method: 'PPLNS', threshold: 0.01 },
+    [PredefinedPoolName.nanopool]: { displayName: 'nanopool', fee: 1, method: 'PPLNS', threshold: 0.1 },
+    [PredefinedPoolName.C3Pool]: { displayName: 'C3Pool', fee: 0, method: 'PPLNS', threshold: 0.003 },
+    [PredefinedPoolName.XMRPoolEU]: { displayName: 'XMRPool EU', fee: 2.5, method: 'PPLNS', threshold: 2 },
+    [PredefinedPoolName.HashVault]: { displayName: 'HashVault', fee: 0.9, method: 'PPLNS', threshold: 0.1 },
+};
+
+export const predefinedPoolsList: IPredefinedPool[] = Object
+    .keys(predefinedPools)
+    .map((poolName: string) => ({
+        name: poolName as PredefinedPoolName,
+        info: predefinedPools[poolName as PredefinedPoolName]
+    }))
+
 export {
     MoneroOcean
 } from './moneroocean';

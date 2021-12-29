@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Colors, Dialog, Portal } from 'react-native-paper';
+import { Badge, Button, Colors, Dialog, Portal } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
 import { IConfiguratioPropertiesPool } from '../../../core/settings/settings.interface';
-import { C3Pool, HashVault, IPoolState, MineXMR, MoneroOcean, Nano, SupportXMR, XMRPoolEU } from './pools';
+import { C3Pool, HashVault, IPoolState, IPredefinedPool, IPredefinedPoolInfo, MineXMR, MoneroOcean, Nano, PredefinedPoolName, predefinedPools, predefinedPoolsList, SupportXMR, XMRPoolEU } from './pools';
 
 export type PoolListModalProps = {
     onAdd: (pool: IConfiguratioPropertiesPool) => void;
@@ -40,15 +40,8 @@ const PoolListModal:React.FC<PoolListModalProps> = (
         }
     }), []);
 
-    const pools = React.useMemo<string[]>(() => [
-        'MoneroOcean',
-        'MineXMR',
-        'SupportXMR',
-        'nanopool',
-        'C3Pool',
-        'xmrpool-eu',
-        'HashVault'
-    ], []);
+    const pools = React.useMemo<IPredefinedPool[]>(() => predefinedPoolsList, []);
+    const poolInfo = React.useMemo<IPredefinedPoolInfo>(() => predefinedPools[selected as PredefinedPoolName], [selected]);
 
     const [visible, setVisible] = React.useState(isVisible);
     const [showDropDown, setShowDropDown] = React.useState(false);
@@ -72,26 +65,40 @@ const PoolListModal:React.FC<PoolListModalProps> = (
                 <Dialog.Title>Predefinded Pools</Dialog.Title>
                 <Dialog.Content>
 
-                    <View style={{ marginBottom: 20}}>
+                    <View style={{ marginBottom: 10}}>
                         <DropDown
                             label={"Pool"}
                             mode="flat"
                             value={selected}
                             setValue={item => setSelected(item)}
-                            list={pools.map((item: string) => ({label: item, value: item}))}
+                            list={pools.map((item: IPredefinedPool) => ({label: item.info.displayName, value: item.name}))}
                             visible={showDropDown}
                             showDropDown={() => setShowDropDown(true)}
                             onDismiss={() => setShowDropDown(false)}
                         />
                     </View>
 
-                    {selected && selected == 'MoneroOcean' && <MoneroOcean {...onChange} /> }
-                    {selected && selected == 'MineXMR' && <MineXMR {...onChange} /> }
-                    {selected && selected == 'SupportXMR' && <SupportXMR {...onChange} /> }
-                    {selected && selected == 'nanopool' && <Nano {...onChange} /> }
-                    {selected && selected == 'C3Pool' && <C3Pool {...onChange} /> }
-                    {selected && selected == 'xmrpool-eu' && <XMRPoolEU {...onChange} /> }
-                    {selected && selected == 'HashVault' && <HashVault {...onChange} /> }
+                    {poolInfo && (
+                        <View style={{marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <Badge size={26}>
+                                {poolInfo.fee}% fee
+                            </Badge>
+                            <Badge size={26}>
+                                {poolInfo.threshold} XMR min. payout
+                            </Badge>
+                            <Badge size={26}>
+                                {poolInfo.method}
+                            </Badge>
+                        </View>
+                    )}
+
+                    {selected && selected == PredefinedPoolName.MoneroOcean && <MoneroOcean {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.MineXMR && <MineXMR {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.SupportXMR && <SupportXMR {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.nanopool && <Nano {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.C3Pool && <C3Pool {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.XMRPoolEU && <XMRPoolEU {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.HashVault && <HashVault {...onChange} /> }
                     
                 </Dialog.Content>
                 <Dialog.Actions>
