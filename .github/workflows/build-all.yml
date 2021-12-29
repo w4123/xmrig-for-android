@@ -5,6 +5,8 @@ name: BuildAll
 on:
   pull_request:
     types: [closed]
+    branches:
+      - main
 
 #on:
 #  push:
