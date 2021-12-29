@@ -70,7 +70,7 @@ export const XMRigView = (props: PoolViewProps):React.ReactElement<PoolViewProps
             </View>
             <View style={styles.row}>
                 <MinerCard title="Live Hashrate" style={{ flex: 1 }} disabled={props.disabled} wrapInContent={false}>
-                    <RenderHashrateChartVictory />
+                    {props.hashrateHistory.length > 2 && <RenderHashrateChartVictory />}
                 </MinerCard>
             </View>
             <Divider style={{marginTop: 2, marginBottom: 10}} />
