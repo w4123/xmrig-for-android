@@ -3,15 +3,16 @@ import Joi from "joi"
 import { ConfigurationMode, RandomXMode } from "../settings/settings.interface";
 
 export const hostnameValidator = Joi.string().min(3).max(30).required();
-export const usernameValidator = Joi.string().optional();
-export const passwordValidator = Joi.string().optional();
+export const usernameValidator = Joi.optional();
+export const passwordValidator = Joi.optional();
 export const portValidator = Joi.number().integer().min(10).max(65550).required();
 
 export const poolValidator = Joi.object({
     hostname: hostnameValidator,
     username: usernameValidator,
     password: passwordValidator,
-    port: portValidator
+    port: portValidator,
+    sslEnabled: Joi.boolean(),
 });
 
 export const validateWalletAddress = (addr?:string):boolean => addr != null && /[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93}/.test(addr);

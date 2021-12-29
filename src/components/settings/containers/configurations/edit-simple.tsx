@@ -1,12 +1,12 @@
 import React from 'react';
 import {View, StyleSheet, ViewProps, ScrollView, NativeModules} from 'react-native';
 import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption, HelperText } from 'react-native-paper';
-import { ISimpleConfiguration, RandomXMode } from '../../../../core/settings/settings.interface';
-import { validateWalletAddress } from '../../../../core/utils';
+import { IConfiguratioPropertiesPool, ISimpleConfiguration, RandomXMode } from '../../../../core/settings/settings.interface';
 import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator, usernameValidator } from '../../../../core/utils/validators';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from "react-native-paper-dropdown";
 import merge from 'lodash/fp/merge';
+import PoolListModal from '../../modals/pool-list.modal';
 
 const { XMRigForAndroid } = NativeModules;
 
@@ -27,7 +27,6 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
 
     const [localState, setLocalState] = React.useState<ISimpleConfiguration>(configuration);
 
-    const [isWalletValid, setIsWalletValid] = React.useState<boolean>(false);
     const [isPoolValid, setIsPoolValid] = React.useState<boolean>(false);
     const [isCPUValid, setIsCPUValid] = React.useState<boolean>(false);
 
@@ -40,7 +39,6 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
     }, []);
 
     React.useEffect(() => {
-        setIsWalletValid(validateWalletAddress(localState.properties?.wallet))
         setIsPoolValid(
             poolValidator.validate(localState.properties?.pool || {}).error == null
         );
@@ -51,8 +49,25 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
 
     const [showDropDown, setShowDropDown] = React.useState(false);
 
+    const [showPoolListDialog, setShowPoolListDialog] = React.useState<boolean>(false);
+
     return (
         <>
+            <PoolListModal 
+                onAdd={(pool: IConfiguratioPropertiesPool) => {
+                    setLocalState(oldState => merge(
+                        oldState,
+                        {
+                            properties: {
+                                pool: pool
+                            }
+                        }
+                    ))
+                }}
+                onClose={() => setShowPoolListDialog(false)}
+                isVisible={showPoolListDialog}
+            />
+
             <View style={[styles.row, {}]}>
                 <Headline style={styles.title}>{localState.name}</Headline>
                 <Button 
@@ -75,6 +90,13 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                         right={isPoolValid ? ListIconSuccess : ListIconError}
                     />
                     <Card.Content>
+                        <Button
+                            mode="contained"
+                            style={styles.input}
+                            onPress={() => setShowPoolListDialog(true)}
+                        >
+                            Select from Predefined List
+                        </Button>
                         <TextInput
                             style={styles.input}
                             label="Hostname / IP"
