@@ -62,7 +62,7 @@ const PoolListModal:React.FC<PoolListModalProps> = (
     return (
         <Portal>
             <Dialog visible={visible} onDismiss={hide}>
-                <Dialog.Title>Predefinded Pools</Dialog.Title>
+                <Dialog.Title>Pools Presets</Dialog.Title>
                 <Dialog.Content>
 
                     <View style={{ marginBottom: 10}}>
