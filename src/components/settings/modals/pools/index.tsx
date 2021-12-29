@@ -10,13 +10,13 @@ export type IPool = {
 }
 
 export enum PredefinedPoolName {
-    MoneroOcean = 'p1',
-    MineXMR = 'p2',
-    SupportXMR = 'p3',
-    nanopool = 'p4',
-    C3Pool = 'p5',
-    XMRPoolEU = 'p6',
-    HashVault = 'p7'
+    MoneroOcean = 'moneroocean',
+    MineXMR = 'minexmr',
+    SupportXMR = 'supportxmr',
+    nanopool = 'nanopool',
+    C3Pool = 'c3pool',
+    XMRPoolEU = 'xmrpooleu',
+    HashVault = 'hashvalt'
 }
 
 export type IPredefinedPoolInfo = {

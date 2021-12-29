@@ -95,7 +95,7 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                             style={styles.input}
                             onPress={() => setShowPoolListDialog(true)}
                         >
-                            Select from Predefined List
+                            Select from Presets
                         </Button>
                         <TextInput
                             style={styles.input}
