@@ -16,7 +16,8 @@ export enum PredefinedPoolName {
     nanopool = 'nanopool',
     C3Pool = 'c3pool',
     XMRPoolEU = 'xmrpooleu',
-    HashVault = 'hashvalt'
+    HashVault = 'hashvalt',
+    Hashcity = 'hashcity',
 }
 
 export type IPredefinedPoolInfo = {
@@ -41,6 +42,7 @@ export const predefinedPools:IPredefinedPools = {
     [PredefinedPoolName.C3Pool]: { displayName: 'C3Pool', fee: 0, method: 'PPLNS', threshold: 0.003 },
     [PredefinedPoolName.XMRPoolEU]: { displayName: 'XMRPool EU', fee: 2.5, method: 'PPLNS', threshold: 2 },
     [PredefinedPoolName.HashVault]: { displayName: 'HashVault', fee: 0.9, method: 'PPLNS', threshold: 0.1 },
+    [PredefinedPoolName.Hashcity]: { displayName: 'HashCity', fee: 1, method: 'FPPS', threshold: 0.01 },
 };
 
 export const predefinedPoolsList: IPredefinedPool[] = Object
@@ -77,3 +79,7 @@ export {
 export {
     HashVault
 } from './hashvault';
+
+export {
+    Hashcity
+} from './hashcity';

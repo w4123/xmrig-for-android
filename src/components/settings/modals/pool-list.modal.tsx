@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Badge, Button, Colors, Dialog, Portal } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
 import { IConfiguratioPropertiesPool } from '../../../core/settings/settings.interface';
-import { C3Pool, HashVault, IPoolState, IPredefinedPool, IPredefinedPoolInfo, MineXMR, MoneroOcean, Nano, PredefinedPoolName, predefinedPools, predefinedPoolsList, SupportXMR, XMRPoolEU } from './pools';
+import { C3Pool, Hashcity, HashVault, IPoolState, IPredefinedPool, IPredefinedPoolInfo, MineXMR, MoneroOcean, Nano, PredefinedPoolName, predefinedPools, predefinedPoolsList, SupportXMR, XMRPoolEU } from './pools';
 
 export type PoolListModalProps = {
     onAdd: (pool: IConfiguratioPropertiesPool) => void;
@@ -99,6 +99,7 @@ const PoolListModal:React.FC<PoolListModalProps> = (
                     {selected && selected == PredefinedPoolName.C3Pool && <C3Pool {...onChange} /> }
                     {selected && selected == PredefinedPoolName.XMRPoolEU && <XMRPoolEU {...onChange} /> }
                     {selected && selected == PredefinedPoolName.HashVault && <HashVault {...onChange} /> }
+                    {selected && selected == PredefinedPoolName.Hashcity && <Hashcity {...onChange} /> }
                     
                 </Dialog.Content>
                 <Dialog.Actions>
