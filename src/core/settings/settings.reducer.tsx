@@ -1,6 +1,6 @@
 import { Reducer } from 'react';
 import { SettingsActionType } from './settings.actions';
-import { defaultConfiguration } from './settings.context';
+import { defaultConfiguration, defaultSimpleConfiguration } from './settings.context';
 import { Configuration, ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction } from './settings.interface';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,8 +14,8 @@ export const SettingsReducer:Reducer<ISettings, ISettingsReducerAction> = (prevS
             } as ISettings;
         case SettingsActionType.ADD_CONFIGURATION:
             const newConfig: Configuration = (action.value as Configuration).mode === ConfigurationMode.SIMPLE ? 
-                {...defaultConfiguration, ...action.value as Configuration} : 
-                action.value as Configuration;
+                {...defaultConfiguration, ...defaultSimpleConfiguration, ...action.value as Configuration} : 
+                {...defaultConfiguration, ...action.value as Configuration} ;
             
             return {
                 ...prevState,

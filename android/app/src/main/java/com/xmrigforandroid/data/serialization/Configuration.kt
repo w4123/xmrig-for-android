@@ -13,6 +13,13 @@ enum class ConfigurationMode {
 
 @Keep
 @Serializable
+enum class XMRigFork {
+    @SerialName("original") ORIGINAL,
+    @SerialName("moneroocean") MONEROOCEAN
+}
+
+@Keep
+@Serializable
 enum class RandomXMode {
     @SerialName("auto") AUTO,
     @SerialName("fast") FAST,
@@ -52,6 +59,7 @@ data class Configuration(
         val id: String,
         val name: String,
         val mode: ConfigurationMode,
+        val xmrig_fork: XMRigFork = XMRigFork.ORIGINAL,
         val properties: ConfigurationProperties?,
         val config: String?
 )
