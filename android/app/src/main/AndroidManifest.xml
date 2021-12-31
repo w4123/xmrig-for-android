@@ -32,4 +32,5 @@
             android:name="com.xmrigforandroid.MiningService"
             android:enabled="true"/>
     </application>
+
 </manifest>
