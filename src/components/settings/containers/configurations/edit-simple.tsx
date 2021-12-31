@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, ViewProps, ScrollView, NativeModules} from 'react-native';
 import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption, HelperText } from 'react-native-paper';
-import { IConfiguratioPropertiesPool, ISimpleConfiguration, RandomXMode } from '../../../../core/settings/settings.interface';
+import { IConfiguratioPropertiesPool, ISimpleConfiguration, RandomXMode, XMRigFork } from '../../../../core/settings/settings.interface';
 import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator, usernameValidator } from '../../../../core/utils/validators';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from "react-native-paper-dropdown";
@@ -47,7 +47,12 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
         );
     }, [localState.properties]);
 
+    React.useEffect(() => {
+       console.log(localState)
+    }, [localState]);
+
     const [showDropDown, setShowDropDown] = React.useState(false);
+    const [showForkDropDown, setShowForkDropDown] = React.useState(false);
 
     const [showPoolListDialog, setShowPoolListDialog] = React.useState<boolean>(false);
 
@@ -84,6 +89,42 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
             </View>
             
             <ScrollView contentContainerStyle={{paddingBottom: 60}}>
+                <Card style={[styles.card, {marginTop: 0}]}>
+                    <Card.Title
+                        title="General"
+                    />
+                    <Card.Content>
+                        <View>
+                            <DropDown
+                                label={"XMRig Fork"}
+                                mode="flat"
+                                value={localState.xmrig_fork}
+                                setValue={text => {
+                                    console.log("set", text);
+                                    setLocalState(oldState => merge(
+                                        oldState,
+                                        {
+                                            xmrig_fork: text
+                                        }
+                                    ))
+                                }}
+                                list={[
+                                    { label: "Original", value: XMRigFork.ORIGINAL },
+                                    { label: "MoneroOcean", value: XMRigFork.MONEROOCEAN }
+                                ]}
+                                visible={showForkDropDown}
+                                showDropDown={() => setShowForkDropDown(true)}
+                                onDismiss={() => setShowForkDropDown(false)}
+                            />
+                            <Caption>You can choose between original XMRig and MoneroOcean's fork that supports algo switching.</Caption>
+                            {localState.xmrig_fork == XMRigFork.MONEROOCEAN && (
+                                <HelperText type="error">
+                                    Warning: Benchmarking may stuck on some algos, to disable these algos use custom configuration in "Advanced Mode" 
+                                </HelperText>
+                            )}
+                        </View>
+                    </Card.Content>
+                </Card>
                 <Card style={[styles.card, {marginTop: 0}]}>
                     <Card.Title
                         title="Pool"
