@@ -1,4 +1,4 @@
-all: toolchain libuv hwloc openssl xmrig
+all: toolchain libuv hwloc openssl xmrig xmrig-mo
 
 toolchain:
 	script/toolchain-build.sh
@@ -20,6 +20,12 @@ xmrig: toolchain xmrig_dl
 
 xmrig_dl:
 	script/xmrig-fetch.sh
+
+xmrig-mo: toolchain xmrig-mo_dl
+	script/xmrig-mo-build.sh
+
+xmrig-mo_dl:
+	script/xmrig-mo-fetch.sh
 
 hwloc: toolchain hwloc_dl
 	script/hwloc-build.sh

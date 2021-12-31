@@ -18,6 +18,12 @@ export enum RandomXMode {
     FAST = "fast",
     LIGHT = "light"
 };
+
+export enum XMRigFork {
+    ORIGINAL = "original",
+    MONEROOCEAN = "moneroocean"
+}
+
 export interface IConfiguratioPropertiesCPU {
     yield?: boolean;
     priority?: number;
@@ -33,6 +39,7 @@ export interface IConfiguration {
     id?: string;
     name: string;
     mode: ConfigurationMode;
+    xmrig_fork: XMRigFork;
 }
 export interface ISimpleConfiguration extends IConfiguration {
     properties?: IConfiguratioProperties;

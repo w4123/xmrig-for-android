@@ -1,6 +1,6 @@
 import React, { createContext, Context, useReducer, Dispatch, useEffect, useState } from "react";
 import { SettingsActionType } from "./settings.actions";
-import { ConfigurationMode, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode } from "./settings.interface";
+import { ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode, XMRigFork } from "./settings.interface";
 import { SettingsReducer } from "./settings.reducer";
 import { SettingsStorageInit, SettingsStorageSave } from "./settings.storage";
 import uuid from 'react-native-uuid';
@@ -13,7 +13,11 @@ const initialState: ISettings = {
     selectedConfiguration: undefined
 };
 
-export const defaultConfiguration: Partial<ISimpleConfiguration> = {
+export const defaultConfiguration: Partial<IConfiguration> = {
+  xmrig_fork: XMRigFork.ORIGINAL
+};
+
+export const defaultSimpleConfiguration: Partial<ISimpleConfiguration> = {
   properties: {
     cpu: {
       yield: true,
@@ -42,6 +46,7 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
             ...value,
             configurations: value.configurations.map((item) => {
               return {
+                ...defaultConfiguration,
                 ...item,
                 mode: item.mode as any == "advance" ? ConfigurationMode.ADVANCE : item.mode
               }
