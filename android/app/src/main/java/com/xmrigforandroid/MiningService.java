@@ -11,6 +11,9 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+
+import com.xmrigforandroid.data.serialization.XMRigFork;
+
 import org.greenrobot.eventbus.EventBus;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -79,8 +82,8 @@ public class MiningService extends Service {
 
     private final IMiningService.Stub binder = new IMiningService.Stub() {
         @Override
-        public void startMiner(String configPath) {
-            startMining(configPath);
+        public void startMiner(String configPath, String xmrigFork) {
+            startMining(configPath, xmrigFork);
         }
 
         @Override
@@ -107,7 +110,7 @@ public class MiningService extends Service {
         }
     }
 
-    public void startMining(String configPath) {
+    public void startMining(String configPath, String xmrigFork) {
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "XMRigForAndroid::MinerWakeLock");
@@ -118,11 +121,13 @@ public class MiningService extends Service {
             process.destroy();
         }
 
-        Log.d(LOG_TAG, "libxmrig: " + getApplicationInfo().nativeLibraryDir + "/libxmrig.so");
+        String xmrigBin = xmrigFork.equals(XMRigFork.MONEROOCEAN.toString()) ? "libxmrig-mo.so" : "libxmrig.so";
+
+        Log.d(LOG_TAG, "libxmrig: " + getApplicationInfo().nativeLibraryDir + "/" + xmrigBin);
 
         try {
             String[] args = {
-                    "./"+getApplicationInfo().nativeLibraryDir + "/libxmrig.so",
+                    "./"+getApplicationInfo().nativeLibraryDir + "/" + xmrigBin,
                     "-c", configPath,
                     "--no-color",
                     "--http-host=127.0.0.1",

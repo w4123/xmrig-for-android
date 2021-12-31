@@ -19,8 +19,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.Exception
 import com.facebook.react.bridge.ReactMethod
-
-
+import java.util.*
 
 
 class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
@@ -55,15 +54,17 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
     @ReactMethod
     fun start(configurationJSON: String) {
         val jsonFormat = Json { explicitNulls = false }
-        Log.d(this.name, "Start XMRig $configurationJSON")
         val data = jsonFormat.decodeFromString<Configuration>(configurationJSON)
+
+        Log.d(this.name, "Start XMRig (${data.xmrig_fork.toString().lowercase(Locale.getDefault())}) $configurationJSON")
+
         val configBuilder = XMRigConfigBuilder(this.reactApplicationContext.applicationContext)
         configBuilder.reset()
         configBuilder.setConfiguration(data)
         val configPath = configBuilder.writeConfig()
         Log.d(this.name, configBuilder.getConfigString())
         try {
-            miningService?.startMiner(configPath)
+            miningService?.startMiner(configPath, data.xmrig_fork.toString())
         } catch (e: RemoteException) {
             e.printStackTrace()
         }
