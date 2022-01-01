@@ -13,6 +13,9 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.xmrigforandroid.data.serialization.XMRigFork;
+import com.xmrigforandroid.events.MinerStartEvent;
+import com.xmrigforandroid.events.MinerStopEvent;
+import com.xmrigforandroid.events.StdoutEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import java.io.BufferedReader;
@@ -21,16 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class MiningService extends Service {
-
-    public static class StdoutEvent {
-        public String value;
-
-        StdoutEvent(String _value) {
-            this.value = _value;
-        }
-
-    }
-
 
     private static final String LOG_TAG = "MiningSvc";
     private static final String NOTIFICATION_CHANNEL_ID = "com.xmrigforandroid.service";
@@ -142,6 +135,8 @@ public class MiningService extends Service {
             outputHandler = new MiningService.OutputReaderThread(process.getInputStream());
             outputHandler.start();
 
+            EventBus.getDefault().post(new MinerStartEvent());
+
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception:", e);
             process = null;
@@ -180,6 +175,7 @@ public class MiningService extends Service {
                 }
             } catch (IOException e) {
                 Log.w(LOG_TAG, "exception", e);
+                EventBus.getDefault().post(new MinerStopEvent());
             }
         }
     }

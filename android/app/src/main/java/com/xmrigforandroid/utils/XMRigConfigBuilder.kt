@@ -28,11 +28,31 @@ class XMRigConfigBuilder(val context: Context) {
         config = loadConfigTemplate()
     }
 
+    fun getConfigPath(): String = "${context.filesDir.absolutePath}/config.json"
+
     fun loadConfigTemplate(): String {
         return try {
             val buf = StringBuilder()
             val json = this.context.assets?.open("config.json")
             val inStream = BufferedReader(InputStreamReader(json, "UTF-8"))
+            var str: String?
+            while (inStream.readLine().also { str = it } != null) {
+                buf.append(str)
+            }
+            inStream.close()
+            buf.toString()
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
+        finally {
+        }
+    }
+
+    fun readConfigFromDisk(): String {
+        return try {
+            val buf = StringBuilder()
+            val file = File(getConfigPath())
+            val inStream = file.bufferedReader()
             var str: String?
             while (inStream.readLine().also { str = it } != null) {
                 buf.append(str)
@@ -104,7 +124,7 @@ class XMRigConfigBuilder(val context: Context) {
         var writer: PrintWriter? = null
 
         try {
-            writer = PrintWriter(FileOutputStream("$privatePath/config.json"))
+            writer = PrintWriter(FileOutputStream(f))
             if (configContent != null) {
                 writer.write(configContent)
             } else {
