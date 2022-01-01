@@ -2,7 +2,7 @@ import React from "react";
 import { IMinerSummary, useMinerHttpd } from "../hooks";
 import { useHashrateHistory } from "../hooks";
 import { IMinerLog, StartMode, IXMRigLogEvent, WorkingState } from "./session-data.interface";
-import { SettingsContext } from "../settings";
+import { SettingsActionType, SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from "react-native";
 import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
 import _ from 'lodash';
@@ -27,7 +27,7 @@ export const SessionDataContext:React.Context<SessionDataContextType> = React.cr
 
 export const SessionDataContextProvider:React.FC = ({children}) =>  {
 
-  const {settings} = React.useContext(SettingsContext);
+  const {settings, settingsDispatcher} = React.useContext(SettingsContext);
   
   const [minerLog, setMinerLog] = React.useState<IMinerLog[]>([]);
 
@@ -111,8 +111,25 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
         setMinerLog(old => [...cleanData.reverse().map(value => parseLogLine(value)), ...old])
     });
 
+    const onConfigUpdateSub:EmitterSubscription = MinerEmitter.addListener('onConfigUpdate', (data) => {
+      console.log("onConfigUpdate", data.config)
+      const cConfig:Configuration | undefined = settings.configurations.find(
+        config => config.id == settings.selectedConfiguration
+      );
+      if (cConfig && cConfig.mode === ConfigurationMode.ADVANCE) {
+        settingsDispatcher({
+          type: SettingsActionType.UPDATE_CONFIGURATION,
+          value: {
+            ...cConfig,
+            config: data.config
+          }
+        })
+      }
+    });
+
     return () => {
         onLogSub.remove();
+        onConfigUpdateSub.remove()
         XMRigForAndroid.stop();
     }
 }, [])
