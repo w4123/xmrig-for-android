@@ -97,13 +97,21 @@ class XMRigConfigBuilder(val context: Context) {
         config = config.replace("{pool_username}", wallet)
     }
 
+    fun setAlgos(algos: String) {
+        config = config.replace("{algos}", algos.slice(1..algos.length-2))
+    }
+
     fun setConfiguration(data: Configuration) {
+        data.properties?.algos?.let { Log.d(this.javaClass.name, it) }
         if (data.mode == ConfigurationMode.SIMPLE) {
             if (data.properties?.cpu != null) {
                 setCPU(data.properties.cpu)
             }
             if (data.properties?.pool != null) {
                 setPool(data.properties.pool)
+            }
+            if (data.properties?.algos != null) {
+                setAlgos(data.properties.algos)
             }
         }
         if (data.mode == ConfigurationMode.ADVANCE) {
@@ -121,6 +129,7 @@ class XMRigConfigBuilder(val context: Context) {
 
         val f = File("$privatePath/config.json")
         Log.d(this.javaClass.name, "Write to $f")
+        Log.d(this.javaClass.name, config)
         var writer: PrintWriter? = null
 
         try {

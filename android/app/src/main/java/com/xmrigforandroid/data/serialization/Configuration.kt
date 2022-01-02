@@ -3,6 +3,7 @@ package com.xmrigforandroid.data.serialization
 import androidx.annotation.Keep
 import com.facebook.infer.annotation.FalseOnNull
 import kotlinx.serialization.*
+import kotlin.Any
 
 @Keep
 @Serializable
@@ -50,7 +51,8 @@ data class SimpleConfigurationPropertiesCPU (
 data class ConfigurationProperties(
         val wallet: String?,
         val pool: SimpleConfigurationPropertiesPool?,
-        val cpu: SimpleConfigurationPropertiesCPU?
+        val cpu: SimpleConfigurationPropertiesCPU?,
+        val algos: String? = ""
 )
 
 @Keep

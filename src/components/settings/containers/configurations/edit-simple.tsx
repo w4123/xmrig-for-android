@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, ViewProps, ScrollView, NativeModules} from 'react-native';
 import { Paragraph, List, Colors, Button, TextInput, Card, Headline, Switch, Caption, HelperText } from 'react-native-paper';
-import { IConfiguratioPropertiesPool, ISimpleConfiguration, RandomXMode, XMRigFork } from '../../../../core/settings/settings.interface';
+import { Algorithems, Algorithm, IConfiguratioPropertiesPool, ISimpleConfiguration, RandomXMode, XMRigFork } from '../../../../core/settings/settings.interface';
 import { cpuValidator, hostnameValidator, maxThreadsHintValidator, passwordValidator, poolValidator, portValidator, priorityValidator, usernameValidator } from '../../../../core/utils/validators';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from "react-native-paper-dropdown";
@@ -338,6 +338,36 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                         </View>
                     </Card.Content>
                 </Card>
+
+                <Card style={styles.card}>
+                    <Card.Title
+                        title="Algorithems"
+                    />
+                    <Card.Content>
+                        <Caption>Enable/Disable miner supported algorithems, some of the algorithems can casue problems on some devices. If the miner is stuck/crash on some algorithem you can disable these algorithem.</Caption>
+                        {Algorithems.map((algo: Algorithm, index) => (
+                            <View style={styles.input} key={`algo-${index}`}>
+                                <View style={[styles.row, {margin: 0}]}>
+                                    <Paragraph>{algo}</Paragraph>
+                                    <Switch
+                                        value={localState.properties?.algos[algo]}
+                                        onValueChange={value => setLocalState(oldState => merge(
+                                            oldState,
+                                            {
+                                                properties: {
+                                                    algos: {
+                                                        [`${algo}`]: value
+                                                    }
+                                                }
+                                            }
+                                        ))}
+                                    />
+                                </View>
+                            </View>
+                        ))}
+                    </Card.Content>
+                </Card>
+
             </ScrollView>
         </>
     )
