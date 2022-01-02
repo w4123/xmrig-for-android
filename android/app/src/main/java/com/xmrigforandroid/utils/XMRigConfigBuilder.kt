@@ -66,58 +66,9 @@ class XMRigConfigBuilder(val context: Context) {
         }
     }
 
-    fun setCPU(data: SimpleConfigurationPropertiesCPU) {
-        config = config.replace("{cpu_yield}", if (data.yield) "true" else "false")
-        if (data.priority != null) {
-            config = config.replace("{cpu_priority}", data.priority.toString())
-        } else {
-            config = config.replace("{cpu_priority}", "null")
-        }
-        if (data.max_threads_hint != null) {
-            config = config.replace("{max_threads_hint}", data.max_threads_hint.toString())
-        }
-        if (data.random_x_mode != null) {
-            config = config.replace("{random_x_mode}", data.random_x_mode.toString())
-        }
-    }
-
-    fun setPool(data: SimpleConfigurationPropertiesPool) {
-        config = config.replace("{pool_hostname}", data.hostname)
-        config = config.replace("{pool_username}", data.username)
-        config = config.replace("{pool_port}", data.port.toString())
-        if (data.password != null) {
-            config = config.replace("{pool_password}", data.password)
-        } else {
-            config = config.replace("{pool_password}", "")
-        }
-        config = config.replace("{ssl_enabled}", if (data.sslEnabled) "true" else "false")
-    }
-
-    fun setWallet(wallet: String) {
-        config = config.replace("{pool_username}", wallet)
-    }
-
-    fun setAlgos(algos: String) {
-        config = config.replace("{algos}", algos.slice(1..algos.length-2))
-    }
-
     fun setConfiguration(data: Configuration) {
-        data.properties?.algos?.let { Log.d(this.javaClass.name, it) }
-        if (data.mode == ConfigurationMode.SIMPLE) {
-            if (data.properties?.cpu != null) {
-                setCPU(data.properties.cpu)
-            }
-            if (data.properties?.pool != null) {
-                setPool(data.properties.pool)
-            }
-            if (data.properties?.algos != null) {
-                setAlgos(data.properties.algos)
-            }
-        }
-        if (data.mode == ConfigurationMode.ADVANCE) {
-            val configByte = Base64.decode(data.config, Base64.DEFAULT)
-            config = String(configByte, Charset.defaultCharset())
-        }
+        val configByte = Base64.decode(data.config, Base64.DEFAULT)
+        config = String(configByte, Charset.defaultCharset())
     }
 
     fun getConfigString(): String {

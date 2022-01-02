@@ -12,7 +12,9 @@ const { XMRigForAndroid } = NativeModules;
 
 import base64 from 'react-native-base64'
 import { Configuration, ConfigurationMode, IAdvanceConfiguration, ISimpleConfiguration } from "../settings/settings.interface";
+import ConfigBuilder from "../xmrig-config/config-builder";
 
+const configBuilder = new ConfigBuilder();
 
 type SessionDataContextType = {
   minerLog: IMinerLog[],
@@ -66,12 +68,49 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
               );
               if (cConfig) {
                 const configCopy:Configuration = cloneDeep(cConfig)
-                
-                if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
-                  (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
+
+                if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
+                  configBuilder.reset();
+                  configBuilder.setPool({
+                    user: (configCopy as ISimpleConfiguration).properties?.pool?.username,
+                    pass: (configCopy as ISimpleConfiguration).properties?.pool?.password,
+                    url: `${(configCopy as ISimpleConfiguration).properties?.pool?.hostname}:${(configCopy as ISimpleConfiguration).properties?.pool?.port}`,
+                    tls: (configCopy as ISimpleConfiguration).properties?.pool?.sslEnabled
+                  })
+                  configBuilder.setProps({
+                    cpu: {
+                      priority: (configCopy as ISimpleConfiguration).properties?.cpu?.priority,
+                      yield: (configCopy as ISimpleConfiguration).properties?.cpu?.yield,
+                      ['max-threads-hint']: (configCopy as ISimpleConfiguration).properties?.cpu?.max_threads_hint
+                    },
+                    randomx: {
+                      mode: (configCopy as ISimpleConfiguration).properties?.cpu?.random_x_mode
+                    }
+                  })
+                  configBuilder.setProps({
+                    cpu: {
+                      ...(configCopy as ISimpleConfiguration).properties?.algos
+                    }
+                  })
+                  configBuilder.setProps({
+                    ['algo-perf']: (configCopy as ISimpleConfiguration).properties?.algo_perf
+                  })
+
+                }
+
+                const sendConfiguration = {
+                  id: cConfig.id,
+                  name: cConfig.name,
+                  mode: cConfig.mode,
+                  xmrig_fork: cConfig.xmrig_fork,
+                  config: configBuilder.getConfigBase64()
                 }
                 
-                if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
+                /*if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
+                  (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
+                }*/
+                
+               /*if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
                   // Temp workaround to use deprecated wallet field as username 
                   if (!(configCopy as ISimpleConfiguration).properties?.pool?.username && (configCopy as ISimpleConfiguration).properties?.wallet) {
                     (configCopy as ISimpleConfiguration).properties = _.merge(
@@ -91,11 +130,11 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                       algos: JSON.stringify((configCopy as ISimpleConfiguration).properties?.algos)
                     }
                   );
-                }
-                console.log(cConfig);
+                }*/
+                console.log(sendConfiguration);
                 XMRigForAndroid.start(
                   JSON.stringify(
-                    configCopy, 
+                    sendConfiguration, 
                     (k, v) => {
                       if (v !== null) return v
                     }
@@ -112,6 +151,10 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
   }, [working]);
 
   React.useEffect(() => {
+
+    const configbuilder = new ConfigBuilder();
+    console.log("ConfigBuilder", configbuilder);
+
     const MinerEmitter = new NativeEventEmitter(XMRigForAndroid);
 
     const onLogSub:EmitterSubscription = MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
@@ -125,6 +168,24 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
       const cConfig:Configuration | undefined = settings.configurations.find(
         config => config.id == settings.selectedConfiguration
       );
+      if (cConfig && cConfig.mode === ConfigurationMode.SIMPLE) {
+        try {
+          const parsedConfig = JSON.parse(data.config)
+          console.log("parsedConfig", parsedConfig)
+          settingsDispatcher({
+            type: SettingsActionType.UPDATE_CONFIGURATION,
+            value: {
+              ...cConfig,
+              properties: {
+                ...(cConfig as ISimpleConfiguration).properties,
+                algo_perf: parsedConfig['algo-perf']
+              }
+            }
+          })
+        } catch(e) {
+          console.log("ERROR PARSE ALGO PERF", e)
+        }
+      }
       if (cConfig && cConfig.mode === ConfigurationMode.ADVANCE) {
         settingsDispatcher({
           type: SettingsActionType.UPDATE_CONFIGURATION,
