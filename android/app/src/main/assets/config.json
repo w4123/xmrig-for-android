@@ -38,13 +38,7 @@
     "argon2-impl": null,
     "astrobwt-max-size": 100,
     "astrobwt-avx2": false,
-    "cn/0": false,
-    "cn-lite/0": false,
-    "cn-heavy": false,
-    "cn/gpu": false,
-    "cn/ccx": false,
-    "argon2/chukwav2": false,
-    "cn-heavy/xhv": false
+    {algos}
   },
   "opencl": {
     "enabled": false,

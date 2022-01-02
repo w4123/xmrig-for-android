@@ -6,6 +6,7 @@ import { SettingsActionType, SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from "react-native";
 import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
 import _ from 'lodash';
+import cloneDeep from 'lodash/fp/cloneDeep'
 
 const { XMRigForAndroid } = NativeModules;
 
@@ -64,14 +65,14 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                 config => config.id == settings.selectedConfiguration
               );
               if (cConfig) {
-                const configCopy:Configuration = {
-                  ...cConfig
-                }
+                const configCopy:Configuration = cloneDeep(cConfig)
+                
                 if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
                   (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
                 }
-                // Temp workaround to use deprecated wallet field as username 
+                
                 if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
+                  // Temp workaround to use deprecated wallet field as username 
                   if (!(configCopy as ISimpleConfiguration).properties?.pool?.username && (configCopy as ISimpleConfiguration).properties?.wallet) {
                     (configCopy as ISimpleConfiguration).properties = _.merge(
                       (configCopy as ISimpleConfiguration).properties,
@@ -82,6 +83,14 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                       }
                     );
                   }
+
+                  // create algos partial json string from algos obj
+                  (configCopy as ISimpleConfiguration).properties = _.merge(
+                    (configCopy as ISimpleConfiguration).properties,
+                    {
+                      algos: JSON.stringify((configCopy as ISimpleConfiguration).properties?.algos)
+                    }
+                  );
                 }
                 console.log(cConfig);
                 XMRigForAndroid.start(

@@ -1,9 +1,10 @@
 import React, { createContext, Context, useReducer, Dispatch, useEffect, useState } from "react";
 import { SettingsActionType } from "./settings.actions";
-import { ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode, XMRigFork } from "./settings.interface";
+import { Algorithems, Algorithm, ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode, XMRigFork } from "./settings.interface";
 import { SettingsReducer } from "./settings.reducer";
 import { SettingsStorageInit, SettingsStorageSave } from "./settings.storage";
 import uuid from 'react-native-uuid';
+import merge from 'lodash/fp/merge';
 
 
 const initialState: ISettings = {
@@ -17,12 +18,29 @@ export const defaultConfiguration: Partial<IConfiguration> = {
   xmrig_fork: XMRigFork.ORIGINAL
 };
 
+const defaultAlgorithems = Algorithems.reduce((acc, item) => {
+  return {
+    ...acc,
+    [item]: true
+  }
+}, {})
+
 export const defaultSimpleConfiguration: Partial<ISimpleConfiguration> = {
   properties: {
     cpu: {
       yield: true,
       random_x_mode: RandomXMode.LIGHT,
       max_threads_hint: 100
+    },
+    algos: {
+      ...defaultAlgorithems,
+      "cn/gpu": false,
+      "cn-heavy": false,
+      "cn-heavy/0": false,
+      "cn-heavy/tube": false,
+      "cn-heavy/xhv": false,
+      "astrobwt": false,
+      "panthera": false,
     }
   }
 };
@@ -45,6 +63,16 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
           const fixValue:ISettings = {
             ...value,
             configurations: value.configurations.map((item) => {
+              if (item.mode === ConfigurationMode.SIMPLE) {
+                return merge(
+                  {
+                    ...defaultSimpleConfiguration,
+                    ...defaultConfiguration
+                  },
+                  item
+                )
+              }
+              
               return {
                 ...defaultConfiguration,
                 ...item,
@@ -52,6 +80,7 @@ export const SettingsContextProvider:React.FC = ({children}) =>  {
               }
             })
           }
+          console.log("SET SET", fixValue.configurations[0])
           settingsDispatcher({
             type: SettingsActionType.SET,
             value: {
