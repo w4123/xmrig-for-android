@@ -87,19 +87,21 @@ export interface IConfiguratioProperties {
     wallet?: string;
     pool?: IConfiguratioPropertiesPool;
     cpu?: IConfiguratioPropertiesCPU;
-    algos?: Partial<Record<Algorithm, boolean>> | string
+    algos?: Partial<Record<Algorithm, boolean>>;
+    algo_perf?: Record<string, number>;
 }
 export interface IConfiguration {
     id?: string;
     name: string;
     mode: ConfigurationMode;
     xmrig_fork: XMRigFork;
+    config?: string;
 }
 export interface ISimpleConfiguration extends IConfiguration {
     properties?: IConfiguratioProperties;
 }
 export interface IAdvanceConfiguration extends IConfiguration {
-    config?: string;
+    
 }
 
 export type Configuration = ISimpleConfiguration | IAdvanceConfiguration;

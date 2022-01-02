@@ -41,7 +41,8 @@ export const defaultSimpleConfiguration: Partial<ISimpleConfiguration> = {
       "cn-heavy/xhv": false,
       "astrobwt": false,
       "panthera": false,
-    }
+    },
+    algo_perf: {}
   }
 };
 
