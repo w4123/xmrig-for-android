@@ -20,7 +20,7 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
     }
 ) => {
 
-    const {settings, settingsDispatcher} = React.useContext(SettingsContext);
+    const {settings } = React.useContext(SettingsContext);
     const existsNames = React.useMemo<string[]>(
         () => settings.configurations.map(c => c.name), [settings.configurations]
     );

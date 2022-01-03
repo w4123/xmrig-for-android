@@ -3,7 +3,7 @@ import React from "react";
 import { View } from "react-native";
 import { useTheme } from "react-native-paper";
 import { SettingsActionType, SettingsContext } from "../../../core/settings";
-import { Configuration, ConfigurationMode, IAdvanceConfiguration, ISimpleConfiguration } from "../../../core/settings/settings.interface";
+import { Configuration, ConfigurationMode } from "../../../core/settings/settings.interface";
 import { ConfigurationEditAdvance } from "../containers/configurations/edit-advance";
 import { ConfigurationEditSimple } from "../containers/configurations/edit-simple";
 
@@ -18,30 +18,23 @@ const ConfigurationEditScreen = () => {
         setConfiguration(settings.configurations.find(item => item.id === (route.params as any).id))
     }, [route.params])
 
+    const handleUpdate = (data: Configuration) => settingsDispatcher({
+        type: SettingsActionType.UPDATE_CONFIGURATION,
+        value: data
+    })
+
     return (
         <View style={{backgroundColor: theme.colors.background}}>
             {configuration?.mode === ConfigurationMode.SIMPLE && 
                 <ConfigurationEditSimple 
                     configuration={configuration} 
-                    onUpdate={(configurationData: ISimpleConfiguration) => {
-                        console.log(configurationData)
-                        settingsDispatcher({
-                            type: SettingsActionType.UPDATE_CONFIGURATION, 
-                            value: configurationData
-                        })
-                    }}
+                    onUpdate={handleUpdate}
                 />
             }
             {configuration?.mode === ConfigurationMode.ADVANCE && 
                 <ConfigurationEditAdvance 
                     configuration={configuration} 
-                    onUpdate={(configurationData: IAdvanceConfiguration) => {
-                        console.log(configurationData)
-                        settingsDispatcher({
-                            type: SettingsActionType.UPDATE_CONFIGURATION, 
-                            value: configurationData
-                        })
-                    }}
+                    onUpdate={handleUpdate}
                 />
             }
         </View>

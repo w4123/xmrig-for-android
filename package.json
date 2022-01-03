@@ -1,5 +1,5 @@
 {
-  "name": "XMRigForAndroid",
+  "name": "xmrig-for-android",
   "version": "0.0.7",
   "description": "XMRig monero miner for Android with React Native user interface",
   "author": {
@@ -73,7 +73,7 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/runtime": "^7.12.5",
     "@react-native-community/eslint-config": "^2.0.0",
-    "@types/react-native": "^0.64.0",
+    "@types/react-native": "^0.66.4",
     "@types/uuid": "^8.3.3",
     "eslint": "^7.14.0",
     "metro-react-native-babel-preset": "^0.66.2",

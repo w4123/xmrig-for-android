@@ -350,7 +350,7 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
                                 <View style={[styles.row, {margin: 0}]}>
                                     <Paragraph>{algo}</Paragraph>
                                     <Switch
-                                        value={localState.properties?.algos[algo]}
+                                        value={localState.properties?.algos ? localState.properties?.algos[algo] : true}
                                         onValueChange={value => setLocalState(oldState => merge(
                                             oldState,
                                             {

@@ -1,18 +1,15 @@
 import React from "react";
-import { IMinerSummary, useMinerHttpd } from "../hooks";
-import { useHashrateHistory } from "../hooks";
+import { IMinerSummary, useMinerHttpd, useHashrateHistory } from "../hooks";
 import { IMinerLog, StartMode, IXMRigLogEvent, WorkingState } from "./session-data.interface";
 import { SettingsActionType, SettingsContext } from "../settings";
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from "react-native";
 import { filterLogLineRegex, parseLogLine } from "../utils/parsers";
-import _ from 'lodash';
+import { Configuration, ConfigurationMode, ISimpleConfiguration } from "../settings/settings.interface";
+import ConfigBuilder from "../xmrig-config/config-builder";
 import cloneDeep from 'lodash/fp/cloneDeep'
 
 const { XMRigForAndroid } = NativeModules;
 
-import base64 from 'react-native-base64'
-import { Configuration, ConfigurationMode, IAdvanceConfiguration, ISimpleConfiguration } from "../settings/settings.interface";
-import ConfigBuilder from "../xmrig-config/config-builder";
 
 const configBuilder = new ConfigBuilder();
 
@@ -95,7 +92,6 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                   configBuilder.setProps({
                     ['algo-perf']: (configCopy as ISimpleConfiguration).properties?.algo_perf
                   })
-
                 }
 
                 const sendConfiguration = {
@@ -106,31 +102,6 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
                   config: configBuilder.getConfigBase64()
                 }
                 
-                /*if (configCopy && configCopy.mode == ConfigurationMode.ADVANCE) {
-                  (configCopy as IAdvanceConfiguration).config = base64.encode(`${(configCopy as IAdvanceConfiguration)?.config}`);
-                }*/
-                
-               /*if (configCopy && configCopy.mode == ConfigurationMode.SIMPLE) {
-                  // Temp workaround to use deprecated wallet field as username 
-                  if (!(configCopy as ISimpleConfiguration).properties?.pool?.username && (configCopy as ISimpleConfiguration).properties?.wallet) {
-                    (configCopy as ISimpleConfiguration).properties = _.merge(
-                      (configCopy as ISimpleConfiguration).properties,
-                      {
-                        pool: {
-                          username: (configCopy as ISimpleConfiguration).properties?.wallet
-                        }
-                      }
-                    );
-                  }
-
-                  // create algos partial json string from algos obj
-                  (configCopy as ISimpleConfiguration).properties = _.merge(
-                    (configCopy as ISimpleConfiguration).properties,
-                    {
-                      algos: JSON.stringify((configCopy as ISimpleConfiguration).properties?.algos)
-                    }
-                  );
-                }*/
                 console.log(sendConfiguration);
                 XMRigForAndroid.start(
                   JSON.stringify(

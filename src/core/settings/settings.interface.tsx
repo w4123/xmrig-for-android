@@ -17,7 +17,7 @@ export enum RandomXMode {
     AUTO = "auto",
     FAST = "fast",
     LIGHT = "light"
-};
+}
 
 export enum XMRigFork {
     ORIGINAL = "original",
@@ -113,7 +113,7 @@ export interface ISettings {
 }
 export interface ISettingsReducerAction {
     type: SettingsActionType;
-    value?: ISettings | string | number | Configuration | string[];
+    value?: ISettings | string | number | Partial<Configuration> | string[];
 }
 
 export interface ISettingsContext {

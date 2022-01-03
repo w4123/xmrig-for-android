@@ -1504,10 +1504,10 @@
   resolved "https://registry.yarnpkg.com/@types/react-native-base64/-/react-native-base64-0.2.0.tgz#c934e7c3cd549d4613bbfa7929a6845ab07a20af"
   integrity sha512-5kUtS7Kf8Xl4zEwbqLITEuQReQTby4UOGfnsEeBFJEVmUfT+ygOv/Qmv0v6El0iV1eDhXS+/0i7CGR9d3/nRSA==
 
-"@types/react-native@^0.64.0":
-  version "0.64.20"
-  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.64.20.tgz#e2dc17acdd77e6814f97758cd3ef993c71e19bd6"
-  integrity sha512-wEEDbU6ePTsfl4PVY+KxuZBHBrz2wYfLD0ssi68qiE0MXmJW8qcmVEY6QOV6alSq9h7iSH5Lgy7+YaKULz7VXQ==
+"@types/react-native@^0.66.4":
+  version "0.66.11"
+  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.66.11.tgz#3d138275fe9cca3b8efad990b1bee08078c3ff4d"
+  integrity sha512-DFuNMhRuyKMbJrI/s3rIuM5io+tIOK4Iq9oMzatWX5bIgfjZM86X1aA/epE0ipw1aFaoHKermK3fLG1bqFzzDQ==
   dependencies:
     "@types/react" "*"
 

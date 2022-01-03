@@ -51,7 +51,8 @@ type SettingsContextProps = {
   settingsDispatcher: Dispatch<ISettingsReducerAction>,
 }
 
-export const SettingsContext:Context<SettingsContextProps> = createContext<SettingsContextProps>({settings: initialState, settingsDispatcher: ():void => {}});
+// @ts-ignore
+export const SettingsContext:Context<SettingsContextProps> = createContext(); 
 
 export const SettingsContextProvider:React.FC = ({children}) =>  {
     const [settings, settingsDispatcher] = useReducer(SettingsReducer, initialState);

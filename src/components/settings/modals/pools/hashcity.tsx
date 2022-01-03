@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { IPool } from '.';
-import { validateWalletAddress } from '../../../../core/utils';
 
 const hostname = 'xmr.hashcity.org';
 const port = 4444;

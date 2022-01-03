@@ -81,10 +81,10 @@ const PoolListModal:React.FC<PoolListModalProps> = (
                     {poolInfo && (
                         <View style={{marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Badge size={26}>
-                                {poolInfo.fee}% fee
+                                {`{${poolInfo.fee}}% fee`}
                             </Badge>
                             <Badge size={26}>
-                                {poolInfo.threshold} XMR min. payout
+                                {`{${poolInfo.threshold}} XMR min. payout`}
                             </Badge>
                             <Badge size={26}>
                                 {poolInfo.method}
