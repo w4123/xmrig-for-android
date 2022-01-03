@@ -1,15 +1,11 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { Button, Caption, Colors, Dialog, Divider, Paragraph, Portal, Provider, RadioButton, Subheading, TextInput } from 'react-native-paper';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { Provider } from 'react-native-paper';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
-import { ConfigurationMode } from '../../../core/settings/settings.interface';
 import { ConfigurationsListView } from '../containers/configurations/list-view';
 import AddConfigurationsModal from '../modals/add-configuration.modal';
 
-export type ConfigurationsScreenProps = {
-}
-
-const ConfigurationsScreen:React.FC<ConfigurationsScreenProps> = () => {
+const ConfigurationsScreen = () => {
 
     const {settings, settingsDispatcher} = React.useContext(SettingsContext);
 

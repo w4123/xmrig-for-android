@@ -5,7 +5,6 @@ import {View, StyleSheet, ViewProps, ScrollView } from 'react-native';
 import { List, Checkbox, Colors, Button, Card, Headline } from 'react-native-paper';
 import { Configuration } from '../../../../core/settings/settings.interface';
 
-
 type ConfigurationsListViewProps = ViewProps & {
     configurations: Configuration[];
     onAddNew: () => void;

@@ -10,7 +10,6 @@ import PoolListModal from '../../modals/pool-list.modal';
 
 const { XMRigForAndroid } = NativeModules;
 
-
 type ConfigurationEditSimpleProps = ViewProps & {
     configuration: ISimpleConfiguration;
     onUpdate: (configurationData: ISimpleConfiguration) => void;

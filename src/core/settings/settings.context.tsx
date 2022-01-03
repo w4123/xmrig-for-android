@@ -1,6 +1,6 @@
 import React, { createContext, Context, useReducer, Dispatch, useEffect, useState } from "react";
 import { SettingsActionType } from "./settings.actions";
-import { Algorithems, Algorithm, ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode, XMRigFork } from "./settings.interface";
+import { Algorithems, ConfigurationMode, IConfiguration, ISettings, ISettingsReducerAction, ISimpleConfiguration, RandomXMode, XMRigFork } from "./settings.interface";
 import { SettingsReducer } from "./settings.reducer";
 import { SettingsStorageInit, SettingsStorageSave } from "./settings.storage";
 import uuid from 'react-native-uuid';

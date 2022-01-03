@@ -1,11 +1,10 @@
 import React from 'react';
-import {View, StyleSheet, ViewProps, ScrollView } from 'react-native';
+import { View, StyleSheet, ViewProps, ScrollView } from 'react-native';
 import { List, Colors, Button, TextInput, Card, Headline, Caption, HelperText } from 'react-native-paper';
 import { IAdvanceConfiguration, XMRigFork } from '../../../../core/settings/settings.interface';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from 'react-native-paper-dropdown';
 import merge from 'lodash/fp/merge';
-
 
 type ConfigurationEditAdvanceProps = ViewProps & {
     configuration: IAdvanceConfiguration;

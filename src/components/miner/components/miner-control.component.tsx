@@ -3,21 +3,14 @@ import { StyleSheet, View, ViewProps } from 'react-native';
 import { SessionDataContext } from '../../../core/session-data/session-data.context';
 import { StartMode, WorkingState } from '../../../core/session-data/session-data.interface';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
-import { Button, Caption, List, useTheme } from 'react-native-paper';
+import { Button, Caption, useTheme } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
-import { Configuration, ConfigurationMode } from '../../../core/settings/settings.interface';
-
-
-type MinerControlProps = {
-    isStartButtonDisabled: boolean;
-    handleStart: () => {};
-    handleStop: () => {};
-}
+import { Configuration } from '../../../core/settings/settings.interface';
 
 export const MinerControl:React.FC<ViewProps> = () => {
     const { colors } = useTheme();
 
-    const { working, setWorking, workingState } = React.useContext(SessionDataContext);
+    const { setWorking, workingState } = React.useContext(SessionDataContext);
 
     const handleStart = React.useCallback(() => setWorking(StartMode.START), []);
     const handleStop = React.useCallback(() => setWorking(StartMode.STOP), []);

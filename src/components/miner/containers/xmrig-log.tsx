@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, ViewProps} from 'react-native';
-import { Badge, List, Paragraph } from 'react-native-paper';
+import { Badge, List } from 'react-native-paper';
 import { IMinerLog } from '../../../core/session-data/session-data.interface';
 import { MinerCard } from '../components/miner-card.component';
 
@@ -9,17 +9,20 @@ type LogViewProps = ViewProps & {
     disabled: boolean;
 }
 
-export const XMRigLogView = (props: LogViewProps):React.ReactElement<LogViewProps> => {
+export const XMRigLogView:React.FC<LogViewProps> = ({
+    data,
+    disabled
+}) => {
     return (
         <>
             <View>
                 <MinerCard
                     title="stdout"
-                    disabled={props.disabled}
+                    disabled={disabled}
                     style={{flex: 1}}
                     wrapInContent={false}
                 >
-                    {props.data.map((value, index) => (
+                    {data.map((value, index) => (
                         <List.Item
                             key={`key-${index}`}
                             title={value.message.trim()}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
 
-import { SettingsContextProvider, SettingsContext } from './core/settings'
+import { SettingsContextProvider } from './core/settings'
 import { AppNavigator } from './components';
 import { SessionDataContextProvider } from './core/session-data/session-data.context';
 
@@ -21,8 +21,6 @@ const AppWithSettings:React.FC = () => (
 );
 
 const App = () => {
-  const {settings} = React.useContext(SettingsContext);
-
   return (
     <PaperProvider>
       <SessionDataContextProvider>
