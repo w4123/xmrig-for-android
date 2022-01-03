@@ -1,16 +1,15 @@
 import React from 'react';
+import { ViewProps } from 'react-native';
+import { BottomNavigation } from 'react-native-paper';
 import { LazyLoader } from '../core/lazy-loader';
-
-import { BottomNavigation, } from 'react-native-paper';
 
 const MinerScreen = React.lazy(() => import('./screens/advanced/miner.screen'));
 const LogScreen = React.lazy(() => import('./screens/advanced/log.screen'));
 
-const LazyMinerScreen = () => (<LazyLoader><MinerScreen /></LazyLoader>)
-const LazyLogScreen = () => (<LazyLoader><LogScreen /></LazyLoader>)
+const LazyMinerScreen = () => (<LazyLoader><MinerScreen /></LazyLoader>);
+const LazyLogScreen = () => (<LazyLoader><LogScreen /></LazyLoader>);
 
-
-export const TabNavigator = () => {
+export const TabNavigator:React.FC<ViewProps> = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: 'miner', title: 'Miner', icon: 'engine' },
@@ -19,7 +18,7 @@ export const TabNavigator = () => {
 
   const renderScene = BottomNavigation.SceneMap({
     miner: LazyMinerScreen,
-    log: LazyLogScreen
+    log: LazyLogScreen,
   });
 
   return (
@@ -29,4 +28,4 @@ export const TabNavigator = () => {
       renderScene={renderScene}
     />
   );
-}
+};

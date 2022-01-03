@@ -27,6 +27,7 @@ export const SessionDataContext:React.Context<SessionDataContextType> = React.cr
 
 export const SessionDataContextProvider:React.FC = ({children}) =>  {
 
+
   const {settings, settingsDispatcher} = React.useContext(SettingsContext);
   
   const [minerLog, setMinerLog] = React.useState<IMinerLog[]>([]);
@@ -131,7 +132,7 @@ export const SessionDataContextProvider:React.FC = ({children}) =>  {
     const onLogSub:EmitterSubscription = MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
         console.log(data);
         const cleanData = [...data.log.filter(item => !filterLogLineRegex.test(item))]
-        setMinerLog(old => [...cleanData.reverse().map(value => parseLogLine(value)), ...old])
+        setMinerLog(old => [...[...cleanData].reverse().map(value => parseLogLine(value)), ...old])
     });
 
     const onConfigUpdateSub:EmitterSubscription = MinerEmitter.addListener('onConfigUpdate', (data) => {

@@ -9,25 +9,32 @@ export type MinerCardProps = ViewProps & {
     wrapInContent?: boolean;
 };
 
-export const MinerCard:React.FC<MinerCardProps> = ({style, children, title, subTitle, disabled=false, wrapInContent=true}, ...props) => {
-
-    return (
-        <Card style={[style, disabled ? styles.disabledCard : {}]}>
-            <Card.Title
-                title={title}
-                subtitle={subTitle}
-            />
-            {wrapInContent && 
-                (<Card.Content>
-                    {children}
-                </Card.Content>)
-            || <>{children}</> }
-        </Card>
-    )
-};
+export const MinerCard:React.FC<MinerCardProps> = ({
+  style,
+  children,
+  title,
+  subTitle,
+  disabled = false,
+  wrapInContent = true,
+}) => (
+  <Card style={[style, disabled ? styles.disabledCard : {}]}>
+    <Card.Title
+      title={title}
+      subtitle={subTitle}
+    />
+    {wrapInContent
+      ? (
+        <Card.Content>
+          { children }
+        </Card.Content>
+      )
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      : <>{ children }</> }
+  </Card>
+);
 
 const styles = StyleSheet.create({
-    disabledCard: {
-        opacity: 0.2
-    }
+  disabledCard: {
+    opacity: 0.2,
+  },
 });
