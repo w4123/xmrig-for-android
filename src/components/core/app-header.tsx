@@ -9,7 +9,7 @@ type AppHeaderComponentProps = {
     back: any;
 }
 
-const AppHeaderComponent:React.FC<AppHeaderComponentProps> = ({ navigation, back }) => (
+export const AppHeaderComponent:React.FC<AppHeaderComponentProps> = ({ navigation, back }) => (
   <Appbar.Header>
     {back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
     <Appbar.Content title="XMRig" subtitle="for Android" />

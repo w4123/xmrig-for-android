@@ -1,76 +1,4 @@
-/*{
-    "id": "59df265af557d94c",
-    "worker_id": "localhost",
-    "uptime": 317,
-    "restricted": true,
-    "resources": {
-        "memory": {
-            "free": 38916096,
-            "total": 1863864320,
-            "resident_set_memory": 308178944
-        },
-        "load_average": [32.75, 32.4, 31.79],
-        "hardware_concurrency": 8
-    },
-    "features": ["api", "http"],
-    "results": {
-        "diff_current": 10979,
-        "shares_good": 0,
-        "shares_total": 0,
-        "avg_time": 0,
-        "avg_time_ms": 0,
-        "hashes_total": 0,
-        "best": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    },
-    "algo": "cn/half",
-    "connection": {
-        "pool": "gulf.moneroocean.stream:10032",
-        "ip": "3.125.10.23",
-        "uptime": 124,
-        "uptime_ms": 124495,
-        "ping": 0,
-        "failures": 0,
-        "tls": null,
-        "tls-fingerprint": null,
-        "algo": "cn/half",
-        "diff": 10979,
-        "accepted": 0,
-        "rejected": 0,
-        "avg_time": 0,
-        "avg_time_ms": 0,
-        "hashes_total": 0
-    },
-    "version": "6.12.0-mo1",
-    "kind": "miner",
-    "ua": "XMRig/6.12.0-mo1 (Linux arm) libuv/1.23.1 clang/8.0.7",
-    "cpu": {
-        "brand": "ARM Cortex-A53",
-        "aes": false,
-        "avx2": false,
-        "x64": false,
-        "64_bit": false,
-        "l2": 0,
-        "l3": 0,
-        "cores": 0,
-        "threads": 8,
-        "packages": 1,
-        "nodes": 0,
-        "backend": "basic/1",
-        "msr": "none",
-        "assembly": "none",
-        "arch": "aarch32",
-        "flags": []
-    },
-    "donate_level": 0,
-    "paused": false,
-    "algorithms": ["cn/1", "cn/2", "cn/r", "cn/fast", "cn/half", "cn/xao", "cn/rto", "cn/rwz", "cn/zls", "cn/double", "cn-lite/1", "cn-pico", "cn-pico/tlo", "cn/upx2", "rx/0", "rx/wow", "rx/arq", "rx/sfx", "rx/keva", "panthera"],
-    "hashrate": {
-        "total": [22.82, 23.46, null],
-        "highest": 24.29
-    },
-    "hugepages": [0, 8]
-}*/
-
+/* eslint-disable camelcase */
 import React from 'react';
 import { useInterval } from './use-interval.hook';
 
@@ -107,7 +35,7 @@ export interface IMinerSummary {
         ping: number,
         failures: number,
         tls: null,
-        "tls-fingerprint": null,
+        'tls-fingerprint': null,
         algo: string,
         diff: number,
         accepted: number,
@@ -124,7 +52,7 @@ export interface IMinerSummary {
         aes: boolean,
         avx2: boolean,
         x64: boolean,
-        "64_bit": boolean,
+        '64_bit': boolean,
         l2: number,
         l3: number,
         cores: number,
@@ -148,45 +76,43 @@ export interface IMinerSummary {
 }
 
 const getDataApi = (port: number):Promise<IMinerSummary | null> => {
-    console.log("fetch data")
-    return fetch(`http://127.0.0.1:${port}/2/summary`, {
-        method: 'GET',
-        headers: new Headers({
-            'Authorization': 'Bearer XMRigForAndroid'
-        })
-    })
+  console.log('fetch data');
+  return fetch(`http://127.0.0.1:${port}/2/summary`, {
+    method: 'GET',
+    headers: new Headers({
+      Authorization: 'Bearer XMRigForAndroid',
+    }),
+  })
     .then((response) => response.json())
     .then((json:IMinerSummary) => {
-        console.log("data", json)
-        return json;
+      console.log('data', json);
+      return json;
     })
     .catch((error) => {
-        console.log("error", error);
-        return null;
+      console.log('error', error);
+      return null;
     });
-  };
+};
 
 export const useMinerHttpd = (port:number) => {
-    const [minerStatus, setMinerStatus] = React.useState<boolean>(false);
-    const [minerData, setMinerData] = React.useState<IMinerSummary | null>(null);
+  const [minerStatus, setMinerStatus] = React.useState<boolean>(false);
+  const [minerData, setMinerData] = React.useState<IMinerSummary | null>(null);
 
-    useInterval(() => 
-        getDataApi(port)
-            .then(value => {
-                if (value) {
-                    setMinerData(value)
-                    setMinerStatus(true);
-                } else {
-                    setMinerStatus(false);
-                }
-            })
-            .catch((error) => {
-                setMinerStatus(false);
-            }
-    ), 10*1000);
+  useInterval(() => getDataApi(port)
+    .then((value) => {
+      if (value) {
+        setMinerData(value);
+        setMinerStatus(true);
+      } else {
+        setMinerStatus(false);
+      }
+    })
+    .catch(() => {
+      setMinerStatus(false);
+    }), 10 * 1000);
 
-    return {
-        minerStatus,
-        minerData
-    }
-}
+  return {
+    minerStatus,
+    minerData,
+  };
+};

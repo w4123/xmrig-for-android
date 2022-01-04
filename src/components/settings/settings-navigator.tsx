@@ -1,21 +1,20 @@
 import React from 'react';
+import { ViewProps } from 'react-native';
+import { BottomNavigation } from 'react-native-paper';
 import { LazyLoader } from '../core/lazy-loader';
-
-import { BottomNavigation, } from 'react-native-paper';
 
 const ConfigurationsScreen = React.lazy(() => import('./screens/configurations.screen'));
 
-const LazyConfigurationsScreen = () => (<LazyLoader><ConfigurationsScreen /></LazyLoader>)
+const LazyConfigurationsScreen = () => (<LazyLoader><ConfigurationsScreen /></LazyLoader>);
 
-
-export const TabNavigator = () => {
+export const TabNavigator: React.FC<ViewProps> = () => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'configurations', title: 'Configurations', icon: 'cog' }
+    { key: 'configurations', title: 'Configurations', icon: 'cog' },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    configurations: LazyConfigurationsScreen
+    configurations: LazyConfigurationsScreen,
   });
 
   return (
@@ -25,4 +24,4 @@ export const TabNavigator = () => {
       renderScene={renderScene}
     />
   );
-}
+};
