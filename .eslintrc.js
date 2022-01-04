@@ -30,6 +30,10 @@ module.exports = {
     'no-unused-vars': 0,
     'react/no-unescaped-entities': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'react/no-unstable-nested-components': [
+      'warn',
+      { allowAsProps: true },
+    ],
   },
   settings: {
     'import/resolver': {
