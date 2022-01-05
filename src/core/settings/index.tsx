@@ -1,13 +1,13 @@
 export {
-    SettingsContextProvider,
-    SettingsContext
+  SettingsContextProvider,
+  SettingsContext,
 } from './settings.context';
 
 export {
-    SettingsActionType
+  SettingsActionType,
 } from './settings.actions';
 
 export type {
-    ISettingsReducerAction,
-    ISettings
+  ISettingsReducerAction,
+  ISettings,
 } from './settings.interface';

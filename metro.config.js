@@ -7,8 +7,8 @@
 
 module.exports = {
   resolver: {
-    blacklistRE: /xmrig\/lib-builder/
-    },  
+    blacklistRE: /xmrig\/lib-builder/,
+  },
   transformer: {
     getTransformOptions: async () => ({
       transform: {

@@ -20,6 +20,8 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'error',
     'no-use-before-define': 'off',
     'import/extensions': 'off',
     'import/prefer-default-export': 'off',
