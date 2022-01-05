@@ -1,12 +1,12 @@
 export {
-    formatHashrate
+  formatHashrate,
 } from './formatters';
 
 export {
-    parseLogLine,
-    parseLogLineRegex
+  parseLogLine,
+  parseLogLineRegex,
 } from './parsers';
 
 export {
-    validateWalletAddress
+  validateWalletAddress,
 } from './validators';

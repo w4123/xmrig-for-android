@@ -1,13 +1,7 @@
 import React from 'react';
-import { ViewProps, View} from 'react-native';
+import { ViewProps } from 'react-native';
 import { TabNavigator } from './miner-navigator';
 
-export const MinerView:React.FC<ViewProps> = () => {
-    return (
-        <>
-            <TabNavigator />
-        </>
-    )
-}
+export const MinerView:React.FC<ViewProps> = () => <TabNavigator />;
 
 export default MinerView;
