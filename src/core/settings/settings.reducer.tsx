@@ -1,6 +1,5 @@
 import { Reducer } from 'react';
-import 'react-native-get-random-values';
-import { v4 } from 'uuid';
+import uuid from 'react-native-uuid';
 import { SettingsActionType } from './settings.actions';
 import { defaultConfiguration, defaultSimpleConfiguration } from './settings.context';
 import {
@@ -40,7 +39,7 @@ export const SettingsReducer:Reducer<ISettings, ISettingsReducerAction> = (
           ...prevState.configurations,
           {
             ...newConfig,
-            id: v4(),
+            id: uuid.v4(),
           },
         ],
       } as ISettings;
