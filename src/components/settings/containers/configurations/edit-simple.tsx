@@ -151,7 +151,8 @@ export const ConfigurationEditSimple:React.FC<ConfigurationEditSimpleProps> = ({
               {localState.xmrig_fork === XMRigFork.MONEROOCEAN && (
                 <HelperText type="error">
                   Warning: Benchmarking may stuck on some algos, to disable these algos
-                  use custom configuration in "Advanced Mode"
+                  use "Algorithems" feature below or a custom configuration
+                  in "Advanced Mode"
                 </HelperText>
               )}
             </View>

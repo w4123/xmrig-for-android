@@ -90,8 +90,8 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
               </Caption>
               {localState.xmrig_fork === XMRigFork.MONEROOCEAN && (
                 <HelperText type="error">
-                  Warning: Benchmarking may stuck on some algos, to disable these algos
-                  use custom configuration in "Advanced Mode"
+                  Warning: Benchmarking may stuck on some algos, Please disable the
+                  algos that cause the problem.
                 </HelperText>
               )}
             </View>
