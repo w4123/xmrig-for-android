@@ -4,6 +4,8 @@ import {
 } from 'react-native';
 import { Headline } from 'react-native-paper';
 import { Battery } from '@pxblue/react-native-progress-icons';
+import chroma from 'chroma-js';
+import Shimmer from 'react-native-shimmer';
 import { SessionDataContext } from '../../../../core/session-data/session-data.context';
 import { XMRigView } from '../../containers/xmrig-view';
 import { StartMode } from '../../../../core/session-data/session-data.interface';
@@ -18,13 +20,13 @@ const MinerScreen = () => {
   const powerContext = React.useContext(PowerContext);
 
   const battryColor = React.useMemo(() => {
-    if (powerContext.batteryLevel > 70) {
-      return 'green';
-    }
-    if (powerContext.batteryLevel > 40) {
-      return 'orange';
-    }
-    return 'red';
+    const cScale = chroma.scale(['red', 'orange', 'green']);
+    return cScale(powerContext.batteryLevel / 100).hex();
+  }, [powerContext.batteryLevel]);
+
+  const battryLabelColor = React.useMemo(() => {
+    const cScale = chroma.scale(['#000000', '#ffffff']).domain([0, 0.7]);
+    return cScale(powerContext.batteryLevel / 100).hex();
   }, [powerContext.batteryLevel]);
 
   return (
@@ -40,13 +42,30 @@ const MinerScreen = () => {
         >
           <Headline>Miner Statistics</Headline>
           <View>
-            <Battery
-              percent={powerContext.batteryLevel}
-              size={36}
-              color={battryColor}
-              charging={powerContext.isPowerConnected}
-              outlined={false}
-            />
+            {powerContext.isPowerConnected && (
+              <Shimmer animating intensity={1} duration={3000}>
+                <Battery
+                  percent={powerContext.batteryLevel}
+                  size={50}
+                  color={battryColor}
+                  charging={powerContext.isPowerConnected}
+                  outlined={false}
+                  labelColor={battryLabelColor}
+                  showPercentLabel={!powerContext.isPowerConnected}
+                />
+              </Shimmer>
+            )}
+            {!powerContext.isPowerConnected && (
+              <Battery
+                percent={powerContext.batteryLevel}
+                size={50}
+                color={battryColor}
+                charging={powerContext.isPowerConnected}
+                outlined={false}
+                labelColor={battryLabelColor}
+                showPercentLabel={!powerContext.isPowerConnected}
+              />
+            )}
           </View>
         </View>
         <XMRigView
@@ -73,6 +92,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 
