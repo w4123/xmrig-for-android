@@ -2,10 +2,15 @@ import React from 'react';
 import { View, StyleSheet, ViewProps } from 'react-native';
 import { VictoryArea } from 'victory-native';
 import Shimmer from 'react-native-shimmer';
+import { Pie } from '@pxblue/react-native-progress-icons';
+import chroma from 'chroma-js';
 import { Title, Paragraph, Divider } from 'react-native-paper';
 import { formatHashrate } from '../../../core/utils/formatters';
 import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
+
+const cScale = chroma.scale(['red', 'orange', 'green']).domain([0, 0.3, 1]);
+const cLabelScale = chroma.scale(['black', 'white', 'white']).domain([0, 0.3, 1]);
 
 type PoolViewProps = ViewProps & {
     hashrateHistory: number[];
@@ -30,6 +35,24 @@ export const XMRigView:React.FC<PoolViewProps> = ({
     </View>
   ), [fullWidth, hashrateHistory]);
 
+  const hp10s = React.useMemo(() => {
+    const val = minerData?.hashrate.total[0] || 0;
+    const max = minerData?.hashrate.highest || 0;
+    return (100 / max) * val;
+  }, [minerData?.hashrate]);
+
+  const hp60s = React.useMemo(() => {
+    const val = minerData?.hashrate.total[1] || 0;
+    const max = minerData?.hashrate.highest || 0;
+    return (100 / max) * val;
+  }, [minerData?.hashrate]);
+
+  const hp15m = React.useMemo(() => {
+    const val = minerData?.hashrate.total[2] || 0;
+    const max = minerData?.hashrate.highest || 0;
+    return (100 / max) * val;
+  }, [minerData?.hashrate]);
+
   return (
     <>
       <View style={styles.row}>
@@ -48,9 +71,17 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           style={{ flex: 2, marginRight: 10 }}
           disabled={disabled}
         >
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
+          <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[0])[0]}
           </Paragraph>
+          <Pie
+            color={cScale(hp10s / 100).hex()}
+            labelColor={cLabelScale(hp10s / 100).hex()}
+            percent={Math.round(hp10s)}
+            size={50}
+            ring={10}
+            showPercentLabel
+          />
         </MinerCard>
         <MinerCard
           title="60s"
@@ -58,9 +89,17 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           style={{ flex: 2, marginRight: 10 }}
           disabled={disabled}
         >
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
+          <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[1])[0]}
           </Paragraph>
+          <Pie
+            color={cScale(hp60s / 100).hex()}
+            labelColor={cLabelScale(hp60s / 100).hex()}
+            percent={Math.round(hp60s)}
+            size={50}
+            ring={10}
+            showPercentLabel
+          />
         </MinerCard>
         <MinerCard
           title="15m"
@@ -68,9 +107,17 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           style={{ flex: 2, marginRight: 10 }}
           disabled={disabled}
         >
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
+          <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[2])[0]}
           </Paragraph>
+          <Pie
+            color={cScale(hp15m / 100).hex()}
+            labelColor={cLabelScale(hp15m / 100).hex()}
+            percent={Math.round(hp15m)}
+            size={50}
+            ring={10}
+            showPercentLabel
+          />
         </MinerCard>
         <MinerCard
           title="max"
@@ -78,7 +125,7 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           style={{ flex: 2 }}
           disabled={disabled}
         >
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
+          <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.highest)[0]}
           </Paragraph>
         </MinerCard>

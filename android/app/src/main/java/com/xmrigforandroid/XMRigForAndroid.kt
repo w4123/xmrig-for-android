@@ -1,9 +1,6 @@
 package com.xmrigforandroid
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.os.FileObserver
 import android.os.IBinder
 import android.os.RemoteException
@@ -19,11 +16,12 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.Exception
 import com.facebook.react.bridge.ReactMethod
-import com.xmrigforandroid.events.MinerStartEvent
-import com.xmrigforandroid.events.MinerStopEvent
-import com.xmrigforandroid.events.StdoutEvent
 import java.io.File
 import java.util.*
+import android.os.BatteryManager
+
+import android.content.Context.BATTERY_SERVICE
+import com.xmrigforandroid.events.*
 
 
 class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
@@ -84,6 +82,19 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
         this.isMining = false
     }
 
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onPowerEvent(event: PowerEvent) {
+        Log.d(this.name, "event name: " + event.javaClass.simpleName)
+        val payload = Arguments.createMap()
+        payload.putString("action", event.action.toString())
+        if (event.value != null) {
+            payload.putDouble("value", event.value!!.toDouble())
+        }
+        reactApplicationContext
+                .getJSModule(RCTDeviceEventEmitter::class.java)
+                .emit("onPower", payload)
+    }
+
     @ReactMethod
     fun start(configurationJSON: String) {
         fileObserver.startWatching()
@@ -141,7 +152,21 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
 
     @ReactMethod
     fun addListener(eventName: String?) {
-        // Keep: Required for RN built in Event Emitter Calls.
+        val bm = reactApplicationContext.getSystemService(BATTERY_SERVICE) as BatteryManager
+        val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+
+        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            reactApplicationContext.applicationContext.registerReceiver(null, ifilter)
+        }
+
+        val chargePlug: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
+
+        EventBus.getDefault().post(PowerEvent(PowerEventAction.BATTERY_CHANGED, batteryLevel))
+        if (chargePlug > 0)   {
+            EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_CONNECTED))
+        } else {
+            EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_DISCONNECTED))
+        }
     }
 
     @ReactMethod
