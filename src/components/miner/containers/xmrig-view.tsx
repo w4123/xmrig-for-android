@@ -38,19 +38,19 @@ export const XMRigView:React.FC<PoolViewProps> = ({
   const hp10s = React.useMemo(() => {
     const val = minerData?.hashrate.total[0] || 0;
     const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val;
+    return (100 / max) * val || 0;
   }, [minerData?.hashrate]);
 
   const hp60s = React.useMemo(() => {
     const val = minerData?.hashrate.total[1] || 0;
     const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val;
+    return (100 / max) * val || 0;
   }, [minerData?.hashrate]);
 
   const hp15m = React.useMemo(() => {
     const val = minerData?.hashrate.total[2] || 0;
     const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val;
+    return (100 / max) * val || 0;
   }, [minerData?.hashrate]);
 
   return (
