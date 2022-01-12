@@ -1,14 +1,16 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import {
-  View, StyleSheet, ViewProps, ScrollView,
+  View, StyleSheet, ViewProps, ScrollView, KeyboardAvoidingView,
 } from 'react-native';
 import {
-  List, Colors, Button, TextInput, Card, Headline, Caption, HelperText,
+  List, Colors, Button, Card, Headline, Caption, HelperText, Paragraph, useTheme,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import DropDown from 'react-native-paper-dropdown';
 import merge from 'lodash/fp/merge';
 import { IAdvanceConfiguration, XMRigFork } from '../../../../core/settings/settings.interface';
+import Editor from '../../../editor/editor.component';
 
 type ConfigurationEditAdvanceProps = ViewProps & {
     configuration: IAdvanceConfiguration;
@@ -23,10 +25,14 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
   onUpdate,
 }) => {
   const navigation = useNavigation();
+  const theme = useTheme();
 
   const [localState, setLocalState] = React.useState<IAdvanceConfiguration>(configuration);
 
   const [showForkDropDown, setShowForkDropDown] = React.useState(false);
+
+  const editorRef = React.useRef<{ simulateKeyPress:(key: any) => void; }>(null);
+  const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
 
   const [cardHeight, setCardHeight] = React.useState<number>(0);
   const isJSONValid = React.useMemo<boolean>(() => {
@@ -37,6 +43,10 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
       return false;
     }
   }, [localState.config]);
+
+  const handleKeyPress = (key: any) => {
+    editorRef?.current?.simulateKeyPress(key);
+  };
 
   return (
     <>
@@ -105,22 +115,43 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
             title="Config JSON"
             right={isJSONValid ? ListIconSuccess : ListIconError}
           />
-          <Card.Content>
-            <TextInput
-              style={{ height: cardHeight - 90, textAlignVertical: 'top' }}
-              label="XMRig config.json content"
-              multiline
-              value={localState.config}
-              textAlignVertical="top"
-              textAlign="left"
-              autoCorrect={false}
-              autoCapitalize="none"
-              underlineColorAndroid="transparent"
-              onChangeText={(value) => setLocalState((oldState) => ({
-                ...oldState,
-                config: value,
-              }))}
-            />
+          <Card.Content style={{ padding: 0, marginHorizontal: -15 }}>
+            <KeyboardAvoidingView
+              style={{ flexGrow: 1 }}
+            >
+              <Editor
+                code={localState.config}
+                language="json"
+                theme={theme.dark ? 'dark' : 'light'}
+                ref={editorRef}
+                onKeyboardChange={setKeyboardVisible}
+                onCodeChange={(data) => setLocalState((oldState) => ({
+                  ...oldState,
+                  config: data,
+                }))}
+                style={{ height: cardHeight - 120 }}
+              />
+              <View style={[styles.bar, { margin: 10 }]}>
+                <TouchableOpacity onPress={() => handleKeyPress('Enter')}>
+                  <Paragraph>ENTER</Paragraph>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleKeyPress('Tab')}>
+                  <Paragraph>TAB</Paragraph>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleKeyPress('ArrowRight')}>
+                  <Paragraph>&#8594;</Paragraph>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleKeyPress('ArrowLeft')}>
+                  <Paragraph>&#8592;</Paragraph>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleKeyPress('ArrowUp')}>
+                  <Paragraph>&#8593;</Paragraph>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleKeyPress('ArrowDown')}>
+                  <Paragraph>&#8595;</Paragraph>
+                </TouchableOpacity>
+              </View> 
+            </KeyboardAvoidingView>
           </Card.Content>
         </Card>
       </ScrollView>
@@ -150,5 +181,11 @@ const styles = StyleSheet.create({
   },
   topActionButton: {
     marginRight: 10,
+  },
+  bar: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    margin: 5,
   },
 });
