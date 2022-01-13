@@ -35,6 +35,7 @@ export const XMRigView:React.FC<PoolViewProps> = ({
     </View>
   ), [fullWidth, hashrateHistory]);
 
+
   const hp10s = React.useMemo(() => {
     const val = minerData?.hashrate.total[0] || 0;
     const max = minerData?.hashrate.highest || 0;
