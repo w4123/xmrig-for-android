@@ -1,6 +1,7 @@
 import React from 'react';
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from 'react-native';
 import cloneDeep from 'lodash/fp/cloneDeep';
+import * as JSON5 from 'json5';
 import { IMinerSummary, useMinerHttpd, useHashrateHistory } from '../hooks';
 import {
   IMinerLog, StartMode, IXMRigLogEvent, WorkingState,
@@ -95,6 +96,20 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
               });
               configBuilder.setProps({
                 'algo-perf': (configCopy as ISimpleConfiguration).properties?.algo_perf,
+              });
+            }
+            if (configCopy && configCopy.mode === ConfigurationMode.ADVANCE) {
+              configBuilder.setConfig(JSON5.parse(configCopy.config || '{}'));
+              configBuilder.setProps({
+                http: {
+                  enabled: true,
+                  host: '127.0.0.1',
+                  port: 50080,
+                  'access-token': null,
+                  restricted: true,
+                },
+                background: false,
+                colors: false,
               });
             }
 

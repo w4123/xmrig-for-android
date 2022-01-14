@@ -1,6 +1,6 @@
 import React from 'react';
 import { WebView } from 'react-native-webview';
-import { Keyboard, StyleProp, View, ViewStyle } from 'react-native';
+import { Keyboard, View, ViewStyle } from 'react-native';
 
 const EDITOR_INDEX_PATH = 'file:///android_asset/editor/index.html';
 
@@ -9,7 +9,7 @@ export type EditorProps = {
   language?: string;
   onCodeChange: (data: string) => void;
   theme?: string;
-  onKeyboardChange: (isVisible: boolean) => void;
+  onKeyboardChange?: (isVisible: boolean) => void;
   style: ViewStyle;
 };
 
@@ -117,8 +117,9 @@ function Editor(
   }, []);
 
   React.useEffect(() => {
-    onKeyboardChange(isKeyboardVisible);
-    console.log("keyworjk")
+    if (onKeyboardChange) {
+      onKeyboardChange(isKeyboardVisible);
+    }
   }, [isKeyboardVisible]);
 
   return React.useMemo(() => (

@@ -7,6 +7,7 @@ import {
   List, Colors, Button, Card, Headline, Caption, HelperText, Paragraph, useTheme,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import * as JSON5 from 'json5';
 import DropDown from 'react-native-paper-dropdown';
 import merge from 'lodash/fp/merge';
 import { IAdvanceConfiguration, XMRigFork } from '../../../../core/settings/settings.interface';
@@ -32,12 +33,11 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
   const [showForkDropDown, setShowForkDropDown] = React.useState(false);
 
   const editorRef = React.useRef<{ simulateKeyPress:(key: any) => void; }>(null);
-  const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
 
   const [cardHeight, setCardHeight] = React.useState<number>(0);
   const isJSONValid = React.useMemo<boolean>(() => {
     try {
-      JSON.parse(localState?.config || '');
+      JSON5.parse(localState?.config || '');
       return true;
     } catch (e) {
       return false;
@@ -47,6 +47,17 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
   const handleKeyPress = (key: any) => {
     editorRef?.current?.simulateKeyPress(key);
   };
+
+  const codeCopy = React.useMemo<string>(() => {
+    const data = localState.config?.toString() || '';
+    try {
+      return JSON.stringify(JSON5.parse(data), null, 2);
+    } catch (er) {
+      console.log(er);
+    }
+
+    return '{}';
+  }, []);
 
   return (
     <>
@@ -120,11 +131,10 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
               style={{ flexGrow: 1 }}
             >
               <Editor
-                code={localState.config}
+                code={codeCopy}
                 language="json"
                 theme={theme.dark ? 'dark' : 'light'}
                 ref={editorRef}
-                onKeyboardChange={setKeyboardVisible}
                 onCodeChange={(data) => setLocalState((oldState) => ({
                   ...oldState,
                   config: data,
@@ -150,7 +160,7 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
                 <TouchableOpacity onPress={() => handleKeyPress('ArrowDown')}>
                   <Paragraph>&#8595;</Paragraph>
                 </TouchableOpacity>
-              </View> 
+              </View>
             </KeyboardAvoidingView>
           </Card.Content>
         </Card>
