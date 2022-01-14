@@ -10,38 +10,42 @@ type Pool = {
 }
 
 export default class ConfigBuilder {
-    config: Record<string, any> = _.cloneDeep(configJson)
+  config: Record<string, any> = _.cloneDeep(configJson);
 
-    reset() {
-      this.config = _.cloneDeep(configJson);
-    }
+  reset() {
+    this.config = _.cloneDeep(configJson);
+  }
 
-    setPool(pool: Partial<Pool>) {
-      this.config = {
-        ...this.config,
-        ...{
-          pools: [
-            {
-              ...this.config.pools[0],
-              ...pool,
-            },
-          ],
-        },
-      };
-    }
+  setConfig(data: Record<string, any>) {
+    this.config = _.cloneDeep(data);
+  }
 
-    setProps(props: Record<string, any>) {
-      this.config = _.merge(
-        this.config,
-        props,
-      );
-    }
+  setPool(pool: Partial<Pool>) {
+    this.config = {
+      ...this.config,
+      ...{
+        pools: [
+          {
+            ...this.config.pools[0],
+            ...pool,
+          },
+        ],
+      },
+    };
+  }
 
-    getConfigString() {
-      return JSON.stringify(this.config);
-    }
+  setProps(props: Record<string, any>) {
+    this.config = _.merge(
+      this.config,
+      props,
+    );
+  }
 
-    getConfigBase64() {
-      return base64.encode(this.getConfigString());
-    }
+  getConfigString() {
+    return JSON.stringify(this.config);
+  }
+
+  getConfigBase64() {
+    return base64.encode(this.getConfigString());
+  }
 }
