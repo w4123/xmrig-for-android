@@ -2,38 +2,47 @@ import React from 'react';
 import {
   ScrollView, StyleSheet, View, ViewProps,
 } from 'react-native';
+import Anser from 'anser';
 import { Button, Headline, Snackbar } from 'react-native-paper';
 import Clipboard from '@react-native-community/clipboard';
-import { SessionDataContext } from '../../../../core/session-data/session-data.context';
-import { StartMode } from '../../../../core/session-data/session-data.interface';
 import { XMRigLogView } from '../../containers/xmrig-log';
+import { ILoggerLine, LoggerActionType, LoggerContext } from '../../../../core/logger';
 
 const LogScreen:React.FC<ViewProps> = () => {
-  const { working, minerLog } = React.useContext(SessionDataContext);
+  const { loggerState, loggerDispatcher } = React.useContext(LoggerContext);
+
+  const scrollViewRef = React.useRef<ScrollView | null>();
 
   const [snackbarCopyVisible, setSnackbarCopyVisible] = React.useState(false);
 
   const copyToClipboard = () => {
-    Clipboard.setString(minerLog.map((item) => `${item?.ts} ${item?.module} ${item.message}`).join('\n'));
+    Clipboard.setString(loggerState.map((item: ILoggerLine) => `${item.ts} ${Anser.ansiToText(item.message)}`).join('\n'));
     setSnackbarCopyVisible(true);
+  };
+
+  const clearLog = () => {
+    loggerDispatcher({
+      type: LoggerActionType.RESET,
+    });
   };
 
   return (
     <View>
       <ScrollView
-        nestedScrollEnabled
-        style={working === StartMode.STOP ? [styles.layout, styles.hidden] : styles.layout}
+        style={styles.layout}
+        ref={(ref) => { scrollViewRef.current = ref; }}
+        onContentSizeChange={() => scrollViewRef?.current?.scrollToEnd({ animated: true })}
       >
-        <View style={{
-          display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10,
-        }}
-        >
+        <View style={styles.header}>
           <Headline>Miner Log</Headline>
           <Button icon="content-copy" mode="contained" onPress={copyToClipboard}>
             Copy
           </Button>
+          <Button icon="delete" mode="contained" onPress={clearLog}>
+            Clear
+          </Button>
         </View>
-        <XMRigLogView disabled={working === StartMode.STOP} data={minerLog} />
+        <XMRigLogView data={loggerState} />
       </ScrollView>
       <Snackbar
         visible={snackbarCopyVisible}
@@ -48,12 +57,16 @@ const LogScreen:React.FC<ViewProps> = () => {
 
 const styles = StyleSheet.create({
   layout: {
-    marginHorizontal: 15,
+    marginHorizontal: 0,
     marginBottom: 10,
     height: '100%',
   },
-  hidden: {
-    opacity: 1,
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+    marginHorizontal: 15,
   },
 });
 

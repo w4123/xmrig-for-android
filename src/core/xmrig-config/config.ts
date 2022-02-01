@@ -14,7 +14,7 @@ export const config = {
   },
   "autosave": true,
   "background": false,
-  "colors": false,
+  "colors": true,
   "title": true,
   "randomx": {
     "init": -1,

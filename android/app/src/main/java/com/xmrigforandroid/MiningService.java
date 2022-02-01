@@ -122,7 +122,6 @@ public class MiningService extends Service {
             String[] args = {
                     "./"+getApplicationInfo().nativeLibraryDir + "/" + xmrigBin,
                     "-c", configPath,
-                    "--no-color",
                     "--http-host=127.0.0.1",
                     "--http-port=50080",
                     "--http-access-token=XMRigForAndroid",
