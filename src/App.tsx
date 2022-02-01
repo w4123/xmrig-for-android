@@ -8,6 +8,7 @@ import { SettingsContextProvider } from './core/settings';
 import { AppNavigator } from './components';
 import { SessionDataContextProvider } from './core/session-data/session-data.context';
 import { PowerContextProvider } from './core/power/power.context';
+import { LoggerContextProvider } from './core/logger';
 
 enableScreens(false);
 
@@ -19,15 +20,17 @@ const AppWithSettings:React.FC = () => (
 
 const App = () => (
   <PaperProvider>
-    <PowerContextProvider>
-      <SessionDataContextProvider>
-        <SafeAreaView style={{ flex: 1 }}>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
-        </SafeAreaView>
-      </SessionDataContextProvider>
-    </PowerContextProvider>
+    <LoggerContextProvider>
+      <PowerContextProvider>
+        <SessionDataContextProvider>
+          <SafeAreaView style={{ flex: 1 }}>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </SafeAreaView>
+        </SessionDataContextProvider>
+      </PowerContextProvider>
+    </LoggerContextProvider>
   </PaperProvider>
 );
 

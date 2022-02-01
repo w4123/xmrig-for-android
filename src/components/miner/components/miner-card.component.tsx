@@ -3,7 +3,7 @@ import { StyleSheet, ViewProps } from 'react-native';
 import { Card } from 'react-native-paper';
 
 export type MinerCardProps = ViewProps & {
-    title: string;
+    title?: string;
     subTitle?: string;
     disabled?: boolean;
     wrapInContent?: boolean;
@@ -18,10 +18,12 @@ export const MinerCard:React.FC<MinerCardProps> = ({
   wrapInContent = true,
 }) => (
   <Card style={[style, disabled ? styles.disabledCard : {}]}>
+    {title && (
     <Card.Title
       title={title}
       subtitle={subTitle}
     />
+    )}
     {wrapInContent
       ? (
         <Card.Content>

@@ -4,19 +4,19 @@ import cloneDeep from 'lodash/fp/cloneDeep';
 import * as JSON5 from 'json5';
 import { IMinerSummary, useMinerHttpd, useHashrateHistory } from '../hooks';
 import {
-  IMinerLog, StartMode, IXMRigLogEvent, WorkingState,
+  StartMode, IXMRigLogEvent, WorkingState,
 } from './session-data.interface';
 import { SettingsActionType, SettingsContext } from '../settings';
-import { filterLogLineRegex, parseLogLine } from '../utils/parsers';
+import { cleanAnsiLogLineRegex, filterLogLineRegex } from '../utils/parsers';
 import { Configuration, ConfigurationMode, ISimpleConfiguration } from '../settings/settings.interface';
 import ConfigBuilder from '../xmrig-config/config-builder';
+import { LoggerContext } from '../logger';
 
 const { XMRigForAndroid } = NativeModules;
 
 const configBuilder = new ConfigBuilder();
 
 type SessionDataContextType = {
-  minerLog: IMinerLog[],
   hashrateHistoryRef: number[],
   working: StartMode,
   workingState: string,
@@ -29,8 +29,7 @@ export const SessionDataContext:React.Context<SessionDataContextType> = React.cr
 
 export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
-
-  const [minerLog, setMinerLog] = React.useState<IMinerLog[]>([]);
+  const { log } = React.useContext(LoggerContext);
 
   const hashrateHistory = useHashrateHistory([0, 0]);
   const hashrateHistoryRef = React.useMemo(
@@ -109,7 +108,7 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
                   restricted: true,
                 },
                 background: false,
-                colors: false,
+                colors: true,
               });
             }
 
@@ -149,16 +148,8 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
     const MinerEmitter = new NativeEventEmitter(XMRigForAndroid);
 
     const onLogSub:EmitterSubscription = MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {
-      console.log(data);
       const cleanData = [...data.log.filter((item) => !filterLogLineRegex.test(item))];
-      setMinerLog(
-        (old) => [
-          ...[...cleanData].reverse().map(
-            (value) => parseLogLine(value),
-          ),
-          ...old,
-        ],
-      );
+      cleanData.forEach((itemLog) => log(itemLog.replace(cleanAnsiLogLineRegex, '$2').toString()));
     });
 
     const onConfigUpdateSub:EmitterSubscription = MinerEmitter.addListener('onConfigUpdate', (data) => {
@@ -205,7 +196,6 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
     <SessionDataContext.Provider value={{
-      minerLog,
       hashrateHistoryRef,
       working,
       workingState,
