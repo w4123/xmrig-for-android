@@ -1,19 +1,20 @@
 import React from 'react';
-import { View, StyleSheet, ViewProps } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ViewProps,
+  Text,
+} from 'react-native';
 import { VictoryArea } from 'victory-native';
 import Shimmer from 'react-native-shimmer';
-import { Pie } from '@pxblue/react-native-progress-icons';
-import chroma from 'chroma-js';
 import { Title, Paragraph, Divider } from 'react-native-paper';
 import { formatHashrate } from '../../../core/utils/formatters';
 import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
-
-const cScale = chroma.scale(['red', 'orange', 'green']).domain([0, 0.3, 1]);
-const cLabelScale = chroma.scale(['black', 'white', 'white']).domain([0, 0.3, 1]);
+import { IHashrateHistory } from '../../../core/session-data/session-data.interface';
 
 type PoolViewProps = ViewProps & {
-    hashrateHistory: number[];
+    hashrateHistory: IHashrateHistory;
     fullWidth: number;
     minerData: IMinerSummary | null;
     workingState: string;
@@ -30,28 +31,20 @@ export const XMRigView:React.FC<PoolViewProps> = ({
   const RenderHashrateChartVictory = React.useCallback(() => (
     <View style={{ left: 0, bottom: 0, width: fullWidth }}>
       <Shimmer opacity={0.8} tilt={30} direction="left" pauseDuration={2500}>
-        <VictoryArea width={fullWidth} padding={0} height={70} data={hashrateHistory} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
+        <VictoryArea width={fullWidth} padding={0} height={70} data={hashrateHistory.historyCurrent} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
       </Shimmer>
     </View>
   ), [fullWidth, hashrateHistory]);
 
-  const hp10s = React.useMemo(() => {
-    const val = minerData?.hashrate.total[0] || 0;
-    const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val || 0;
-  }, [minerData?.hashrate]);
-
-  const hp60s = React.useMemo(() => {
-    const val = minerData?.hashrate.total[1] || 0;
-    const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val || 0;
-  }, [minerData?.hashrate]);
-
-  const hp15m = React.useMemo(() => {
-    const val = minerData?.hashrate.total[2] || 0;
-    const max = minerData?.hashrate.highest || 0;
-    return (100 / max) * val || 0;
-  }, [minerData?.hashrate]);
+  const RenderSmallHashrateChartVictory:React.FC<
+    {hashrateHistoryData: number[], pauseDuration: number}
+  > = React.useCallback(({ hashrateHistoryData, pauseDuration }) => (
+    <View style={styles.smallChart}>
+      <Shimmer opacity={0.7} tilt={20} direction="left" pauseDuration={pauseDuration}>
+        <VictoryArea width={fullWidth / 4} padding={0} height={50} data={hashrateHistoryData} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
+      </Shimmer>
+    </View>
+  ), [fullWidth, hashrateHistory]);
 
   return (
     <>
@@ -67,72 +60,64 @@ export const XMRigView:React.FC<PoolViewProps> = ({
       <View style={styles.row}>
         <MinerCard
           title="10s"
-          subTitle={`${formatHashrate(minerData?.hashrate.total[0])[1] || 'H'}/s`}
-          style={{ flex: 2, marginRight: 10 }}
+          style={{ flex: 2, marginRight: 10, overflow: 'hidden' }}
           disabled={disabled}
         >
           <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[0])[0]}
+            <Text style={{ fontSize: 11 }}>{` ${formatHashrate(minerData?.hashrate.total[0])[1] || 'H'}/s`}</Text>
           </Paragraph>
-          <Pie
-            color={cScale(hp10s / 100).hex()}
-            labelColor={cLabelScale(hp10s / 100).hex()}
-            percent={Math.round(hp10s)}
-            size={50}
-            ring={10}
-            showPercentLabel
+          <RenderSmallHashrateChartVictory
+            hashrateHistoryData={hashrateHistory.history10s}
+            pauseDuration={10 * 1000}
           />
         </MinerCard>
         <MinerCard
           title="60s"
-          subTitle={`${formatHashrate(minerData?.hashrate.total[1])[1] || 'H'}/s`}
-          style={{ flex: 2, marginRight: 10 }}
+          style={{ flex: 2, marginRight: 10, overflow: 'hidden' }}
           disabled={disabled}
         >
           <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[1])[0]}
+            <Text style={{ fontSize: 11 }}>{` ${formatHashrate(minerData?.hashrate.total[1])[1] || 'H'}/s`}</Text>
           </Paragraph>
-          <Pie
-            color={cScale(hp60s / 100).hex()}
-            labelColor={cLabelScale(hp60s / 100).hex()}
-            percent={Math.round(hp60s)}
-            size={50}
-            ring={10}
-            showPercentLabel
+          <RenderSmallHashrateChartVictory
+            hashrateHistoryData={hashrateHistory.history60s}
+            pauseDuration={60 * 1000}
           />
         </MinerCard>
         <MinerCard
           title="15m"
-          subTitle={`${formatHashrate(minerData?.hashrate.total[2])[1] || 'H'}/s`}
-          style={{ flex: 2, marginRight: 10 }}
+          style={{ flex: 2, marginRight: 10, overflow: 'hidden' }}
           disabled={disabled}
         >
           <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.total[2])[0]}
+            <Text style={{ fontSize: 11 }}>{` ${formatHashrate(minerData?.hashrate.total[2])[1] || 'H'}/s`}</Text>
           </Paragraph>
-          <Pie
-            color={cScale(hp15m / 100).hex()}
-            labelColor={cLabelScale(hp15m / 100).hex()}
-            percent={Math.round(hp15m)}
-            size={50}
-            ring={10}
-            showPercentLabel
+          <RenderSmallHashrateChartVictory
+            hashrateHistoryData={hashrateHistory.history15m}
+            pauseDuration={15 * 6000}
           />
         </MinerCard>
         <MinerCard
           title="max"
-          subTitle={`${formatHashrate(minerData?.hashrate.highest)[1] || 'H'}/s`}
-          style={{ flex: 2 }}
+          style={{ flex: 2, overflow: 'hidden' }}
           disabled={disabled}
         >
           <Paragraph adjustsFontSizeToFit numberOfLines={1} style={{ textAlign: 'center' }}>
             {formatHashrate(minerData?.hashrate.highest)[0]}
+            <Text style={{ fontSize: 11 }}>{` ${formatHashrate(minerData?.hashrate.highest)[1] || 'H'}/s`}</Text>
           </Paragraph>
+          <RenderSmallHashrateChartVictory
+            hashrateHistoryData={hashrateHistory.historyMax}
+            pauseDuration={100000}
+          />
         </MinerCard>
       </View>
       <View style={styles.row}>
         <MinerCard title="Live Hashrate" style={{ flex: 1 }} disabled={disabled} wrapInContent={false}>
-          {hashrateHistory.length > 2 && <RenderHashrateChartVictory />}
+          {hashrateHistory.historyCurrent.length > 2 && <RenderHashrateChartVictory />}
         </MinerCard>
       </View>
       <Divider style={{ marginTop: 2, marginBottom: 10 }} />
@@ -180,5 +165,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginBottom: 10,
+  },
+  smallChart: {
+    left: -25,
+    marginBottom: -15,
+    bottom: -5,
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
   },
 });

@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/fp/cloneDeep';
 import * as JSON5 from 'json5';
 import { IMinerSummary, useMinerHttpd, useHashrateHistory } from '../hooks';
 import {
-  StartMode, IXMRigLogEvent, WorkingState,
+  StartMode, IXMRigLogEvent, WorkingState, IHashrateHistory,
 } from './session-data.interface';
 import { SettingsActionType, SettingsContext } from '../settings';
 import { cleanAnsiLogLineRegex, filterLogLineRegex } from '../utils/parsers';
@@ -17,11 +17,11 @@ const { XMRigForAndroid } = NativeModules;
 const configBuilder = new ConfigBuilder();
 
 type SessionDataContextType = {
-  hashrateHistoryRef: number[],
   working: StartMode,
   workingState: string,
   minerData: IMinerSummary | null,
-  setWorking: Function
+  setWorking: Function,
+  hashrateTotals: IHashrateHistory,
 }
 
 // @ts-ignore
@@ -32,10 +32,10 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { log } = React.useContext(LoggerContext);
 
   const hashrateHistory = useHashrateHistory([0, 0]);
-  const hashrateHistoryRef = React.useMemo(
-    () => hashrateHistory.history,
-    [hashrateHistory.history],
-  );
+  const hashrateHistory10s = useHashrateHistory([0, 0]);
+  const hashrateHistory60s = useHashrateHistory([0, 0]);
+  const hashrateHistory15m = useHashrateHistory([0, 0]);
+  const hashrateHistoryMax = useHashrateHistory([0, 0]);
 
   const [working, setWorking] = React.useState<StartMode>(StartMode.STOP);
 
@@ -44,9 +44,20 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { minerStatus, minerData } = useMinerHttpd(50080);
 
   React.useEffect(() => {
-    // eslint-disable-next-line no-restricted-globals
-    if (!isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
+    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
       hashrateHistory.add(parseFloat(`${minerData?.hashrate.total[0]}`));
+    }
+    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
+      hashrateHistory10s.add(parseFloat(`${minerData?.hashrate.total[0]}`));
+    }
+    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[1]}`))) {
+      hashrateHistory60s.add(parseFloat(`${minerData?.hashrate.total[1]}`));
+    }
+    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[2]}`))) {
+      hashrateHistory15m.add(parseFloat(`${minerData?.hashrate.total[2]}`));
+    }
+    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.highest}`))) {
+      hashrateHistoryMax.add(parseFloat(`${minerData?.hashrate.highest}`));
     }
   }, [minerData]);
 
@@ -196,11 +207,17 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
     <SessionDataContext.Provider value={{
-      hashrateHistoryRef,
       working,
       workingState,
       minerData,
       setWorking,
+      hashrateTotals: {
+        historyCurrent: hashrateHistory.history,
+        history10s: hashrateHistory10s.history,
+        history60s: hashrateHistory60s.history,
+        history15m: hashrateHistory15m.history,
+        historyMax: hashrateHistoryMax.history,
+      },
     }}
     >
       {children}
