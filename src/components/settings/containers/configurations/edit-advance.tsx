@@ -1,7 +1,6 @@
 import React from 'react';
 import redeyed from 'redeyed';
 import colors from 'ansi-colors';
-import { useKeyboard } from '@react-native-community/hooks';
 import { AnsiComponent } from 'react-native-ansi-view';
 import {
   View, StyleSheet, ViewProps, ScrollView, KeyboardAvoidingView, TextInput,
@@ -24,8 +23,8 @@ const ListIconSuccess:React.FC<any> = () => <List.Icon icon="check" color={Color
 const ListIconError:React.FC<any> = () => <List.Icon icon="close" color={Colors.redA700} />;
 
 const cleanAnsi = (str: string) => str
-  .replace(' \u2713', '')
-  .replace(' \u2715', '');
+  .replace(/\s\u2713/g, '')
+  .replace(/\s\u2715/g, '');
 
 export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = ({
   configuration,
@@ -33,7 +32,7 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
 }) => {
   const navigation = useNavigation();
   const theme = useTheme();
-  const keyboard = useKeyboard();
+  const [editorHeight, setEditorHeight] = React.useState<number>(0);
 
   const [localState, setLocalState] = React.useState<IAdvanceConfiguration>(configuration);
   const [code, setCode] = React.useState<string>('{}');
@@ -186,6 +185,7 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
           <Card.Content style={{ padding: 0, marginHorizontal: -15 }}>
             <KeyboardAvoidingView
               style={{ height: '90%' }}
+              onLayout={(event) => setEditorHeight(event.nativeEvent.layout.height)}
             >
               <TextInput
                 multiline
@@ -193,7 +193,7 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
                 autoCorrect={false}
                 spellCheck={false}
                 style={{
-                  height: keyboard.keyboardShown ? '68%' : '100%',
+                  height: editorHeight,
                 }}
                 textAlignVertical="top"
               >
