@@ -1,17 +1,18 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import redeyed from 'redeyed';
+import colors from 'ansi-colors';
+import { AnsiComponent } from 'react-native-ansi-view';
 import {
-  View, StyleSheet, ViewProps, ScrollView, KeyboardAvoidingView,
+  View, StyleSheet, ViewProps, ScrollView, KeyboardAvoidingView, TextInput,
 } from 'react-native';
 import {
-  List, Colors, Button, Card, Headline, Caption, HelperText, Paragraph, useTheme,
+  List, Colors, Button, Card, Headline, Caption, HelperText, useTheme,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import * as JSON5 from 'json5';
 import DropDown from 'react-native-paper-dropdown';
 import merge from 'lodash/fp/merge';
 import { IAdvanceConfiguration, XMRigFork } from '../../../../core/settings/settings.interface';
-import Editor from '../../../editor/editor.component';
 
 type ConfigurationEditAdvanceProps = ViewProps & {
     configuration: IAdvanceConfiguration;
@@ -21,20 +22,91 @@ type ConfigurationEditAdvanceProps = ViewProps & {
 const ListIconSuccess:React.FC<any> = () => <List.Icon icon="check" color={Colors.greenA700} />;
 const ListIconError:React.FC<any> = () => <List.Icon icon="close" color={Colors.redA700} />;
 
+const cleanAnsi = (str: string) => str
+  .replace(/\s\u2713/g, '')
+  .replace(/\s\u2715/g, '');
+
 export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = ({
   configuration,
   onUpdate,
 }) => {
   const navigation = useNavigation();
   const theme = useTheme();
+  const [editorHeight, setEditorHeight] = React.useState<number>(0);
 
   const [localState, setLocalState] = React.useState<IAdvanceConfiguration>(configuration);
+  const [code, setCode] = React.useState<string>('{}');
+
+  const cleanCode = React.useMemo(() => cleanAnsi(code), [code]);
+
+  React.useEffect(() => {
+    const data = localState.config?.toString() || '{}';
+    try {
+      setCode(JSON.stringify(JSON5.parse(data), null, 2));
+    } catch (er) {
+      console.log(er);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    setLocalState((oldState) => ({
+      ...oldState,
+      config: cleanCode,
+    }));
+    console.log(cleanCode);
+  }, [code]);
+
+  const applyWithBold = (color: colors.StyleFunction): ((s:string) => string) => {
+    console.log('applyWithBold');
+    return (txt: string): string => colors.bold(color(txt));
+  };
+
+  const styledCode = React.useMemo(() => {
+    try {
+      const parsed = redeyed(cleanCode, {
+        String: {
+          _default: (s: any, info: any) => {
+            const nextToken = info.tokens[info.tokenIndex + 1];
+
+            // show keys of object literals and json in different color
+            return nextToken
+              && nextToken.type === 'Punctuator'
+              && nextToken.value === ':'
+              ? colors.green(s)
+              : applyWithBold(colors.magenta)(s);
+          },
+        },
+        Boolean: {
+          true: () => applyWithBold(colors.green)('true \u2713'),
+          false: () => applyWithBold(colors.red)('false \u2715'),
+        },
+        Numeric: {
+          _default: applyWithBold(colors.magenta),
+        },
+        Null: {
+          _default: applyWithBold(colors.red),
+        },
+        Punctuator: {
+          '{': theme.dark ? colors.whiteBright : colors.blackBright,
+          '}': theme.dark ? colors.whiteBright : colors.blackBright,
+          '(': theme.dark ? colors.whiteBright : colors.blackBright,
+          ')': theme.dark ? colors.whiteBright : colors.blackBright,
+          '[': theme.dark ? colors.whiteBright : colors.blackBright,
+          ']': theme.dark ? colors.whiteBright : colors.blackBright,
+          ',': colors.green,
+          _default: theme.dark ? colors.whiteBright : colors.blackBright,
+        },
+      });
+      console.log('parse');
+      return parsed.code;
+    } catch (er) {
+      console.log('err', er);
+    }
+    return code;
+  }, [code, theme.dark]);
 
   const [showForkDropDown, setShowForkDropDown] = React.useState(false);
 
-  const editorRef = React.useRef<{ simulateKeyPress:(key: any) => void; }>(null);
-
-  const [cardHeight, setCardHeight] = React.useState<number>(0);
   const isJSONValid = React.useMemo<boolean>(() => {
     try {
       JSON5.parse(localState?.config || '');
@@ -43,21 +115,6 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
       return false;
     }
   }, [localState.config]);
-
-  const handleKeyPress = (key: any) => {
-    editorRef?.current?.simulateKeyPress(key);
-  };
-
-  const codeCopy = React.useMemo<string>(() => {
-    const data = localState.config?.toString() || '';
-    try {
-      return JSON.stringify(JSON5.parse(data), null, 2);
-    } catch (er) {
-      console.log(er);
-    }
-
-    return '{}';
-  }, []);
 
   return (
     <>
@@ -120,7 +177,6 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
         </Card>
         <Card
           style={[styles.card, { flex: 1 }]}
-          onLayout={(event) => setCardHeight(event.nativeEvent.layout.height)}
         >
           <Card.Title
             title="Config JSON"
@@ -128,39 +184,26 @@ export const ConfigurationEditAdvance:React.FC<ConfigurationEditAdvanceProps> = 
           />
           <Card.Content style={{ padding: 0, marginHorizontal: -15 }}>
             <KeyboardAvoidingView
-              style={{ flexGrow: 1 }}
+              style={{ height: '90%' }}
+              onLayout={(event) => setEditorHeight(event.nativeEvent.layout.height)}
             >
-              <Editor
-                code={codeCopy}
-                language="json"
-                theme={theme.dark ? 'dark' : 'light'}
-                ref={editorRef}
-                onCodeChange={(data) => setLocalState((oldState) => ({
-                  ...oldState,
-                  config: data,
-                }))}
-                style={{ height: cardHeight - 120 }}
-              />
-              <View style={[styles.bar, { margin: 10 }]}>
-                <TouchableOpacity onPress={() => handleKeyPress('Enter')}>
-                  <Paragraph>ENTER</Paragraph>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleKeyPress('Tab')}>
-                  <Paragraph>TAB</Paragraph>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleKeyPress('ArrowRight')}>
-                  <Paragraph>&#8594;</Paragraph>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleKeyPress('ArrowLeft')}>
-                  <Paragraph>&#8592;</Paragraph>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleKeyPress('ArrowUp')}>
-                  <Paragraph>&#8593;</Paragraph>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleKeyPress('ArrowDown')}>
-                  <Paragraph>&#8595;</Paragraph>
-                </TouchableOpacity>
-              </View>
+              <TextInput
+                multiline
+                onChangeText={setCode}
+                autoCorrect={false}
+                spellCheck={false}
+                style={{
+                  height: editorHeight,
+                }}
+                textAlignVertical="top"
+              >
+                <AnsiComponent
+                  ansi={styledCode}
+                  textStyle={{
+                    color: theme.dark ? 'white' : 'black',
+                  }}
+                />
+              </TextInput>
             </KeyboardAvoidingView>
           </Card.Content>
         </Card>
