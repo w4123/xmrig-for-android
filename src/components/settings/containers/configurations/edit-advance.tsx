@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import redeyed from 'redeyed';
 import colors from 'ansi-colors';
 import { AnsiComponent } from 'react-native-ansi-view';
