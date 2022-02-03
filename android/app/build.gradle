@@ -120,7 +120,7 @@ def enableProguardInReleaseBuilds = true
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
-def useIntlJsc = false
+def useIntlJsc = true
 
 /**
  * Whether to enable the Hermes VM.
