@@ -7,11 +7,12 @@ import {
 } from 'react-native';
 import { VictoryArea } from 'victory-native';
 import Shimmer from 'react-native-shimmer';
-import { Title, Paragraph, Divider } from 'react-native-paper';
+import { Title, Paragraph, Divider, ActivityIndicator } from 'react-native-paper';
 import { formatHashrate } from '../../../core/utils/formatters';
 import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
 import { IHashrateHistory } from '../../../core/session-data/session-data.interface';
+import _ from 'lodash';
 
 type PoolViewProps = ViewProps & {
     hashrateHistory: IHashrateHistory;
@@ -39,10 +40,14 @@ export const XMRigView:React.FC<PoolViewProps> = ({
   const RenderSmallHashrateChartVictory:React.FC<
     {hashrateHistoryData: number[], pauseDuration: number}
   > = React.useCallback(({ hashrateHistoryData, pauseDuration }) => (
-    <View style={styles.smallChart}>
-      <Shimmer opacity={0.7} tilt={20} direction="left" pauseDuration={pauseDuration}>
-        <VictoryArea width={fullWidth / 4} padding={0} height={50} data={hashrateHistoryData} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
-      </Shimmer>
+    <View>
+      {hashrateHistoryData.length > 3 ? (
+        <View style={styles.smallChart}>
+          <Shimmer opacity={0.7} tilt={20} direction="left" pauseDuration={pauseDuration}>
+            <VictoryArea width={fullWidth / 4} padding={0} height={50} data={hashrateHistoryData} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
+          </Shimmer>
+        </View>
+      ) : (<ActivityIndicator hidesWhenStopped animating={!disabled} color="#8641f4" style={{ paddingTop: 10 }} />)}
     </View>
   ), [fullWidth, hashrateHistory]);
 
