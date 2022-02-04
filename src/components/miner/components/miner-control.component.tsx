@@ -4,7 +4,7 @@ import {
   StyleSheet, View, ViewProps, Text,
 } from 'react-native';
 import {
-  Button, Caption, Paragraph, useTheme,
+  Button, Paragraph, useTheme,
 } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
 import { useToast } from 'react-native-paper-toast';
@@ -40,6 +40,7 @@ export const MinerControl:React.FC<ViewProps> = () => {
   );
 
   const handleStart = React.useCallback(() => {
+    console.log(settings.selectedConfiguration);
     if (!settings.selectedConfiguration) {
       if (_.isEmpty(settings.configurations)) {
         toaster.show({ message: 'Please add a Configuration Profile from Settings menu', type: 'error', position: 'top' });
