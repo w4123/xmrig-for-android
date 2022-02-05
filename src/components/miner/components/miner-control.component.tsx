@@ -50,7 +50,7 @@ export const MinerControl:React.FC<ViewProps> = () => {
     } else {
       setWorking(StartMode.START);
     }
-  }, []);
+  }, [settings]);
 
   const handleStop = React.useCallback(() => setWorking(StartMode.STOP), []);
 
