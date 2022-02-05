@@ -14,7 +14,7 @@ import { PowerContext } from '../../../../core/power/power.context';
 
 const MinerScreen = () => {
   const {
-    workingState, minerData, hashrateTotals, working,
+    workingState, minerData, hashrateTotals, hashrateTotalsMA, working,
   } = React.useContext(SessionDataContext);
   const [sparklineWidth, setSparklineWidth] = React.useState<number>(0);
   const powerContext = React.useContext(PowerContext);
@@ -74,6 +74,7 @@ const MinerScreen = () => {
           fullWidth={sparklineWidth}
           minerData={minerData}
           hashrateHistory={hashrateTotals}
+          hashrateHistoryMA={hashrateTotalsMA}
         />
       </ScrollView>
     </View>

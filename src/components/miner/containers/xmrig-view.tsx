@@ -3,21 +3,27 @@ import {
   View,
   StyleSheet,
   ViewProps,
-  Text,
 } from 'react-native';
 import _ from 'lodash';
 import prettyBytes from 'pretty-bytes';
+// @ts-ignore
 import { hashrateToString } from 'hashrate';
 import { VictoryArea } from 'victory-native';
 import Shimmer from 'react-native-shimmer';
-import { Title, Paragraph, Divider, ActivityIndicator } from 'react-native-paper';
-import { formatHashrate } from '../../../core/utils/formatters';
+import {
+  Title,
+  Paragraph,
+  Divider,
+  ActivityIndicator,
+  Switch,
+} from 'react-native-paper';
 import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
 import { IHashrateHistory } from '../../../core/session-data/session-data.interface';
 
 type PoolViewProps = ViewProps & {
     hashrateHistory: IHashrateHistory;
+    hashrateHistoryMA: IHashrateHistory;
     fullWidth: number;
     minerData: IMinerSummary | null;
     workingState: string;
@@ -26,18 +32,26 @@ type PoolViewProps = ViewProps & {
 
 export const XMRigView:React.FC<PoolViewProps> = ({
   hashrateHistory,
+  hashrateHistoryMA,
   fullWidth,
   minerData,
   workingState,
   disabled,
 }) => {
+  const [isMovingAverage, setIsMovingAverage] = React.useState<boolean>(false);
+
+  const selectedHashrateHistory = React.useMemo<IHashrateHistory>(
+    () => (isMovingAverage ? hashrateHistoryMA : hashrateHistory),
+    [isMovingAverage, hashrateHistoryMA, hashrateHistory],
+  );
+
   const RenderHashrateChartVictory = React.useCallback(() => (
     <View style={{ left: 0, bottom: 0, width: fullWidth }}>
       <Shimmer opacity={0.8} tilt={30} direction="left" pauseDuration={2500}>
-        <VictoryArea width={fullWidth} padding={0} height={70} data={hashrateHistory.historyCurrent} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
+        <VictoryArea width={fullWidth} padding={0} height={70} data={selectedHashrateHistory.historyCurrent} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
       </Shimmer>
     </View>
-  ), [fullWidth, hashrateHistory]);
+  ), [fullWidth, selectedHashrateHistory]);
 
   const RenderSmallHashrateChartVictory:React.FC<
     {hashrateHistoryData: number[], pauseDuration: number, show?: boolean}
@@ -51,7 +65,7 @@ export const XMRigView:React.FC<PoolViewProps> = ({
         </View>
       ) : (<ActivityIndicator hidesWhenStopped animating={!disabled} color="#8641f4" style={{ paddingTop: 10, alignSelf: 'stretch' }} />)}
     </View>
-  ), [fullWidth, hashrateHistory]);
+  ), [fullWidth, selectedHashrateHistory]);
 
   return (
     <>
@@ -63,7 +77,13 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           <Paragraph adjustsFontSizeToFit numberOfLines={1}>{minerData?.algo}</Paragraph>
         </MinerCard>
       </View>
-      <Title>Hashrate</Title>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Title>Hashrate</Title>
+        <View style={styles.switchRow}>
+          <Paragraph style={{ paddingHorizontal: 5 }}>Moving Average</Paragraph>
+          <Switch value={isMovingAverage} onValueChange={setIsMovingAverage} />
+        </View>
+      </View>
       <View style={styles.row}>
         <MinerCard
           title="10s"
@@ -71,16 +91,16 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           disabled={disabled}
         >
           <View style={styles.hashrateChartContainer}>
-            {(_.last(hashrateHistory.history10s) || 0) > 0 && (
+            {(_.last(selectedHashrateHistory.history10s) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(hashrateHistory.history10s))}
+                {hashrateToString(_.last(selectedHashrateHistory.history10s))}
                 /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
-              hashrateHistoryData={hashrateHistory.history10s}
+              hashrateHistoryData={selectedHashrateHistory.history10s}
               pauseDuration={10 * 1000}
-              show={(_.last(hashrateHistory.history10s) || 0) > 0}
+              show={(_.last(selectedHashrateHistory.history10s) || 0) > 0}
             />
           </View>
         </MinerCard>
@@ -90,16 +110,16 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           disabled={disabled}
         >
           <View style={styles.hashrateChartContainer}>
-            {(_.last(hashrateHistory.history60s) || 0) > 0 && (
+            {(_.last(selectedHashrateHistory.history60s) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(hashrateHistory.history60s))}
+                {hashrateToString(_.last(selectedHashrateHistory.history60s))}
                 /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
-              hashrateHistoryData={hashrateHistory.history60s}
+              hashrateHistoryData={selectedHashrateHistory.history60s}
               pauseDuration={60 * 1000}
-              show={(_.last(hashrateHistory.history60s) || 0) > 0}
+              show={(_.last(selectedHashrateHistory.history60s) || 0) > 0}
             />
           </View>
         </MinerCard>
@@ -109,16 +129,16 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           disabled={disabled}
         >
           <View style={styles.hashrateChartContainer}>
-            {(_.last(hashrateHistory.history15m) || 0) > 0 && (
+            {(_.last(selectedHashrateHistory.history15m) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(hashrateHistory.history15m))}
+                {hashrateToString(_.last(selectedHashrateHistory.history15m))}
                 /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
-              hashrateHistoryData={hashrateHistory.history15m}
+              hashrateHistoryData={selectedHashrateHistory.history15m}
               pauseDuration={15 * 6000}
-              show={(_.last(hashrateHistory.history15m) || 0) > 0}
+              show={(_.last(selectedHashrateHistory.history15m) || 0) > 0}
             />
           </View>
         </MinerCard>
@@ -128,23 +148,23 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           disabled={disabled}
         >
           <View style={styles.hashrateChartContainer}>
-            {(_.last(hashrateHistory.historyMax) || 0) > 0 && (
+            {(_.last(selectedHashrateHistory.historyMax) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(hashrateHistory.historyMax))}
+                {hashrateToString(_.last(selectedHashrateHistory.historyMax))}
                 /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
-              hashrateHistoryData={hashrateHistory.historyMax}
+              hashrateHistoryData={selectedHashrateHistory.historyMax}
               pauseDuration={100000}
-              show={(_.last(hashrateHistory.historyMax) || 0) > 0}
+              show={(_.last(selectedHashrateHistory.historyMax) || 0) > 0}
             />
           </View>
         </MinerCard>
       </View>
       <View style={styles.row}>
         <MinerCard title="Live Hashrate" style={{ flex: 1 }} disabled={disabled} wrapInContent={false}>
-          {hashrateHistory.historyCurrent.length > 2 && <RenderHashrateChartVictory />}
+          {selectedHashrateHistory.historyCurrent.length > 2 && <RenderHashrateChartVictory />}
         </MinerCard>
       </View>
       <Divider style={{ marginTop: 2, marginBottom: 10 }} />
@@ -191,7 +211,7 @@ export const XMRigView:React.FC<PoolViewProps> = ({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginVertical: 5,
   },
   smallChart: {
     left: 0,
@@ -218,5 +238,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
     overflow: 'hidden',
     height: 100,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingRight: 0,
+    marginRight: 0,
   },
 });
