@@ -81,7 +81,7 @@ export const XMRigView:React.FC<PoolViewProps> = ({
         <Title>Hashrate</Title>
         <View style={styles.switchRow}>
           <Paragraph style={{ paddingHorizontal: 5 }}>Moving Average</Paragraph>
-          <Switch value={isMovingAverage} onValueChange={setIsMovingAverage} />
+          <Switch value={isMovingAverage} onValueChange={setIsMovingAverage} disabled={disabled} />
         </View>
       </View>
       <View style={styles.row}>
