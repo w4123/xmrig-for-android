@@ -4094,6 +4094,11 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
+hashrate@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/hashrate/-/hashrate-0.3.1.tgz#05c00059e35cc32ebc67f32a19965d592b84e547"
+  integrity sha512-XwF4zWMrvVIAgZyAxTUhLHOxa6HnkodjCaH93bwlQjZRNSJkCspYasuSO1y2RuutLoicc6So8bV1T6R+GNezMA==
+
 hermes-engine@~0.9.0:
   version "0.9.0"
   resolved "https://registry.npmjs.org/hermes-engine/-/hermes-engine-0.9.0.tgz"

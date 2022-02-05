@@ -22,6 +22,7 @@ type SessionDataContextType = {
   minerData: IMinerSummary | null,
   setWorking: Function,
   hashrateTotals: IHashrateHistory,
+  hashrateTotalsMA: IHashrateHistory,
 }
 
 // @ts-ignore
@@ -222,6 +223,13 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
         history60s: hashrateHistory60s.history,
         history15m: hashrateHistory15m.history,
         historyMax: hashrateHistoryMax.history,
+      },
+      hashrateTotalsMA: {
+        historyCurrent: hashrateHistory.sma,
+        history10s: hashrateHistory10s.sma,
+        history60s: hashrateHistory60s.sma,
+        history15m: hashrateHistory15m.sma,
+        historyMax: hashrateHistoryMax.sma,
       },
     }}
     >
