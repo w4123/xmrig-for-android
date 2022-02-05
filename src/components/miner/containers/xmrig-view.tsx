@@ -6,8 +6,8 @@ import {
   Text,
 } from 'react-native';
 import _ from 'lodash';
-import { hidden } from 'ansi-colors';
 import prettyBytes from 'pretty-bytes';
+import { hashrateToString } from 'hashrate';
 import { VictoryArea } from 'victory-native';
 import Shimmer from 'react-native-shimmer';
 import { Title, Paragraph, Divider, ActivityIndicator } from 'react-native-paper';
@@ -73,8 +73,8 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           <View style={styles.hashrateChartContainer}>
             {(_.last(hashrateHistory.history10s) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {formatHashrate(_.last(hashrateHistory.history10s))[0]}
-                <Text style={{ fontSize: 11 }}>{` ${formatHashrate(minerData?.hashrate.total[0])[1] || 'H'}/s`}</Text>
+                {hashrateToString(_.last(hashrateHistory.history10s))}
+                /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
@@ -92,8 +92,8 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           <View style={styles.hashrateChartContainer}>
             {(_.last(hashrateHistory.history60s) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {formatHashrate(_.last(hashrateHistory.history60s))[0]}
-                <Text style={{ fontSize: 11 }}>{` ${formatHashrate(_.last(hashrateHistory.history60s))[1] || 'H'}/s`}</Text>
+                {hashrateToString(_.last(hashrateHistory.history60s))}
+                /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
@@ -111,8 +111,8 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           <View style={styles.hashrateChartContainer}>
             {(_.last(hashrateHistory.history15m) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {formatHashrate(_.last(hashrateHistory.history15m))[0]}
-                <Text style={{ fontSize: 11 }}>{` ${formatHashrate(_.last(hashrateHistory.history15m))[1] || 'H'}/s`}</Text>
+                {hashrateToString(_.last(hashrateHistory.history15m))}
+                /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
@@ -130,8 +130,8 @@ export const XMRigView:React.FC<PoolViewProps> = ({
           <View style={styles.hashrateChartContainer}>
             {(_.last(hashrateHistory.historyMax) || 0) > 0 && (
               <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {formatHashrate(_.last(hashrateHistory.historyMax))[0]}
-                <Text style={{ fontSize: 11 }}>{` ${formatHashrate(_.last(hashrateHistory.historyMax))[1] || 'H'}/s`}</Text>
+                {hashrateToString(_.last(hashrateHistory.historyMax))}
+                /s
               </Paragraph>
             )}
             <RenderSmallHashrateChartVictory
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   hashrateValue: {
     textAlign: 'center',
-    bottom: 5,
+    bottom: 10,
     position: 'absolute',
     alignSelf: 'center',
     color: 'white',
