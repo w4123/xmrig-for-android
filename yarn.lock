@@ -5697,6 +5697,11 @@ prettier@^2.0.2:
   resolved "https://registry.npmjs.org/prettier/-/prettier-2.5.0.tgz"
   integrity sha512-FM/zAKgWTxj40rH03VxzIPdXmj39SwSjwG0heUcNFwI+EMZJnY93yAiKXM3dObIKAM5TA88werc8T/EwhB45eg==
 
+pretty-bytes@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-5.6.0.tgz#356256f643804773c82f64723fe78c92c62beaeb"
+  integrity sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==
+
 pretty-format@^26.5.2, pretty-format@^26.6.2:
   version "26.6.2"
   resolved "https://registry.npmjs.org/pretty-format/-/pretty-format-26.6.2.tgz"
@@ -5879,6 +5884,11 @@ react-native-paper-tabs@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/react-native-paper-tabs/-/react-native-paper-tabs-0.7.0.tgz#97ae5838f8a2d3ac2826cf1dee065364d7c3bad8"
   integrity sha512-TXz1G1hLJNvykJ57VhjKFVRgRDC2bxzb/bwPJ59POK9nGO0yD+Rx7+W5D0i5/ZQF1uKSV92IMv+eowd/BRM46Q==
+
+react-native-paper-toast@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-paper-toast/-/react-native-paper-toast-1.2.0.tgz#5093a258dee12e1fee9c62ac2a62d2b611992279"
+  integrity sha512-BWrPqJ27DC4NXNFKKG8tSqWHCSpZp+nBzsipFfnOa1k6UJ3cAy4N/XKO4gsQGl4KoHi5fcWR1BFwyw451fVjkw==
 
 react-native-paper@^4.11.1:
   version "4.11.1"

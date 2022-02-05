@@ -147,6 +147,11 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
       case StartMode.STOP:
         setWorkingState(WorkingState.NOT_WORKING);
         XMRigForAndroid.stop();
+        hashrateHistory.reset();
+        hashrateHistory10s.reset();
+        hashrateHistory60s.reset();
+        hashrateHistory15m.reset();
+        hashrateHistoryMax.reset();
         break;
       default:
     }

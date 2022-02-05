@@ -3,21 +3,25 @@ import {
   ScrollView, StyleSheet, View, ViewProps,
 } from 'react-native';
 import Anser from 'anser';
-import { Button, Headline, Snackbar } from 'react-native-paper';
+import { useToast } from 'react-native-paper-toast';
+import { Button, Headline } from 'react-native-paper';
 import Clipboard from '@react-native-community/clipboard';
 import { XMRigLogView } from '../../containers/xmrig-log';
 import { ILoggerLine, LoggerActionType, LoggerContext } from '../../../../core/logger';
 
 const LogScreen:React.FC<ViewProps> = () => {
   const { loggerState, loggerDispatcher } = React.useContext(LoggerContext);
+  const toaster = useToast();
 
   const scrollViewRef = React.useRef<ScrollView | null>();
 
-  const [snackbarCopyVisible, setSnackbarCopyVisible] = React.useState(false);
-
   const copyToClipboard = () => {
     Clipboard.setString(loggerState.map((item: ILoggerLine) => `${item.ts} ${Anser.ansiToText(item.message)}`).join('\n'));
-    setSnackbarCopyVisible(true);
+    toaster.show({
+      message: 'The Log has been copied to clipboard',
+      type: 'success',
+      position: 'top',
+    });
   };
 
   const clearLog = () => {
@@ -44,13 +48,6 @@ const LogScreen:React.FC<ViewProps> = () => {
         </View>
         <XMRigLogView data={loggerState} />
       </ScrollView>
-      <Snackbar
-        visible={snackbarCopyVisible}
-        onDismiss={() => setSnackbarCopyVisible(false)}
-        duration={3000}
-      >
-        The Log has been copied to clipboard.
-      </Snackbar>
     </View>
   );
 };

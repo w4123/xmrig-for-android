@@ -1,6 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-
+import { ToastProvider } from 'react-native-paper-toast';
+import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
@@ -19,19 +20,23 @@ const AppWithSettings:React.FC = () => (
 );
 
 const App = () => (
-  <PaperProvider>
-    <LoggerContextProvider>
-      <PowerContextProvider>
-        <SessionDataContextProvider>
-          <SafeAreaView style={{ flex: 1 }}>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-          </SafeAreaView>
-        </SessionDataContextProvider>
-      </PowerContextProvider>
-    </LoggerContextProvider>
-  </PaperProvider>
+  <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+    <PaperProvider>
+      <ToastProvider>
+        <LoggerContextProvider>
+          <PowerContextProvider>
+            <SessionDataContextProvider>
+              <SafeAreaView style={{ flex: 1 }}>
+                <NavigationContainer>
+                  <AppNavigator />
+                </NavigationContainer>
+              </SafeAreaView>
+            </SessionDataContextProvider>
+          </PowerContextProvider>
+        </LoggerContextProvider>
+      </ToastProvider>
+    </PaperProvider>
+  </SafeAreaProvider>
 );
 
 export default AppWithSettings;
