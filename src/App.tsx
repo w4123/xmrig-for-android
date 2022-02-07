@@ -19,6 +19,7 @@ const AppWithSettings:React.FC = () => (
   </SettingsContextProvider>
 );
 
+
 const App = () => (
   <SafeAreaProvider initialMetrics={initialWindowMetrics}>
     <PaperProvider>
