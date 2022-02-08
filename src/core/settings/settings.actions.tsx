@@ -1,5 +1,6 @@
 export enum SettingsActionType {
     SET,
+    UPDATE,
     SET_THEME,
     ADD_CONFIGURATION,
     UPDATE_CONFIGURATION,

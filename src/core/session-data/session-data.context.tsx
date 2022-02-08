@@ -11,6 +11,7 @@ import { cleanAnsiLogLineRegex, filterLogLineRegex } from '../utils/parsers';
 import { Configuration, ConfigurationMode, ISimpleConfiguration } from '../settings/settings.interface';
 import ConfigBuilder from '../xmrig-config/config-builder';
 import { LoggerContext } from '../logger';
+import { PowerContext } from '../power/power.context';
 
 const { XMRigForAndroid } = NativeModules;
 
@@ -23,6 +24,10 @@ type SessionDataContextType = {
   setWorking: Function,
   hashrateTotals: IHashrateHistory,
   hashrateTotalsMA: IHashrateHistory,
+  minerActions: {
+    pause: () => {},
+    resume: () => {},
+  }
 }
 
 // @ts-ignore
@@ -31,6 +36,7 @@ export const SessionDataContext:React.Context<SessionDataContextType> = React.cr
 export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
   const { log } = React.useContext(LoggerContext);
+  const { isLowBattery, isPowerConnected } = React.useContext(PowerContext);
 
   const hashrateHistory = useHashrateHistory([0, 0]);
   const hashrateHistory10s = useHashrateHistory([0, 0]);
@@ -42,23 +48,24 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
 
   const [workingState, setWorkingState] = React.useState<WorkingState>(WorkingState.NOT_WORKING);
 
-  const { minerStatus, minerData } = useMinerHttpd(50080);
+  const {
+    minerStatus,
+    minerData,
+    minerPause,
+    minerResume,
+  } = useMinerHttpd(50080);
 
   React.useEffect(() => {
-    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
-      hashrateHistory.add(parseFloat(`${minerData?.hashrate.total[0]}`));
-    }
-    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[0]}`))) {
-      hashrateHistory10s.add(parseFloat(`${minerData?.hashrate.total[0]}`));
-    }
-    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[1]}`))) {
-      hashrateHistory60s.add(parseFloat(`${minerData?.hashrate.total[1]}`));
-    }
-    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.total[2]}`))) {
-      hashrateHistory15m.add(parseFloat(`${minerData?.hashrate.total[2]}`));
-    }
-    if (!Number.isNaN(parseFloat(`${minerData?.hashrate.highest}`))) {
-      hashrateHistoryMax.add(parseFloat(`${minerData?.hashrate.highest}`));
+    hashrateHistory.add(parseFloat(`${minerData?.hashrate.total[0]}`) || 0);
+    hashrateHistory10s.add(parseFloat(`${minerData?.hashrate.total[0]}`) || 0);
+    hashrateHistory60s.add(parseFloat(`${minerData?.hashrate.total[1]}`) || 0);
+    hashrateHistory15m.add(parseFloat(`${minerData?.hashrate.total[2]}`) || 0);
+    hashrateHistoryMax.add(parseFloat(`${minerData?.hashrate.highest}`) || 0);
+
+    if (minerData?.paused) {
+      setWorkingState(WorkingState.PAUSED);
+    } else {
+      setWorkingState(WorkingState.MINING);
     }
   }, [minerData]);
 
@@ -210,6 +217,22 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
     };
   }, []);
 
+  React.useEffect(() => {
+    if (settings.power.pauseOnLowBattery && isLowBattery === true) {
+      minerPause();
+    } else if (settings.power.resumeOnBatteryOk && isLowBattery === false) {
+      minerResume();
+    }
+  }, [isLowBattery]);
+
+  React.useEffect(() => {
+    if (settings.power.resumeOnChargerConnected && isPowerConnected === true) {
+      minerResume();
+    } else if (settings.power.pauseOnChargerDisconnected && isPowerConnected === false) {
+      minerPause();
+    }
+  }, [isPowerConnected]);
+
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
     <SessionDataContext.Provider value={{
@@ -230,6 +253,10 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
         history60s: hashrateHistory60s.sma,
         history15m: hashrateHistory15m.sma,
         historyMax: hashrateHistoryMax.sma,
+      },
+      minerActions: {
+        pause: minerPause,
+        resume: minerResume,
       },
     }}
     >

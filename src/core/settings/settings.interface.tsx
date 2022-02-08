@@ -109,15 +109,23 @@ export interface IAdvanceConfiguration extends IConfiguration {
 }
 
 export type Configuration = ISimpleConfiguration | IAdvanceConfiguration;
+
+export interface IPowerSettings {
+    pauseOnChargerDisconnected: boolean;
+    pauseOnLowBattery: boolean;
+    resumeOnBatteryOk: boolean;
+    resumeOnChargerConnected: boolean;
+}
 export interface ISettings {
     ready: boolean;
     uuid: string;
     configurations: Array<Configuration>;
     selectedConfiguration?: string;
+    power: IPowerSettings;
 }
 export interface ISettingsReducerAction {
     type: SettingsActionType;
-    value?: ISettings | string | number | Partial<Configuration> | string[];
+    value?: Partial<ISettings> | string | number | Partial<Configuration> | string[];
 }
 
 export interface ISettingsContext {

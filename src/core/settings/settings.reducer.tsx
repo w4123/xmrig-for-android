@@ -1,5 +1,6 @@
 import { Reducer } from 'react';
 import uuid from 'react-native-uuid';
+import merge from 'lodash/fp/merge';
 import { SettingsActionType } from './settings.actions';
 import { defaultConfiguration, defaultSimpleConfiguration } from './settings.context';
 import {
@@ -20,6 +21,11 @@ export const SettingsReducer:Reducer<ISettings, ISettingsReducerAction> = (
       return {
         ...action.value as ISettings,
       } as ISettings;
+    case SettingsActionType.UPDATE:
+      return merge(
+        prevState,
+        action.value,
+      );
     case SettingsActionType.ADD_CONFIGURATION:
       // eslint-disable-next-line no-case-declarations
       const newConfig = (action.value as Configuration).mode === ConfigurationMode.SIMPLE
