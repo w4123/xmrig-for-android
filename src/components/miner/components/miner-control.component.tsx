@@ -78,7 +78,7 @@ export const MinerControl:React.FC<ViewProps> = () => {
               onDismiss={() => setShowDropDown(false)}
             />
           )}
-          {workingState === WorkingState.MINING && (
+          {(workingState === WorkingState.MINING || workingState === WorkingState.PAUSED) && (
             <Paragraph style={{ height: 60, textAlignVertical: 'center', fontSize: 18 }}>
               Using configuration:
               {' '}

@@ -94,9 +94,37 @@ const getDataApi = (port: number):Promise<IMinerSummary | null> => {
     });
 };
 
+const sendJSONRPCApi = (port: number, method: string) => {
+  const body = JSON.stringify({
+    method,
+    id: 1,
+  });
+  console.log('sendJSONRPCApi', body);
+  return fetch(`http://127.0.0.1:${port}/json_rpc`, {
+    method: 'POST',
+    headers: new Headers({
+      Authorization: 'Bearer XMRigForAndroid',
+      'Content-Type': 'application/json',
+    }),
+    body,
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      console.log('data', json);
+      return json;
+    })
+    .catch((error) => {
+      console.log('error', error);
+      return null;
+    });
+};
+
 export const useMinerHttpd = (port:number) => {
   const [minerStatus, setMinerStatus] = React.useState<boolean>(false);
   const [minerData, setMinerData] = React.useState<IMinerSummary | null>(null);
+
+  const minerPause = () => sendJSONRPCApi(port, 'pause');
+  const minerResume = () => sendJSONRPCApi(port, 'resume');
 
   useInterval(() => getDataApi(port)
     .then((value) => {
@@ -114,5 +142,7 @@ export const useMinerHttpd = (port:number) => {
   return {
     minerStatus,
     minerData,
+    minerPause,
+    minerResume,
   };
 };

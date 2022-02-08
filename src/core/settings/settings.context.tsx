@@ -28,6 +28,12 @@ const initialState: ISettings = {
   uuid: uuid.v4().toString(),
   configurations: [],
   selectedConfiguration: undefined,
+  power: {
+    pauseOnChargerDisconnected: false,
+    pauseOnLowBattery: false,
+    resumeOnBatteryOk: false,
+    resumeOnChargerConnected: false,
+  },
 };
 
 export const defaultConfiguration: Partial<IConfiguration> = {

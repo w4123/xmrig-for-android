@@ -53,7 +53,7 @@ export const ConfigurationsListView:React.FC<ConfigurationsListViewProps> = ({
       </View>
 
       <Card style={styles.card}>
-        <Card.Content style={{ flex: 1 }}>
+        <Card.Content style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 5 }}>
           <ScrollView>
             {configurations.map((item) => (
               <List.Item

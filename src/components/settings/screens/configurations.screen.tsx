@@ -12,7 +12,7 @@ const ConfigurationsScreen:React.FC<ViewProps> = () => {
 
   return (
     <Provider>
-      <SafeAreaView style={styles.cards}>
+      <SafeAreaView style={[styles.cards, styles.layout]}>
         <ConfigurationsListView
           configurations={settings.configurations}
           onAddNew={() => setShowAddNewDialogVisible(true)}
@@ -46,7 +46,7 @@ const ConfigurationsScreen:React.FC<ViewProps> = () => {
 const styles = StyleSheet.create({
   layout: {
     flex: 1,
-    padding: 15,
+    padding: 5,
   },
   cards: {
     flex: 1,

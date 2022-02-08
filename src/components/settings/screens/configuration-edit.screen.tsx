@@ -23,7 +23,7 @@ const ConfigurationEditScreen = () => {
   });
 
   return (
-    <View style={{ backgroundColor: theme.colors.background }}>
+    <View style={{ backgroundColor: theme.colors.background, padding: 5 }}>
       {configuration?.mode === ConfigurationMode.SIMPLE
                 && (
                 <ConfigurationEditSimple
