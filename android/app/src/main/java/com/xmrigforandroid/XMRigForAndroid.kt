@@ -22,6 +22,7 @@ import android.os.BatteryManager
 
 import android.content.Context.BATTERY_SERVICE
 import com.xmrigforandroid.events.*
+import com.xmrigforandroid.utils.CPUTemperatureService
 
 
 class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
@@ -133,6 +134,15 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
             promise.resolve(availableProcessors)
         } catch (e: Exception) {
             promise.reject("Runtime.getRuntime().availableProcessors()", e)
+        }
+    }
+
+    @ReactMethod
+    fun cpuTemperature(promise: Promise) {
+        try {
+            promise.resolve(CPUTemperatureService.getCpuTemperature())
+        } catch (e: Exception) {
+            promise.reject("CPUTemperatureService().getCpuTemperature()", e)
         }
     }
 

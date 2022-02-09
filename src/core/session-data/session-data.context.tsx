@@ -2,7 +2,7 @@ import React from 'react';
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from 'react-native';
 import cloneDeep from 'lodash/fp/cloneDeep';
 import * as JSON5 from 'json5';
-import { IMinerSummary, useMinerHttpd, useHashrateHistory } from '../hooks';
+import { IMinerSummary, useMinerHttpd, useHashrateHistory, useInterval } from '../hooks';
 import {
   StartMode, IXMRigLogEvent, WorkingState, IHashrateHistory,
 } from './session-data.interface';
@@ -27,7 +27,8 @@ type SessionDataContextType = {
   minerActions: {
     pause: () => {},
     resume: () => {},
-  }
+  },
+  CPUTemp: string,
 }
 
 // @ts-ignore
@@ -37,6 +38,7 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
   const { log } = React.useContext(LoggerContext);
   const { isLowBattery, isPowerConnected } = React.useContext(PowerContext);
+  const [CPUTemp, setCPUTemp] = React.useState<string>('N/A');
 
   const hashrateHistory = useHashrateHistory([0, 0]);
   const hashrateHistory10s = useHashrateHistory([0, 0]);
@@ -165,6 +167,8 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
     }
   }, [working]);
 
+  useInterval(async () => setCPUTemp(await XMRigForAndroid.cpuTemperature()), 10000);
+
   React.useEffect(() => {
     const configbuilder = new ConfigBuilder();
     console.log('ConfigBuilder', configbuilder);
@@ -258,6 +262,7 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
         pause: minerPause,
         resume: minerResume,
       },
+      CPUTemp,
     }}
     >
       {children}
