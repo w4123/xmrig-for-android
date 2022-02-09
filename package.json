@@ -28,6 +28,7 @@
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/hooks": "^2.8.1",
     "@react-native-community/masked-view": "*",
+    "@react-native-community/slider": "^4.2.0",
     "@react-native-community/viewpager": "^5.0.11",
     "@react-navigation/bottom-tabs": "6.0.4",
     "@react-navigation/drawer": "6.1.3",

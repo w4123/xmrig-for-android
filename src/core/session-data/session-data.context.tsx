@@ -230,12 +230,41 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   }, [isLowBattery]);
 
   React.useEffect(() => {
-    if (settings.power.resumeOnChargerConnected && isPowerConnected === true) {
+    if (
+      settings.power.resumeOnChargerConnected
+      && isPowerConnected === true
+      && workingState === WorkingState.PAUSED) {
       minerResume();
-    } else if (settings.power.pauseOnChargerDisconnected && isPowerConnected === false) {
+    } else if (
+      settings.power.pauseOnChargerDisconnected
+      && isPowerConnected === false
+      && workingState === WorkingState.MINING
+    ) {
       minerPause();
     }
   }, [isPowerConnected]);
+
+  React.useEffect(() => {
+    if (CPUTemp === 'N/A') {
+      return;
+    }
+    const currTemp = parseFloat(CPUTemp);
+    if (!Number.isNaN(currTemp)) {
+      if (
+        settings.thermal.pauseOnCPUTemperatureOverHeat
+        && currTemp > settings.thermal.pauseOnCPUTemperatureOverHeatValue
+        && workingState === WorkingState.MINING
+      ) {
+        minerPause();
+      } else if (
+        settings.thermal.resumeCPUTemperatureNormal
+        && currTemp < settings.thermal.resumeCPUTemperatureNormalValue
+        && workingState === WorkingState.PAUSED
+      ) {
+        minerResume();
+      }
+    }
+  }, [CPUTemp]);
 
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values

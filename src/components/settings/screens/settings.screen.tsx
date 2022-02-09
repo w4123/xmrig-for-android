@@ -5,22 +5,37 @@ import {
   View,
   ViewProps,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Headline } from 'react-native-paper';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
-import { IPowerSettings } from '../../../core/settings/settings.interface';
+import { IPowerSettings, IThermalSettings, ISettings } from '../../../core/settings/settings.interface';
 import { SettingsPower } from '../containers/configurations/settings-power';
+import { SettingsThermal } from '../containers/configurations/settings-thermal';
 
 const SettingsScreen:React.FC<ViewProps> = () => {
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
 
-  const handlePowerUpdate = (data: Partial<IPowerSettings>) => {
+  const handleUpdate = (data: Partial<ISettings>) => {
     settingsDispatcher({
       type: SettingsActionType.UPDATE,
-      value: {
-        power: {
-          ...settings.power,
-          ...data,
-        },
+      value: data,
+    });
+  };
+
+  const handlePowerUpdate = (data: Partial<IPowerSettings>) => {
+    handleUpdate({
+      power: {
+        ...settings.power,
+        ...data,
+      },
+    });
+  };
+
+  const handleThermalUpdate = (data: Partial<IThermalSettings>) => {
+    handleUpdate({
+      thermal: {
+        ...settings.thermal,
+        ...data,
       },
     });
   };
@@ -31,7 +46,10 @@ const SettingsScreen:React.FC<ViewProps> = () => {
         <Headline style={styles.title}>Settings</Headline>
       </View>
 
-      <SettingsPower powerSettings={settings.power} onUpdate={handlePowerUpdate} />
+      <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+        <SettingsPower powerSettings={settings.power} onUpdate={handlePowerUpdate} />
+        <SettingsThermal thermalSettings={settings.thermal} onUpdate={handleThermalUpdate} />
+      </ScrollView>
     </SafeAreaView>
   );
 };
