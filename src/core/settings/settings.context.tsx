@@ -34,6 +34,12 @@ const initialState: ISettings = {
     resumeOnBatteryOk: false,
     resumeOnChargerConnected: false,
   },
+  thermal: {
+    pauseOnCPUTemperatureOverHeat: false,
+    pauseOnCPUTemperatureOverHeatValue: 90.0,
+    resumeCPUTemperatureNormal: false,
+    resumeCPUTemperatureNormalValue: 80.0,
+  },
 };
 
 export const defaultConfiguration: Partial<IConfiguration> = {

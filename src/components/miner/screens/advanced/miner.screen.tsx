@@ -2,7 +2,7 @@ import React from 'react';
 import {
   LayoutChangeEvent, ScrollView, StyleSheet, View,
 } from 'react-native';
-import { Headline } from 'react-native-paper';
+import { Caption, Headline } from 'react-native-paper';
 import { Battery } from '@pxblue/react-native-progress-icons';
 import chroma from 'chroma-js';
 import Shimmer from 'react-native-shimmer';
@@ -14,7 +14,7 @@ import { PowerContext } from '../../../../core/power/power.context';
 
 const MinerScreen = () => {
   const {
-    workingState, minerData, hashrateTotals, hashrateTotalsMA, working,
+    workingState, minerData, hashrateTotals, hashrateTotalsMA, working, CPUTemp,
   } = React.useContext(SessionDataContext);
   const [sparklineWidth, setSparklineWidth] = React.useState<number>(0);
   const powerContext = React.useContext(PowerContext);
@@ -41,6 +41,12 @@ const MinerScreen = () => {
           style={styles.header}
         >
           <Headline>Miner Statistics</Headline>
+          <View style={{ flex: 1, alignItems: 'flex-end', paddingHorizontal: 10 }}>
+            <Caption>
+              {CPUTemp}
+              {CPUTemp !== 'N/A' && ' ℃'}
+            </Caption>
+          </View>
           <View>
             {powerContext.isPowerConnected && (
               <Shimmer animating intensity={1} duration={3000}>

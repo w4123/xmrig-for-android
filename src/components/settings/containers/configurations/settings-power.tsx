@@ -22,13 +22,11 @@ export const SettingsPower:React.FC<SettingsPowerProps> = ({
   <Card style={styles.card}>
     <Card.Title title="Power Settings" />
     <Card.Content>
+      <Caption>Pause / Resume mining based on Battery level/device Charging.</Caption>
       <View style={styles.input}>
         <Subheading>Pause mining on</Subheading>
         <View style={styles.intend}>
-          <Caption>
-            Will pause the miner (sends pause commands via RPC).
-            Can resume from same point.
-          </Caption>
+          <Caption>Will pause the miner, can be resumed from the same point.</Caption>
           <View style={[styles.row, { margin: 0 }]}>
             <Paragraph>Charger Disconnected</Paragraph>
             <Switch
@@ -48,10 +46,7 @@ export const SettingsPower:React.FC<SettingsPowerProps> = ({
       <View style={styles.input}>
         <Subheading>Resume mining on</Subheading>
         <View style={styles.intend}>
-          <Caption>
-            Will resume the miner (sends pause commands via RPC).
-            Will resume only if the miner is paused.
-          </Caption>
+          <Caption>Will resume the mining, will be resumed only if paused.</Caption>
           <View style={[styles.row, { margin: 0 }]}>
             <Paragraph>Charger Connected</Paragraph>
             <Switch

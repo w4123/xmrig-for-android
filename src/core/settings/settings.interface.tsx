@@ -116,12 +116,20 @@ export interface IPowerSettings {
     resumeOnBatteryOk: boolean;
     resumeOnChargerConnected: boolean;
 }
+
+export interface IThermalSettings {
+    pauseOnCPUTemperatureOverHeat: boolean;
+    pauseOnCPUTemperatureOverHeatValue: number;
+    resumeCPUTemperatureNormal: boolean;
+    resumeCPUTemperatureNormalValue: number;
+}
 export interface ISettings {
     ready: boolean;
     uuid: string;
     configurations: Array<Configuration>;
     selectedConfiguration?: string;
     power: IPowerSettings;
+    thermal: IThermalSettings;
 }
 export interface ISettingsReducerAction {
     type: SettingsActionType;
