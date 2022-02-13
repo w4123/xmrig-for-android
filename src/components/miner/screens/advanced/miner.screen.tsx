@@ -43,8 +43,8 @@ const MinerScreen = () => {
           <Headline>Miner Statistics</Headline>
           <View style={{ flex: 1, alignItems: 'flex-end', paddingHorizontal: 10 }}>
             <Caption>
-              {CPUTemp}
-              {CPUTemp !== 'N/A' && ' ℃'}
+              {CPUTemp.toFixed(2)}
+              {' ℃'}
             </Caption>
           </View>
           <View>

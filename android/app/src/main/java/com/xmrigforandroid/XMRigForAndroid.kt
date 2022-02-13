@@ -22,34 +22,70 @@ import android.os.BatteryManager
 
 import android.content.Context.BATTERY_SERVICE
 import com.xmrigforandroid.events.*
-import com.xmrigforandroid.utils.CPUTemperatureService
+import com.xmrigforandroid.services.IXMRigAPIService
+import com.xmrigforandroid.services.ThermalService
+import com.xmrigforandroid.services.XMRigAPIService
+import com.xmrigforandroid.utils.CPUTemperatureHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 
 
 class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
 
     var miningService:IMiningService? = null
+    var xmrigAPIService: IXMRigAPIService? = null
     val configBuilder = XMRigConfigBuilder(this.reactApplicationContext.applicationContext)
     var isMining = false
 
     private val serverConnection = object: ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
-            miningService = IMiningService.Stub.asInterface(service)
+            if (className != null) {
+                Log.d("className", className.className)
+            };
+            when(className?.className) {
+                "com.xmrigforandroid.MiningService" -> {
+                    miningService = IMiningService.Stub.asInterface(service)
+                }
+                "com.xmrigforandroid.services.XMRigAPIService" -> {
+                    xmrigAPIService = IXMRigAPIService.Stub.asInterface(service)
+                }
+            }
         }
         override fun onServiceDisconnected(className: ComponentName?) {
-            miningService = null
+            when(className?.className) {
+                "com.xmrigforandroid.MiningService" -> {
+                    miningService = null
+                }
+                "com.xmrigforandroid.services.XMRigAPIService" -> {
+                    xmrigAPIService = null
+                }
+            }
         }
     };
 
     init {
-        val intent = Intent(context, MiningService::class.java)
-        context.bindService(intent, serverConnection, Context.BIND_AUTO_CREATE)
-        context.startForegroundService(intent)
+        runBlocking(Dispatchers.IO) {
+
+            arrayOf(
+                    MiningService::class.java,
+                    XMRigAPIService::class.java,
+                    ThermalService::class.java
+            ).onEach {
+                launch(newSingleThreadContext("Thread-"+it.toString())) {
+                    val intent = Intent(context, it)
+                    context.bindService(intent, serverConnection, Context.BIND_AUTO_CREATE)
+                    context.startService(intent)
+                }
+            }
+        }
     }
 
-    private val fileObserver: FileObserver = object : FileObserver(File(configBuilder.getConfigPath()), FileObserver.MODIFY) {
+    private val fileObserver: FileObserver = object : FileObserver(File(configBuilder.getConfigPath()), MODIFY) {
         override fun onEvent(event: Int, path: String?) {
             Log.d("FileObserver", "fileObserver: ${event} ${path} | isMining: ${isMining}")
-            if (!isMining)  {
+                if (!isMining)  {
                 return
             }
             val payload = Arguments.createMap()
@@ -75,12 +111,26 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
     fun onMinerStartEvent(event: MinerStartEvent) {
         Log.d(this.name, "event name: " + event.javaClass.simpleName)
         this.isMining = true
+        xmrigAPIService?.startSummaryUpdates()
+
+        val payload = Arguments.createMap()
+        payload.putBoolean("isWorking", true)
+        reactApplicationContext
+                .getJSModule(RCTDeviceEventEmitter::class.java)
+                .emit("onStatusChange", payload)
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     fun onMinerStopEvent(event: MinerStopEvent) {
         Log.d(this.name, "event name: " + event.javaClass.simpleName)
         this.isMining = false
+        xmrigAPIService?.stopSummaryUpdates()
+
+        val payload = Arguments.createMap()
+        payload.putBoolean("isWorking", false)
+        reactApplicationContext
+                .getJSModule(RCTDeviceEventEmitter::class.java)
+                    .emit("onStatusChange", payload)
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -94,6 +144,30 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
         reactApplicationContext
                 .getJSModule(RCTDeviceEventEmitter::class.java)
                 .emit("onPower", payload)
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onMinerSummaryEvent(event: MinerSummaryEvent) {
+        Log.d(this.name, "event name: " + event.javaClass.simpleName)
+        if (event.value != null) {
+            val payload = Arguments.createMap()
+            payload.putString("data", event.value)
+
+            reactApplicationContext
+                    .getJSModule(RCTDeviceEventEmitter::class.java)
+                    .emit("onSummary", payload)
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onThermalEvent(event: ThermalEvent) {
+        Log.d(this.name, "event name: " + event.javaClass.simpleName)
+        val payload = Arguments.createMap()
+        payload.putDouble("cpuTemperature", event.cpuTemperature.toDouble())
+
+        reactApplicationContext
+                .getJSModule(RCTDeviceEventEmitter::class.java)
+                .emit("onThermal", payload)
     }
 
     @ReactMethod
@@ -121,9 +195,11 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
         Log.d(this.name, "Stop has benn called from RN")
         try {
             miningService?.stopMiner()
+            xmrigAPIService?.stopSummaryUpdates()
         } catch (e: RemoteException) {
             e.printStackTrace()
         }
+        EventBus.getDefault().post(MinerStopEvent())
     }
 
     @ReactMethod
@@ -138,12 +214,13 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
     }
 
     @ReactMethod
-    fun cpuTemperature(promise: Promise) {
-        try {
-            promise.resolve(CPUTemperatureService.getCpuTemperature())
-        } catch (e: Exception) {
-            promise.reject("CPUTemperatureService().getCpuTemperature()", e)
-        }
+    fun pauseMiner() {
+        xmrigAPIService?.pauseMiner()
+    }
+
+    @ReactMethod
+    fun resumeMiner() {
+        xmrigAPIService?.resumeMiner()
     }
 
     override fun getName(): String {
@@ -162,21 +239,26 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
 
     @ReactMethod
     fun addListener(eventName: String?) {
-        val bm = reactApplicationContext.getSystemService(BATTERY_SERVICE) as BatteryManager
-        val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        when(eventName) {
+            "onPower" -> {
+                val bm = reactApplicationContext.getSystemService(BATTERY_SERVICE) as BatteryManager
+                val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
-            reactApplicationContext.applicationContext.registerReceiver(null, ifilter)
+                val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+                    reactApplicationContext.applicationContext.registerReceiver(null, ifilter)
+                }
+
+                val chargePlug: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
+
+                EventBus.getDefault().post(PowerEvent(PowerEventAction.BATTERY_CHANGED, batteryLevel))
+                if (chargePlug > 0)   {
+                    EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_CONNECTED))
+                } else {
+                    EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_DISCONNECTED))
+                }
+            }
         }
 
-        val chargePlug: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
-
-        EventBus.getDefault().post(PowerEvent(PowerEventAction.BATTERY_CHANGED, batteryLevel))
-        if (chargePlug > 0)   {
-            EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_CONNECTED))
-        } else {
-            EventBus.getDefault().post(PowerEvent(PowerEventAction.POWER_DISCONNECTED))
-        }
     }
 
     @ReactMethod
