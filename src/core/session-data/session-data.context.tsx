@@ -1,8 +1,6 @@
 import React from 'react';
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from 'react-native';
-import cloneDeep from 'lodash/fp/cloneDeep';
-import * as JSON5 from 'json5';
-import { IMinerSummary, useMinerHttpd, useHashrateHistory, useInterval } from '../hooks';
+import { useHashrateHistory } from '../hooks';
 import {
   StartMode, IXMRigLogEvent, WorkingState, IHashrateHistory,
 } from './session-data.interface';
@@ -12,23 +10,23 @@ import { Configuration, ConfigurationMode, ISimpleConfiguration } from '../setti
 import ConfigBuilder from '../xmrig-config/config-builder';
 import { LoggerContext } from '../logger';
 import { PowerContext } from '../power/power.context';
+import { IMinerSummary, useMinerSummary } from '../hooks/use-miner-summary.hook';
+import { useMinerStatus } from '../hooks/use-miner-status.hook';
+import { useThermal } from '../hooks/use-thermal.hook';
 
 const { XMRigForAndroid } = NativeModules;
-
-const configBuilder = new ConfigBuilder();
 
 type SessionDataContextType = {
   working: StartMode,
   workingState: string,
   minerData: IMinerSummary | null,
-  setWorking: Function,
   hashrateTotals: IHashrateHistory,
   hashrateTotalsMA: IHashrateHistory,
   minerActions: {
     pause: () => {},
     resume: () => {},
   },
-  CPUTemp: string,
+  CPUTemp: number,
 }
 
 // @ts-ignore
@@ -38,7 +36,6 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
   const { log } = React.useContext(LoggerContext);
   const { isLowBattery, isPowerConnected } = React.useContext(PowerContext);
-  const [CPUTemp, setCPUTemp] = React.useState<string>('N/A');
 
   const hashrateHistory = useHashrateHistory([0, 0]);
   const hashrateHistory10s = useHashrateHistory([0, 0]);
@@ -46,16 +43,24 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   const hashrateHistory15m = useHashrateHistory([0, 0]);
   const hashrateHistoryMax = useHashrateHistory([0, 0]);
 
-  const [working, setWorking] = React.useState<StartMode>(StartMode.STOP);
-
   const [workingState, setWorkingState] = React.useState<WorkingState>(WorkingState.NOT_WORKING);
+  const { minerData } = useMinerSummary();
+  const { isWorking } = useMinerStatus();
+  const { cpuTemperature } = useThermal();
 
-  const {
-    minerStatus,
-    minerData,
-    minerPause,
-    minerResume,
-  } = useMinerHttpd(50080);
+  // backward compability
+  const working = React.useMemo<StartMode>(
+    () => {
+      if (isWorking === true) {
+        return StartMode.START;
+      }
+      return StartMode.STOP;
+    },
+    [isWorking],
+  );
+
+  const pauseMiner = () => XMRigForAndroid?.pauseMiner();
+  const resumeMiner = () => XMRigForAndroid?.resumeMiner();
 
   React.useEffect(() => {
     hashrateHistory.add(parseFloat(`${minerData?.hashrate.total[0]}`) || 0);
@@ -63,111 +68,22 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
     hashrateHistory60s.add(parseFloat(`${minerData?.hashrate.total[1]}`) || 0);
     hashrateHistory15m.add(parseFloat(`${minerData?.hashrate.total[2]}`) || 0);
     hashrateHistoryMax.add(parseFloat(`${minerData?.hashrate.highest}`) || 0);
-
-    if (minerData?.paused) {
-      setWorkingState(WorkingState.PAUSED);
-    } else {
-      setWorkingState(WorkingState.MINING);
-    }
   }, [minerData]);
 
   React.useEffect(() => {
-    if (minerStatus) {
+    if (!isWorking) {
+      setWorkingState(WorkingState.NOT_WORKING);
+      hashrateHistory.reset();
+      hashrateHistory10s.reset();
+      hashrateHistory60s.reset();
+      hashrateHistory15m.reset();
+      hashrateHistoryMax.reset();
+    } else if (isWorking && minerData?.paused) {
+      setWorkingState(WorkingState.PAUSED);
+    } else if (isWorking && !minerData?.paused) {
       setWorkingState(WorkingState.MINING);
     }
-    if (!minerStatus && workingState === WorkingState.MINING) {
-      setWorking(StartMode.STOP);
-    }
-  }, [minerStatus]);
-
-  React.useEffect(() => {
-    switch (working) {
-      case StartMode.START:
-        setWorkingState(WorkingState.MINING);
-        if (settings.selectedConfiguration) {
-          const cConfig:Configuration | undefined = settings.configurations.find(
-            (config) => config.id === settings.selectedConfiguration,
-          );
-          if (cConfig) {
-            const configCopy:Configuration = cloneDeep(cConfig);
-
-            if (configCopy && configCopy.mode === ConfigurationMode.SIMPLE) {
-              configBuilder.reset();
-              configBuilder.setPool({
-                user: (configCopy as ISimpleConfiguration).properties?.pool?.username,
-                pass: (configCopy as ISimpleConfiguration).properties?.pool?.password,
-                url: `${(configCopy as ISimpleConfiguration).properties?.pool?.hostname}:${(configCopy as ISimpleConfiguration).properties?.pool?.port}`,
-                tls: (configCopy as ISimpleConfiguration).properties?.pool?.sslEnabled,
-              });
-              configBuilder.setProps({
-                cpu: {
-                  priority: (configCopy as ISimpleConfiguration).properties?.cpu?.priority,
-                  yield: (configCopy as ISimpleConfiguration).properties?.cpu?.yield,
-                  'max-threads-hint': (configCopy as ISimpleConfiguration).properties?.cpu?.max_threads_hint,
-                },
-                randomx: {
-                  mode: (configCopy as ISimpleConfiguration).properties?.cpu?.random_x_mode,
-                },
-              });
-              configBuilder.setProps({
-                cpu: {
-                  ...(configCopy as ISimpleConfiguration).properties?.algos,
-                },
-              });
-              configBuilder.setProps({
-                'algo-perf': (configCopy as ISimpleConfiguration).properties?.algo_perf,
-              });
-            }
-            if (configCopy && configCopy.mode === ConfigurationMode.ADVANCE) {
-              configBuilder.setConfig(JSON5.parse(configCopy.config || '{}'));
-              configBuilder.setProps({
-                http: {
-                  enabled: true,
-                  host: '127.0.0.1',
-                  port: 50080,
-                  'access-token': null,
-                  restricted: true,
-                },
-                background: false,
-                colors: true,
-              });
-            }
-
-            const sendConfiguration = {
-              id: cConfig.id,
-              name: cConfig.name,
-              mode: cConfig.mode,
-              xmrig_fork: cConfig.xmrig_fork,
-              config: configBuilder.getConfigBase64(),
-            };
-
-            console.log(sendConfiguration);
-            XMRigForAndroid.start(
-              JSON.stringify(
-                sendConfiguration,
-                // eslint-disable-next-line consistent-return
-                (k, v) => {
-                  if (v !== null) return v;
-                },
-              ),
-            );
-          }
-        }
-        break;
-      case StartMode.STOP:
-        setWorkingState(WorkingState.NOT_WORKING);
-        XMRigForAndroid.stop();
-        hashrateHistory.reset();
-        hashrateHistory10s.reset();
-        hashrateHistory60s.reset();
-        hashrateHistory15m.reset();
-        hashrateHistoryMax.reset();
-        break;
-      default:
-    }
-  }, [working]);
-
-  useInterval(async () => setCPUTemp(await XMRigForAndroid.cpuTemperature()), 10000);
+  }, [isWorking, minerData?.paused]);
 
   React.useEffect(() => {
     const configbuilder = new ConfigBuilder();
@@ -223,9 +139,9 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
 
   React.useEffect(() => {
     if (settings.power.pauseOnLowBattery && isLowBattery === true) {
-      minerPause();
+      pauseMiner();
     } else if (settings.power.resumeOnBatteryOk && isLowBattery === false) {
-      minerResume();
+      resumeMiner();
     }
   }, [isLowBattery]);
 
@@ -234,37 +150,33 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
       settings.power.resumeOnChargerConnected
       && isPowerConnected === true
       && workingState === WorkingState.PAUSED) {
-      minerResume();
+      resumeMiner();
     } else if (
       settings.power.pauseOnChargerDisconnected
       && isPowerConnected === false
       && workingState === WorkingState.MINING
     ) {
-      minerPause();
+      pauseMiner();
     }
   }, [isPowerConnected]);
 
   React.useEffect(() => {
-    if (CPUTemp === 'N/A') {
-      return;
-    }
-    const currTemp = parseFloat(CPUTemp);
-    if (!Number.isNaN(currTemp)) {
+    if (!Number.isNaN(cpuTemperature)) {
       if (
         settings.thermal.pauseOnCPUTemperatureOverHeat
-        && currTemp > settings.thermal.pauseOnCPUTemperatureOverHeatValue
+        && cpuTemperature > settings.thermal.pauseOnCPUTemperatureOverHeatValue
         && workingState === WorkingState.MINING
       ) {
-        minerPause();
+        pauseMiner();
       } else if (
         settings.thermal.resumeCPUTemperatureNormal
-        && currTemp < settings.thermal.resumeCPUTemperatureNormalValue
+        && cpuTemperature < settings.thermal.resumeCPUTemperatureNormalValue
         && workingState === WorkingState.PAUSED
       ) {
-        minerResume();
+        resumeMiner();
       }
     }
-  }, [CPUTemp]);
+  }, [cpuTemperature]);
 
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
@@ -272,7 +184,6 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
       working,
       workingState,
       minerData,
-      setWorking,
       hashrateTotals: {
         historyCurrent: hashrateHistory.history,
         history10s: hashrateHistory10s.history,
@@ -288,10 +199,10 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
         historyMax: hashrateHistoryMax.sma,
       },
       minerActions: {
-        pause: minerPause,
-        resume: minerResume,
+        pause: pauseMiner,
+        resume: resumeMiner,
       },
-      CPUTemp,
+      CPUTemp: cpuTemperature,
     }}
     >
       {children}

@@ -3,10 +3,10 @@ package com.xmrigforandroid.utils
 import java.io.RandomAccessFile
 import java.io.File
 
-class CPUTemperatureService {
+class CPUTemperatureHelper {
     companion object {
         var tempPath: String = ""
-        fun searchCpuTemperature(): String {
+        fun searchCpuTemperature(): Float {
             val dirs = File("/sys/devices/virtual/thermal/").listFiles()
             dirs?.forEach {
                 try {
@@ -16,18 +16,18 @@ class CPUTemperatureService {
                         val reader = RandomAccessFile(it.resolve("temp"), "r")
                         val temp = reader.readLine().toFloat()
                         tempPath = it.resolve("temp").toString()
-                        return (temp / 1000.0f).toString()
+                        return temp / 1000.0f
                     }
                 } catch (e: Exception) {
 
                 }
             }
             tempPath = "not_found"
-            return "N/A"
+            return 0.0f
         }
-        fun getCpuTemperature(): String {
+        fun getCpuTemperature(): Float {
             if (tempPath == "not_found") {
-                return "N/A"
+                return 0.0f
             }
             if (tempPath == "") {
                 return searchCpuTemperature()
@@ -35,11 +35,11 @@ class CPUTemperatureService {
             try {
                 val reader = RandomAccessFile(tempPath, "r")
                 val temp = reader.readLine().toFloat()
-                return (temp / 1000.0f).toString()
+                return temp / 1000.0f
             } catch (e: Exception) {
 
             }
-            return "N/A"
+            return 0.0f
         }
     }
 }
