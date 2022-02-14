@@ -12,7 +12,7 @@ class ThermalService : Service() {
 
     val thermalWorkRequest: OneTimeWorkRequest.Builder = OneTimeWorkRequestBuilder<ThermalWorker>()
 
-    val updateTimer = object: CountDownTimer(5000, 5000) {
+    val updateTimer = object: CountDownTimer(15000, 15000) {
         override fun onTick(millisUntilFinished: Long) {
         }
 
@@ -32,7 +32,7 @@ class ThermalService : Service() {
     }
 
     companion object {
-        private val LOG_TAG = "XMRigAPIService"
+        private val LOG_TAG = "ThermalService"
         var IS_SERVICE_RUNNING = false
     }
 }
