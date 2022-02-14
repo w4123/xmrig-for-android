@@ -6,27 +6,11 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
 import androidx.work.*
-import com.xmrigforandroid.events.MinerSummaryEvent
-import com.xmrigforandroid.workers.ThermalWorker
 import com.xmrigforandroid.workers.XMRigJsonRpcWorker
 import com.xmrigforandroid.workers.XMRigSummaryUpdateWorker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okio.IOException
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.threadName
-import org.greenrobot.eventbus.EventBus
 
 class XMRigAPIService : Service() {
-
-    val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresCharging(true)
-            .build()
     val summaryUpdateWorkerRequest: OneTimeWorkRequest.Builder = OneTimeWorkRequestBuilder<XMRigSummaryUpdateWorker>()
 
     var isSummaryUpdate = false
@@ -39,9 +23,7 @@ class XMRigAPIService : Service() {
         override fun onFinish() {
             Log.d(LOG_TAG, "summaryUpdateTimer::Finish")
             WorkManager.getInstance(applicationContext).enqueue(
-                    summaryUpdateWorkerRequest
-                            .setConstraints(constraints)
-                            .build()
+                    summaryUpdateWorkerRequest.build()
             )
             if (isSummaryUpdate) {
                 this.start()
@@ -52,7 +34,6 @@ class XMRigAPIService : Service() {
     fun sendJSONRpcCommand(method: String) {
         Log.d(LOG_TAG, "sendJSONRpcCommand: " + method)
         val jsonRpcWorkerRequest = OneTimeWorkRequestBuilder<XMRigJsonRpcWorker>()
-                .setConstraints(constraints)
                 .setInputData(workDataOf(
                         "METHOD" to method
                 ))
