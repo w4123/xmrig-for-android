@@ -16,6 +16,7 @@ import com.xmrigforandroid.data.serialization.XMRigFork;
 import com.xmrigforandroid.events.MinerStartEvent;
 import com.xmrigforandroid.events.MinerStopEvent;
 import com.xmrigforandroid.events.StdoutEvent;
+import com.xmrigforandroid.utils.ProcessExitDetector;
 
 import org.greenrobot.eventbus.EventBus;
 import java.io.BufferedReader;
@@ -135,6 +136,10 @@ public class MiningService extends Service {
             outputHandler.start();
 
             EventBus.getDefault().post(new MinerStartEvent());
+
+            ProcessExitDetector processExitDetector = new ProcessExitDetector(process);
+            processExitDetector.addProcessListener(process -> EventBus.getDefault().post(new MinerStopEvent()));
+            processExitDetector.start();
 
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception:", e);
