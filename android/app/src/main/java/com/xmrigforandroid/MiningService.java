@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MiningService extends Service {
 
@@ -33,6 +35,9 @@ public class MiningService extends Service {
     private Notification.Builder notificationbuilder;
     private Process process;
     private OutputReaderThread outputHandler;
+
+    private final String ansiRegex = "\\e\\[[\\d;]*[^\\d;]";
+    private final Pattern ansiRegexPattern = Pattern.compile(ansiRegex);
 
     @Override
     public void onCreate() {
@@ -132,14 +137,15 @@ public class MiningService extends Service {
             pb.redirectErrorStream(true);
 
             process = pb.start();
-            outputHandler = new MiningService.OutputReaderThread(process.getInputStream());
-            outputHandler.start();
-
-            EventBus.getDefault().post(new MinerStartEvent());
 
             ProcessExitDetector processExitDetector = new ProcessExitDetector(process);
             processExitDetector.addProcessListener(process -> EventBus.getDefault().post(new MinerStopEvent()));
             processExitDetector.start();
+
+            outputHandler = new MiningService.OutputReaderThread(process.getInputStream());
+            outputHandler.start();
+
+            EventBus.getDefault().post(new MinerStartEvent());
 
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception:", e);
@@ -150,7 +156,9 @@ public class MiningService extends Service {
     }
 
     public void updateNotification(String str) {
-        notificationbuilder.setContentText(str);
+        Matcher matcher = ansiRegexPattern.matcher(str);
+
+        notificationbuilder.setContentText(matcher.replaceAll(""));
 
         NotificationManager notificationManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, notificationbuilder.build());
