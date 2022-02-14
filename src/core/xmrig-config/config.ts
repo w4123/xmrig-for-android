@@ -105,4 +105,3 @@ export const config = {
   "pause-on-battery": false,
   "pause-on-active": false,
 };
-

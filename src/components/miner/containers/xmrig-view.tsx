@@ -21,7 +21,7 @@ import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
 import { IHashrateHistory } from '../../../core/session-data/session-data.interface';
 
-type PoolViewProps = ViewProps & {
+type XMRigViewProps = ViewProps & {
     hashrateHistory: IHashrateHistory;
     hashrateHistoryMA: IHashrateHistory;
     fullWidth: number;
@@ -30,7 +30,7 @@ type PoolViewProps = ViewProps & {
     disabled: boolean;
 }
 
-export const XMRigView:React.FC<PoolViewProps> = ({
+export const XMRigView:React.FC<XMRigViewProps> = ({
   hashrateHistory,
   hashrateHistoryMA,
   fullWidth,

@@ -8,8 +8,9 @@ import {
 } from 'react-native-paper';
 import DropDown from 'react-native-paper-dropdown';
 import { useToast } from 'react-native-paper-toast';
+import { useMiner } from '../../../core/hooks/use-miner.hook';
 import { SessionDataContext } from '../../../core/session-data/session-data.context';
-import { StartMode, WorkingState } from '../../../core/session-data/session-data.interface';
+import { WorkingState } from '../../../core/session-data/session-data.interface';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
 import { Configuration } from '../../../core/settings/settings.interface';
 
@@ -17,7 +18,8 @@ export const MinerControl:React.FC<ViewProps> = () => {
   const { colors } = useTheme();
   const toaster = useToast();
 
-  const { setWorking, workingState } = React.useContext(SessionDataContext);
+  const { workingState } = React.useContext(SessionDataContext);
+  const { startWithSelectedConfiguration, stop: handleStop } = useMiner();
 
   const [showDropDown, setShowDropDown] = React.useState(false);
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
@@ -48,11 +50,9 @@ export const MinerControl:React.FC<ViewProps> = () => {
         toaster.show({ message: 'Please select a Configuration to start mining', type: 'error', position: 'top' });
       }
     } else {
-      setWorking(StartMode.START);
+      startWithSelectedConfiguration();
     }
   }, [settings]);
-
-  const handleStop = React.useCallback(() => setWorking(StartMode.STOP), []);
 
   React.useEffect(() => settingsDispatcher({
     type: SettingsActionType.SET_SELECTED_CONFIGURAION,

@@ -47,6 +47,12 @@
         <service
             android:name=".MiningService"
             android:enabled="true" />
+        <service
+            android:name=".services.XMRigAPIService"
+            android:enabled="true" />
+        <service
+            android:name=".services.ThermalService"
+            android:enabled="true" />
     </application>
 
 </manifest>
