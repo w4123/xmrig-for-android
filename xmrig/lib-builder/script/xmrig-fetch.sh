@@ -10,7 +10,14 @@ version="v6.16.3"
 
 if [ ! -d "xmrig" ]; then
   git clone https://github.com/xmrig/xmrig.git -b ${version}
+  cd ..
+  cd ..
+  patch build/src/xmrig/src/net/strategies/DonateStrategy.cpp ./xmrig.patch --force
 else
   cd xmrig
   git checkout ${version}
+  cd ..
+  cd ..
+  cd ..
+  patch build/src/xmrig/src/net/strategies/DonateStrategy.cpp ./xmrig.patch --force
 fi
