@@ -67,7 +67,6 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
 
     init {
         runBlocking(Dispatchers.IO) {
-
             arrayOf(
                     MiningService::class.java,
                     XMRigAPIService::class.java,
@@ -76,7 +75,15 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
                 launch(newSingleThreadContext("Thread-"+it.toString())) {
                     val intent = Intent(context, it)
                     context.bindService(intent, serverConnection, Context.BIND_AUTO_CREATE)
-                    context.startService(intent)
+                    when(it) {
+                        MiningService::class.java -> {
+                            context.startForegroundService(intent)
+                        }
+                        else -> {
+                            context.startService(intent)
+                        }
+                    }
+
                 }
             }
         }
