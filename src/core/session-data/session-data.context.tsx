@@ -7,7 +7,6 @@ import {
 import { SettingsActionType, SettingsContext } from '../settings';
 import { cleanAnsiLogLineRegex, filterLogLineRegex } from '../utils/parsers';
 import { Configuration, ConfigurationMode, ISimpleConfiguration } from '../settings/settings.interface';
-import ConfigBuilder from '../xmrig-config/config-builder';
 import { LoggerContext } from '../logger';
 import { PowerContext } from '../power/power.context';
 import { IMinerSummary, useMinerSummary } from '../hooks/use-miner-summary.hook';
@@ -86,9 +85,6 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   }, [isWorking, minerData?.paused]);
 
   React.useEffect(() => {
-    const configbuilder = new ConfigBuilder();
-    console.log('ConfigBuilder', configbuilder);
-
     const MinerEmitter = new NativeEventEmitter(XMRigForAndroid);
 
     const onLogSub:EmitterSubscription = MinerEmitter.addListener('onLog', (data:IXMRigLogEvent) => {

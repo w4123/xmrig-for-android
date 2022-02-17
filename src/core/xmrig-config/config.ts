@@ -60,7 +60,7 @@ export const config = {
     "panthera": false,
     "astrobwt": false,
   },
-  "donate-level": 0,
+  "donate-level": 5,
   "donate-over-proxy": 0,
   "log-file": null,
   "pools": [

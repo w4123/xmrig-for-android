@@ -130,6 +130,8 @@ export interface ISettings {
     selectedConfiguration?: string;
     power: IPowerSettings;
     thermal: IThermalSettings;
+    donation: number;
+    printTime: number;
 }
 export interface ISettingsReducerAction {
     type: SettingsActionType;

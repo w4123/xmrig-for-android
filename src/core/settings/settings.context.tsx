@@ -40,6 +40,8 @@ const initialState: ISettings = {
     resumeCPUTemperatureNormal: false,
     resumeCPUTemperatureNormalValue: 80.0,
   },
+  donation: 5,
+  printTime: 60,
 };
 
 export const defaultConfiguration: Partial<IConfiguration> = {
