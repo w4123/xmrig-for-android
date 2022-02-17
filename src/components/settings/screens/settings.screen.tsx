@@ -9,6 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Headline } from 'react-native-paper';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
 import { IPowerSettings, IThermalSettings, ISettings } from '../../../core/settings/settings.interface';
+import { SettingsOthers } from '../containers/configurations/settings-others';
 import { SettingsPower } from '../containers/configurations/settings-power';
 import { SettingsThermal } from '../containers/configurations/settings-thermal';
 
@@ -46,9 +47,10 @@ const SettingsScreen:React.FC<ViewProps> = () => {
         <Headline style={styles.title}>Settings</Headline>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView>
         <SettingsPower powerSettings={settings.power} onUpdate={handlePowerUpdate} />
         <SettingsThermal thermalSettings={settings.thermal} onUpdate={handleThermalUpdate} />
+        <SettingsOthers settings={settings} onUpdate={handleUpdate} />
       </ScrollView>
     </SafeAreaView>
   );

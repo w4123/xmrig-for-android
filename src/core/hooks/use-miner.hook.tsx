@@ -35,6 +35,10 @@ export const useMiner = () => {
             cConfig,
             ['id', 'name', 'mode', 'xmrig_fork'],
           );
+          sConfig.setProps({
+            'donate-level': settings.donation,
+            'print-time': settings.printTime,
+          });
 
           startHandler({
             ...sConfigPartial,
