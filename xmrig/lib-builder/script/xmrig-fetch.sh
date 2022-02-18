@@ -6,7 +6,7 @@ source script/env.sh
 
 cd $EXTERNAL_LIBS_BUILD_ROOT
 
-version="v6.16.3"
+version="v6.16.4"
 
 if [ ! -d "xmrig" ]; then
   git clone https://github.com/xmrig/xmrig.git -b ${version}
