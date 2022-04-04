@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import { IPool } from '.';
+import { Incubator } from 'react-native-ui-lib';
+import { IPool, sharedStyles } from '.';
 
 const hostname = 'xmr.hashcity.org';
 const port = 4444;
@@ -23,27 +22,27 @@ export const Hashcity:React.FC<IPool> = ({ onChange }) => {
 
   return (
     <>
-      <TextInput
-        style={styles.input}
+      <Incubator.TextField
         label="Username"
-        dense
         value={username}
         onChangeText={setUsername}
+        floatOnFocus
+        showCharCounter
+        maxLength={128}
+        fieldStyle={sharedStyles.withUnderline}
+        marginB-10
       />
-      <TextInput
-        style={styles.input}
-        label="Worker Name (Optional)"
-        placeholder="Worker1"
-        dense
+      <Incubator.TextField
+        label="Worker Name"
         value={worker}
         onChangeText={setWorker}
+        floatOnFocus
+        showCharCounter
+        maxLength={128}
+        fieldStyle={sharedStyles.withUnderline}
+        hint="Worker1"
+        placeholder="Worker1"
       />
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  input: {
-    marginBottom: 20,
-  },
-});

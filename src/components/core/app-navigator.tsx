@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import {
-  Tabs,
-  TabScreen,
-} from 'react-native-paper-tabs';
+  TabController,
+  View,
+  Text,
+  ViewProps,
+} from 'react-native-ui-lib';
+
 import SplashScreen from 'react-native-splash-screen';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ViewProps } from 'react-native';
 import { LazyLoader } from './lazy-loader';
-import AppHeader from './app-header';
 import ConfigurationEditScreen from '../settings/screens/configuration-edit.screen';
+import { version } from '../../version';
 
 const Stack = createStackNavigator();
 
@@ -19,14 +21,15 @@ const LazySettings = () => (<LazyLoader><Settings /></LazyLoader>);
 const LazyMiner = () => (<LazyLoader><Miner /></LazyLoader>);
 
 const AppTabs:React.FC<ViewProps> = () => (
-  <Tabs>
-    <TabScreen label="Miner" icon="engine">
-      <LazyMiner />
-    </TabScreen>
-    <TabScreen label="Settings" icon="tune">
-      <LazySettings />
-    </TabScreen>
-  </Tabs>
+  <TabController items={[{ label: 'Miner' }, { label: 'Settings' }]}>
+    <TabController.TabBar
+      enableShadow
+    />
+    <View flex>
+      <TabController.TabPage index={0}><LazyMiner /></TabController.TabPage>
+      <TabController.TabPage index={1} lazy><LazySettings /></TabController.TabPage>
+    </View>
+  </TabController>
 );
 
 export const AppNavigator:React.FC<ViewProps> = () => {
@@ -37,13 +40,30 @@ export const AppNavigator:React.FC<ViewProps> = () => {
   return (
     <Stack.Navigator
       initialRouteName="Main"
-      screenOptions={{
-        // eslint-disable-next-line react/no-unstable-nested-components
-        header: ({ navigation, back }) => <AppHeader navigation={navigation} back={back} />,
-      }}
     >
-      <Stack.Screen name="Main" component={AppTabs} />
-      <Stack.Screen name="Configuration" component={ConfigurationEditScreen} getId={({ params }: any) => params.id} />
+      <Stack.Screen
+        name="Main"
+        component={AppTabs}
+        // eslint-disable-next-line react/jsx-one-expression-per-line
+        options={{
+          title: 'XMRig for Android',
+          headerTitleContainerStyle: { marginLeft: 10 },
+          headerRightContainerStyle: { marginRight: 10 },
+          headerRight: () => (
+            <Text>
+              Version
+              {' '}
+              {version}
+            </Text>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="Configuration"
+        component={ConfigurationEditScreen}
+        getId={({ params }: any) => params.id}
+        options={{ title: 'XMRig for Android | Configurations' }}
+      />
     </Stack.Navigator>
   );
 };

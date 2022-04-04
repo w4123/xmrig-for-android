@@ -1,249 +1,332 @@
-import React from 'react';
+import React, { useCallback, FC } from 'react';
 import {
-  View,
+  Dimensions,
+  ScaledSize,
   StyleSheet,
-  ViewProps,
 } from 'react-native';
 import _ from 'lodash';
 import prettyBytes from 'pretty-bytes';
 // @ts-ignore
 import { hashrateToString } from 'hashrate';
-import { VictoryArea } from 'victory-native';
-import Shimmer from 'react-native-shimmer';
+import { VictoryArea, VictoryChart, VictoryClipContainer } from 'victory-native';
 import {
-  Title,
-  Paragraph,
-  Divider,
-  ActivityIndicator,
-  Switch,
-} from 'react-native-paper';
+  Colors, View, Text, ViewProps, Card, GridView, Assets,
+} from 'react-native-ui-lib';
 import { IMinerSummary } from '../../../core/hooks';
 import { MinerCard } from '../components/miner-card.component';
 import { IHashrateHistory } from '../../../core/session-data/session-data.interface';
 
+const screen = Dimensions.get('screen');
+
+type SmallHashrateChartProps = {
+  hashrateHistoryData: number[];
+};
+
 type XMRigViewProps = ViewProps & {
     hashrateHistory: IHashrateHistory;
-    hashrateHistoryMA: IHashrateHistory;
-    fullWidth: number;
     minerData: IMinerSummary | null;
     workingState: string;
-    disabled: boolean;
 }
 
 export const XMRigView:React.FC<XMRigViewProps> = ({
   hashrateHistory,
-  hashrateHistoryMA,
-  fullWidth,
   minerData,
   workingState,
-  disabled,
 }) => {
-  const [isMovingAverage, setIsMovingAverage] = React.useState<boolean>(false);
+  const [dimensions, setDimensions] = React.useState<ScaledSize>({
+    ...screen,
+    width: screen.width - 19,
+  });
 
-  const selectedHashrateHistory = React.useMemo<IHashrateHistory>(
-    () => (isMovingAverage ? hashrateHistoryMA : hashrateHistory),
-    [isMovingAverage, hashrateHistoryMA, hashrateHistory],
-  );
+  React.useEffect(() => {
+    const subscription = Dimensions.addEventListener(
+      'change',
+      ({ screen: _screen }) => {
+        setDimensions({
+          ..._screen,
+          width: _screen.width - 19,
+        });
+      },
+    );
+    return () => subscription?.remove();
+  });
 
-  const RenderHashrateChartVictory = React.useCallback(() => (
-    <View style={{ left: 0, bottom: 0, width: fullWidth }}>
-      <Shimmer opacity={0.8} tilt={30} direction="left" pauseDuration={2500}>
-        <VictoryArea width={fullWidth} padding={0} height={70} data={selectedHashrateHistory.historyCurrent} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
-      </Shimmer>
+  const HashrateChart = React.useCallback(() => (
+    <View flex>
+      <VictoryArea
+        groupComponent={<VictoryClipContainer clipPadding={{ top: 10, right: 10, left: 10 }} />}
+        padding={{
+          top: 10,
+          bottom: 0,
+        }}
+        height={100}
+        data={[0, ..._.takeRight(hashrateHistory.historyCurrent || [], 10), 0]}
+        style={{
+          data: {
+            fill: Colors.$backgroundPrimaryLight,
+            stroke: Colors.$outlinePrimary,
+            strokeWidth: 2,
+          },
+        }}
+        interpolation="natural"
+        standalone
+      />
     </View>
-  ), [fullWidth, selectedHashrateHistory]);
+  ), [hashrateHistory]);
 
-  const RenderSmallHashrateChartVictory:React.FC<
-    {hashrateHistoryData: number[], pauseDuration: number, show?: boolean}
-  > = React.useCallback(({ hashrateHistoryData, pauseDuration, show = false }) => (
-    <View style={{ width: (fullWidth / 4) - 10, alignSelf: 'stretch' }}>
-      {show ? (
-        <View style={styles.smallChart}>
-          <Shimmer opacity={0.7} tilt={20} direction="left" pauseDuration={pauseDuration}>
-            <VictoryArea width={fullWidth / 4} padding={0} height={50} data={hashrateHistoryData} style={{ data: { fill: 'rgba(134, 65, 244)' } }} interpolation="natural" standalone />
-          </Shimmer>
-        </View>
-      ) : (<ActivityIndicator hidesWhenStopped animating={!disabled} color="#8641f4" style={{ paddingTop: 10, alignSelf: 'stretch' }} />)}
+  const SmallHashrateChart:FC<SmallHashrateChartProps> = useCallback((
+    { hashrateHistoryData = [] },
+  ) => (
+    <View flex right>
+      <VictoryChart
+        height={50}
+        width={100}
+        padding={{
+          top: 5,
+          bottom: 0,
+        }}
+      >
+        <VictoryArea
+          groupComponent={<VictoryClipContainer clipPadding={{ top: 5, right: 0 }} />}
+          data={hashrateHistoryData}
+          style={{
+            data: {
+              fill: Colors.$backgroundPrimaryLight,
+              stroke: Colors.$outlinePrimary,
+              strokeWidth: 1,
+            },
+          }}
+          interpolation="natural"
+        />
+      </VictoryChart>
     </View>
-  ), [fullWidth, selectedHashrateHistory]);
+  ), [hashrateHistory]);
+
+  const GridCard = React.useCallback(({ title, text, children }) => (
+    <MinerCard title={title}>
+      <Card.Section
+        paddingH-10
+        paddingB-10
+        paddingT-5
+        content={[
+          { text, text65: true },
+        ]}
+        style={{
+          borderTopRightRadius: 0,
+          borderTopLeftRadius: 0,
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+        }}
+      />
+      {children && children}
+    </MinerCard>
+  ), []);
+
+  const GridHashrateCard = React.useCallback(({ title, subTitle, children }) => (
+    <MinerCard title={title} subTitle={subTitle}>
+      {children}
+    </MinerCard>
+  ), []);
+
+  React.useEffect(() => console.log(minerData?.results), [minerData?.results]);
+  React.useEffect(() => console.log(minerData?.connection), [minerData?.connection]);
+
+  const RenderCPUGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        {
+          renderCustomItem: () => (
+            <GridCard title="Brand" text={minerData?.cpu.brand || 'N/A'}>
+              <Card.Image source={Assets.icons.cpu} height={25} width={25} style={{ position: 'absolute', right: 10, top: 10 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridCard title="Cores" text={minerData?.cpu.cores || 'N/A'}>
+              <Card.Image source={Assets.icons.cpuCore} height={25} width={25} style={{ position: 'absolute', right: 10, top: 10 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+        { renderCustomItem: () => <GridCard title="Threads" text={minerData?.cpu.threads || 'N/A'} /> },
+        { renderCustomItem: () => <GridCard title="Arch" text={minerData?.cpu.arch || 'N/A'} /> },
+      ]}
+      viewWidth={dimensions.width}
+      numColumns={2}
+    />
+  ), [minerData, dimensions.width]);
+
+  const RenderSharesGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        { renderCustomItem: () => <GridCard title="Accepted" text={minerData?.connection.accepted || 0} /> },
+        { renderCustomItem: () => <GridCard title="Rejected" text={minerData?.connection.rejected || 0} /> },
+        { renderCustomItem: () => <GridCard title="Total" text={(minerData?.connection.accepted || 0) + (minerData?.connection.rejected || 0)} /> },
+      ]}
+      numColumns={3}
+      viewWidth={dimensions.width}
+    />
+  ), [minerData, dimensions.width]);
+
+  const RenderSharesMoreGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        { renderCustomItem: () => <GridCard title="Difficulty" text={minerData?.results.diff_current || 'N/A'} /> },
+        { renderCustomItem: () => <GridCard title="Total Hashes" text={hashrateToString(minerData?.results.hashes_total || 0, true)} /> },
+      ]}
+      numColumns={2}
+      viewWidth={dimensions.width}
+    />
+  ), [minerData, dimensions.width]);
+
+  const RenderMemoryGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        {
+          renderCustomItem: () => (
+            <GridCard title="Free Mem" text={prettyBytes(minerData?.resources.memory.free || 0)}>
+              <Card.Image source={Assets.icons.memory} height={25} width={28} style={{ position: 'absolute', right: 10, top: 10 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridCard title="Res. Mem" text={prettyBytes(minerData?.resources.memory.resident_set_memory || 0)}>
+              <Card.Image source={Assets.icons.memory} height={25} width={28} style={{ position: 'absolute', right: 10, top: 10 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+      ]}
+      numColumns={2}
+      viewWidth={dimensions.width}
+    />
+  ), [minerData, dimensions.width]);
+
+  const RenderHashrateGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        {
+          renderCustomItem: () => (
+            <GridHashrateCard title="10s" subTitle={`${hashrateToString(_.last(hashrateHistory.history10s) || 0, true)}/s`}>
+              <SmallHashrateChart
+                hashrateHistoryData={hashrateHistory.history10s}
+              />
+            </GridHashrateCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridHashrateCard title="60s" subTitle={`${hashrateToString(_.last(hashrateHistory.history60s) || 0, true)}/s`}>
+              <SmallHashrateChart
+                hashrateHistoryData={hashrateHistory.history60s}
+              />
+            </GridHashrateCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridHashrateCard title="15m" subTitle={`${hashrateToString(_.last(hashrateHistory.history15m) || 0, true)}/s`}>
+              <SmallHashrateChart
+                hashrateHistoryData={hashrateHistory.history15m}
+              />
+            </GridHashrateCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridHashrateCard title="max" subTitle={`${hashrateToString(_.last(hashrateHistory.historyMax) || 0, true)}/s`}>
+              <SmallHashrateChart
+                hashrateHistoryData={hashrateHistory.historyMax}
+              />
+            </GridHashrateCard>
+          ),
+        },
+      ]}
+      numColumns={4}
+      viewWidth={dimensions.width}
+    />
+  ), [minerData, dimensions.width]);
+
+  const RenderModeAlgoGrid = React.useCallback(() => (
+    <GridView
+      items={[
+        {
+          renderCustomItem: () => (
+            <GridCard title="Mode" text={workingState || 'N/A'}>
+              <Card.Image source={Assets.icons.working} height={30} width={30} style={{ position: 'absolute', right: 5, top: 5 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+        {
+          renderCustomItem: () => (
+            <GridCard title="Algo" text={minerData?.algo || 'N/A'}>
+              <Card.Image source={Assets.icons.blockchain} height={30} width={30} style={{ position: 'absolute', right: 5, top: 5 }} tintColor={Colors.$iconNeutral} />
+            </GridCard>
+          ),
+        },
+      ]}
+      numColumns={2}
+      viewWidth={dimensions.width}
+    />
+  ), [minerData, dimensions.width]);
 
   return (
     <>
-      <View style={styles.row}>
-        <MinerCard title="Mode" style={{ flex: 2, marginRight: 10 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>{workingState}</Paragraph>
-        </MinerCard>
-        <MinerCard title="Algo" style={{ flex: 2 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>{minerData?.algo}</Paragraph>
-        </MinerCard>
+      <View flex row paddingV-10>
+        <RenderModeAlgoGrid />
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Title>Hashrate</Title>
-        <View style={styles.switchRow}>
-          <Paragraph style={{ paddingHorizontal: 5 }}>Moving Average</Paragraph>
-          <Switch value={isMovingAverage} onValueChange={setIsMovingAverage} disabled={disabled} />
+      <View flex paddingV-10>
+        <View flex row spread paddingB-5 marginB-10 style={styles.sectionDiv}>
+          <Text text60>Hashrate</Text>
+        </View>
+        <View flex row>
+          <RenderHashrateGrid />
+        </View>
+        <View flex row paddingT-10 style={{ zIndex: 0 }}>
+          <MinerCard
+            title="Live Hashrate"
+            subTitle={`${hashrateToString(_.last(hashrateHistory.historyCurrent) || 0, true)}/s`}
+            cardProps={{ row: true, center: true }}
+            badgeProps={{ size: 20 }}
+          >
+            <HashrateChart />
+          </MinerCard>
         </View>
       </View>
-      <View style={styles.row}>
-        <MinerCard
-          title="10s"
-          style={styles.hashrateCard}
-          disabled={disabled}
-        >
-          <View style={styles.hashrateChartContainer}>
-            {(_.last(selectedHashrateHistory.history10s) || 0) > 0 && (
-              <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(selectedHashrateHistory.history10s))}
-                /s
-              </Paragraph>
-            )}
-            <RenderSmallHashrateChartVictory
-              hashrateHistoryData={selectedHashrateHistory.history10s}
-              pauseDuration={10 * 1000}
-              show={(_.last(selectedHashrateHistory.history10s) || 0) > 0}
-            />
-          </View>
-        </MinerCard>
-        <MinerCard
-          title="60s"
-          style={styles.hashrateCard}
-          disabled={disabled}
-        >
-          <View style={styles.hashrateChartContainer}>
-            {(_.last(selectedHashrateHistory.history60s) || 0) > 0 && (
-              <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(selectedHashrateHistory.history60s))}
-                /s
-              </Paragraph>
-            )}
-            <RenderSmallHashrateChartVictory
-              hashrateHistoryData={selectedHashrateHistory.history60s}
-              pauseDuration={60 * 1000}
-              show={(_.last(selectedHashrateHistory.history60s) || 0) > 0}
-            />
-          </View>
-        </MinerCard>
-        <MinerCard
-          title="15m"
-          style={styles.hashrateCard}
-          disabled={disabled}
-        >
-          <View style={styles.hashrateChartContainer}>
-            {(_.last(selectedHashrateHistory.history15m) || 0) > 0 && (
-              <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(selectedHashrateHistory.history15m))}
-                /s
-              </Paragraph>
-            )}
-            <RenderSmallHashrateChartVictory
-              hashrateHistoryData={selectedHashrateHistory.history15m}
-              pauseDuration={15 * 6000}
-              show={(_.last(selectedHashrateHistory.history15m) || 0) > 0}
-            />
-          </View>
-        </MinerCard>
-        <MinerCard
-          title="max"
-          style={[styles.hashrateCard, { marginRight: 0 }]}
-          disabled={disabled}
-        >
-          <View style={styles.hashrateChartContainer}>
-            {(_.last(selectedHashrateHistory.historyMax) || 0) > 0 && (
-              <Paragraph adjustsFontSizeToFit numberOfLines={1} style={styles.hashrateValue}>
-                {hashrateToString(_.last(selectedHashrateHistory.historyMax))}
-                /s
-              </Paragraph>
-            )}
-            <RenderSmallHashrateChartVictory
-              hashrateHistoryData={selectedHashrateHistory.historyMax}
-              pauseDuration={100000}
-              show={(_.last(selectedHashrateHistory.historyMax) || 0) > 0}
-            />
-          </View>
-        </MinerCard>
+      <View flex paddingV-10>
+        <View flex row spread paddingB-5 marginB-10 style={styles.sectionDiv}>
+          <Text text60>Shares</Text>
+        </View>
+        <View flex row>
+          <RenderSharesGrid />
+        </View>
+        <View flex row paddingT-10>
+          <RenderSharesMoreGrid />
+        </View>
       </View>
-      <View style={styles.row}>
-        <MinerCard title="Live Hashrate" style={{ flex: 1 }} disabled={disabled} wrapInContent={false}>
-          {selectedHashrateHistory.historyCurrent.length > 2 && <RenderHashrateChartVictory />}
-        </MinerCard>
+      <View flex paddingV-10>
+        <View flex row spread paddingB-5 marginB-10 style={styles.sectionDiv}>
+          <Text text60>CPU</Text>
+        </View>
+        <View flex row>
+          <RenderCPUGrid />
+        </View>
       </View>
-      <Divider style={{ marginTop: 2, marginBottom: 10 }} />
-      <View style={styles.row}>
-        <MinerCard title="Accepted" style={{ flex: 2, marginRight: 10 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {minerData?.results.shares_good}
-          </Paragraph>
-        </MinerCard>
-        <MinerCard title="Difficulty" style={{ flex: 2 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {minerData?.results.diff_current}
-          </Paragraph>
-        </MinerCard>
-      </View>
-      <View style={styles.row}>
-        <MinerCard title="Threads" style={{ flex: 2, marginRight: 10 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {minerData?.cpu.threads}
-          </Paragraph>
-        </MinerCard>
-        <MinerCard title="Avg Time" style={{ flex: 2 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {minerData?.results.avg_time}
-          </Paragraph>
-        </MinerCard>
-      </View>
-      <View style={[styles.row]}>
-        <MinerCard title="Free Mem" style={{ flex: 2, marginRight: 10 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {prettyBytes(minerData?.resources.memory.free || 0)}
-          </Paragraph>
-        </MinerCard>
-        <MinerCard title="Res. Mem" style={{ flex: 2 }} disabled={disabled}>
-          <Paragraph adjustsFontSizeToFit numberOfLines={1}>
-            {prettyBytes(minerData?.resources.memory.resident_set_memory || 0)}
-          </Paragraph>
-        </MinerCard>
+      <View flex paddingV-10>
+        <View flex row spread paddingB-5 marginB-10 style={styles.sectionDiv}>
+          <Text text60>Memory</Text>
+        </View>
+        <View flex row>
+          <RenderMemoryGrid />
+        </View>
       </View>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    marginVertical: 5,
-  },
-  smallChart: {
-    left: 0,
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  hashrateChartContainer: {
-    position: 'absolute',
-  },
-  hashrateValue: {
-    textAlign: 'center',
-    bottom: 10,
-    position: 'absolute',
-    alignSelf: 'center',
-    color: 'white',
-    zIndex: 100,
-    textShadowColor: 'black',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-  },
-  hashrateCard: {
-    flex: 2,
-    marginRight: 10,
-    overflow: 'hidden',
-    height: 100,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingRight: 0,
-    marginRight: 0,
+  sectionDiv: {
+    borderBottomWidth: 1,
+    borderColor: Colors.grey30,
   },
 });

@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import { IPool } from '.';
+import { Incubator } from 'react-native-ui-lib';
+import { IPool, sharedStyles } from '.';
 import { validateWalletAddress } from '../../../../core/utils';
 
 const hostname = 'auto.c3pool.org';
@@ -23,37 +22,48 @@ export const C3Pool:React.FC<IPool> = ({ onChange }) => {
 
   return (
     <>
-      <TextInput
-        style={styles.input}
+      <Incubator.TextField
         label="Wallet Address"
-        dense
         value={wallet}
         onChangeText={setWallet}
-        error={!validateWalletAddress(wallet)}
+        validate={['required', (value: string) => validateWalletAddress(value)]}
+        validationMessage={['Required', 'Wallet validation failed']}
+        validateOnChange
+        enableErrors
+        floatOnFocus
+        showCharCounter
+        maxLength={128}
+        fieldStyle={sharedStyles.withUnderline}
+        hint="46gPyHjLPPM8HaayVyvCDcF2..."
+        placeholder="46gPyHjLPPM8HaayVyvCDcF2..."
+        marginB-10
+        numberOfLines={1}
+        textBreakStrategy="simple"
       />
-      <TextInput
-        style={styles.input}
-        label="Worker Name (Optional)"
-        placeholder="Worker1"
-        dense
+      <Incubator.TextField
+        label="Worker Name"
         value={worker}
         onChangeText={setWorker}
+        floatOnFocus
+        showCharCounter
+        maxLength={128}
+        fieldStyle={sharedStyles.withUnderline}
+        hint="Worker1"
+        placeholder="Worker1"
+        marginB-10
       />
-      <TextInput
-        style={styles.input}
-        keyboardType="email-address"
-        label="EMail (Optional)"
-        placeholder="example@example.com"
-        dense
+      <Incubator.TextField
+        label="EMail"
         value={email}
         onChangeText={setEmail}
+        floatOnFocus
+        showCharCounter
+        maxLength={128}
+        fieldStyle={sharedStyles.withUnderline}
+        hint="example@example.com"
+        placeholder="example@example.com"
+        keyboardType="email-address"
       />
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  input: {
-    marginBottom: 20,
-  },
-});
