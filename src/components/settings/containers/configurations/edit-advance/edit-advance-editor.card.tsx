@@ -45,8 +45,8 @@ export const EditAdvanceEditorCard: React.FC<EditAdvanceCardProps> = (
         </View>
       </View>
 
-      <View spread padding-20 paddingT-0 paddingB-0 style={{ flexGrow: 1 }}>
-        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: 'black', borderWidth: 10 }}>
+      <View spread padding-20 paddingT-0 paddingB-20 style={{ flexGrow: 1 }}>
+        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: 'black', borderRadius: 5 }}>
           <KeyboardAvoidingView>
             <TextInput
               multiline
