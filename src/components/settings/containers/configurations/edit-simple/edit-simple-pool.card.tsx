@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
 const EditSimplePoolCardSkeleton: React.FC<EditSimpleCardProps> = (props) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInterval(() => setLoaded(true), 2500);
+    setInterval(() => setLoaded(true), 500);
     return () => {
       setLoaded(false);
     };

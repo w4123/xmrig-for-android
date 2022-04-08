@@ -61,7 +61,7 @@ export const EditSimpleForkCard: React.FC<EditSimpleCardProps> = (
 const EditSimpleForkCardSkeleton: React.FC<EditSimpleCardProps> = (props) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInterval(() => setLoaded(true), 3000);
+    setInterval(() => setLoaded(true), 600);
     return () => {
       setLoaded(false);
     };
