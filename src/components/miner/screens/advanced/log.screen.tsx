@@ -1,70 +1,141 @@
 import React from 'react';
+import { ScrollView } from 'react-native';
 import {
-  ScrollView, StyleSheet, View, ViewProps,
-} from 'react-native';
+  View,
+  Text,
+  ViewProps,
+  Incubator,
+  Button,
+  FloatingButton,
+  Colors,
+  Assets,
+  ButtonProps,
+} from 'react-native-ui-lib';
 import Anser from 'anser';
-import { useToast } from 'react-native-paper-toast';
-import { Button, Headline } from 'react-native-paper';
 import Clipboard from '@react-native-community/clipboard';
 import { XMRigLogView } from '../../containers/xmrig-log';
 import { ILoggerLine, LoggerActionType, LoggerContext } from '../../../../core/logger';
+import { useToaster } from '../../../../core/hooks/use-toaster/use-toaster.hook';
+
+const actionsButtonDefault: ButtonProps = {
+  label: 'Menu',
+  iconSource: Assets.icons.barsOpen,
+  iconStyle: {
+    width: 22,
+    height: 22,
+    margin: 0,
+    tintColor: Colors.$iconDefaultLight,
+  },
+};
 
 const LogScreen:React.FC<ViewProps> = () => {
   const { loggerState, loggerDispatcher } = React.useContext(LoggerContext);
-  const toaster = useToast();
-
-  const scrollViewRef = React.useRef<ScrollView | null>();
+  const toaster = useToaster();
 
   const copyToClipboard = () => {
-    Clipboard.setString(loggerState.map((item: ILoggerLine) => `${item.ts} ${Anser.ansiToText(item.message)}`).join('\n'));
-    toaster.show({
+    Clipboard.setString(
+      loggerState
+        .map((item: ILoggerLine) => `${item.ts} ${Anser.ansiToText(item.message)}`)
+        .join('\n'),
+    );
+    toaster({
       message: 'The Log has been copied to clipboard',
-      type: 'success',
       position: 'top',
+      preset: Incubator.ToastPresets.SUCCESS,
     });
+    setActionVisible(false);
   };
 
   const clearLog = () => {
     loggerDispatcher({
       type: LoggerActionType.RESET,
     });
+    setActionVisible(false);
   };
 
+  const [actionsVisible, setActionVisible] = React.useState<boolean>(false);
+  const [actionsButtonProps, setActionButtonProps] = React.useState<ButtonProps>({});
+  React.useEffect(() => {
+    if (actionsVisible) {
+      setActionButtonProps(actionsButtonDefault);
+    } else {
+      setActionButtonProps({
+        iconSource: Assets.icons.barsClose,
+        iconStyle: {
+          width: 15,
+          height: 15,
+          margin: 8,
+          tintColor: Colors.$iconDefaultLight,
+        },
+      });
+    }
+  }, [actionsVisible]);
+
   return (
-    <View>
-      <ScrollView
-        style={styles.layout}
-        ref={(ref) => { scrollViewRef.current = ref; }}
-        onContentSizeChange={() => scrollViewRef?.current?.scrollToEnd({ animated: true })}
+    <View bg-screenBG flex>
+      <View
+        row
+        spread
+        paddingV-10
+        paddingH-10
+        centerV
       >
-        <View style={styles.header}>
-          <Headline>Miner Log</Headline>
-          <Button icon="content-copy" mode="contained" onPress={copyToClipboard}>
-            Copy
-          </Button>
-          <Button icon="delete" mode="contained" onPress={clearLog}>
-            Clear
-          </Button>
+        <View row centerV>
+          <Text text60>Miner Log</Text>
+          <Text text80 marginL-10>(last 100 rows)</Text>
         </View>
-        <XMRigLogView data={loggerState} />
-      </ScrollView>
+        <Button
+          size={Button.sizes.small}
+          onPress={() => setActionVisible(!actionsVisible)}
+          animateLayout
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...actionsButtonProps}
+        />
+      </View>
+      <View
+        flex
+        paddingH-10
+        paddingB-10
+        useSafeArea
+      >
+        <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
+          <XMRigLogView data={loggerState} />
+        </ScrollView>
+      </View>
+      <FloatingButton
+        duration={500}
+        visible={actionsVisible}
+        button={{
+          size: Button.sizes.large,
+          onPress: copyToClipboard,
+          backgroundColor: Colors.$backgroundPrimaryHeavy,
+          label: 'Copy to Clipboard',
+          iconSource: Assets.icons.clipboard,
+          iconStyle: {
+            display: 'flex',
+            width: 16,
+            height: 20,
+            tintColor: Colors.$iconDefaultLight,
+          },
+        }}
+        secondaryButton={{
+          size: Button.sizes.medium,
+          label: 'Clear',
+          onPress: clearLog,
+          backgroundColor: Colors.$backgroundDangerHeavy,
+          link: false,
+          animateLayout: true,
+          iconSource: Assets.icons.trash,
+          iconStyle: {
+            display: 'flex',
+            width: 16,
+            height: 20,
+            tintColor: Colors.$iconDefaultLight,
+          },
+        }}
+      />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  layout: {
-    marginHorizontal: 0,
-    marginBottom: 10,
-    height: '100%',
-  },
-  header: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 10,
-    marginHorizontal: 15,
-  },
-});
 
 export default LogScreen;

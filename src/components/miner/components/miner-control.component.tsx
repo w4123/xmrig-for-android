@@ -1,43 +1,36 @@
 import _ from 'lodash';
 import React from 'react';
 import {
-  StyleSheet, View, ViewProps, Text,
-} from 'react-native';
-import {
-  Button, Paragraph, useTheme,
-} from 'react-native-paper';
-import DropDown from 'react-native-paper-dropdown';
-import { useToast } from 'react-native-paper-toast';
+  Picker,
+  View,
+  Button,
+  ViewProps,
+  Colors,
+  Typography,
+  Incubator,
+  Card,
+  Assets,
+  AnimatedScanner,
+} from 'react-native-ui-lib';
 import { useMiner } from '../../../core/hooks/use-miner.hook';
 import { SessionDataContext } from '../../../core/session-data/session-data.context';
 import { WorkingState } from '../../../core/session-data/session-data.interface';
 import { SettingsActionType, SettingsContext } from '../../../core/settings';
-import { Configuration } from '../../../core/settings/settings.interface';
+import { useToaster } from '../../../core/hooks/use-toaster/use-toaster.hook';
 
 export const MinerControl:React.FC<ViewProps> = () => {
-  const { colors } = useTheme();
-  const toaster = useToast();
+  const toaster = useToaster();
 
   const { workingState } = React.useContext(SessionDataContext);
   const { startWithSelectedConfiguration, stop: handleStop } = useMiner();
 
-  const [showDropDown, setShowDropDown] = React.useState(false);
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
   const [selectedConfiguration, setSelectedConfiguration] = React.useState<string | undefined>(
     settings.selectedConfiguration,
   );
-  const selectedConfigurationName = React.useMemo<string | undefined>(
-    () => settings.configurations.find(
-      (config) => config.id === settings.selectedConfiguration,
-    )?.name,
-    [settings.selectedConfiguration],
-  );
-  const isStartButtonDisabled = React.useMemo<boolean>(
+
+  const isWorking = React.useMemo<boolean>(
     () => workingState !== WorkingState.NOT_WORKING,
-    [workingState],
-  );
-  const isStopButtonDisabled = React.useMemo<boolean>(
-    () => workingState === WorkingState.NOT_WORKING,
     [workingState],
   );
 
@@ -45,9 +38,17 @@ export const MinerControl:React.FC<ViewProps> = () => {
     console.log(settings.selectedConfiguration);
     if (!settings.selectedConfiguration) {
       if (_.isEmpty(settings.configurations)) {
-        toaster.show({ message: 'Please add a Configuration Profile from Settings menu', type: 'error', position: 'top' });
+        toaster({
+          message: 'Please add a Configuration from Settings menu',
+          position: 'top',
+          preset: Incubator.ToastPresets.FAILURE,
+        });
       } else {
-        toaster.show({ message: 'Please select a Configuration to start mining', type: 'error', position: 'top' });
+        toaster({
+          message: 'Please select a Configuration to start mining',
+          position: 'top',
+          preset: Incubator.ToastPresets.FAILURE,
+        });
       }
     } else {
       startWithSelectedConfiguration();
@@ -59,67 +60,105 @@ export const MinerControl:React.FC<ViewProps> = () => {
     value: selectedConfiguration,
   }), [selectedConfiguration]);
 
+  const cardBorderColor = React.useMemo<string>(() => {
+    if (!settings.selectedConfiguration) {
+      if (_.isEmpty(settings.configurations)) {
+        return Colors.$outlineDanger;
+      }
+      return Colors.$outlineWarning;
+    }
+    if (workingState === WorkingState.MINING) {
+      return Colors.$outlinePrimary;
+    }
+    if (workingState === WorkingState.PAUSED) {
+      return Colors.$outlineWarning;
+    }
+    return Colors.$outlinePrimary;
+  }, [selectedConfiguration, settings, workingState]);
+
   return (
-    <View style={styles.container}>
-      <View style={[styles.subContainer, { flex: 2, marginRight: 20 }]}>
-        <View style={styles.dropdownContainer}>
-          {workingState === WorkingState.NOT_WORKING && (
-            <DropDown
-              label="Configurations"
-              mode="flat"
-              value={settings.selectedConfiguration}
-              setValue={setSelectedConfiguration}
-              list={settings.configurations.map((item: Configuration) => ({
-                label: `${item.name}`,
-                value: `${item.id}`,
-              }))}
-              visible={showDropDown}
-              showDropDown={() => setShowDropDown(true)}
-              onDismiss={() => setShowDropDown(false)}
-            />
-          )}
-          {(workingState === WorkingState.MINING || workingState === WorkingState.PAUSED) && (
-            <Paragraph style={{ height: 60, textAlignVertical: 'center', fontSize: 18 }}>
-              Using configuration:
-              {' '}
-              <Text style={{ fontWeight: 'bold' }}>{selectedConfigurationName}</Text>
-            </Paragraph>
-          )}
+    <Card
+      row
+      center
+      enableShadow
+      selected={workingState !== WorkingState.MINING}
+      selectionOptions={{
+        hideIndicator: true,
+        color: cardBorderColor,
+      }}
+      containerStyle={{ overflow: 'hidden' }}
+    >
+      {workingState === WorkingState.NOT_WORKING && (
+        <View padding-10 flex>
+          <Picker
+            floatingPlaceholder
+            placeholder={selectedConfiguration ? 'Selected configuration (click to change)' : 'Click here to select configuration'}
+            topBarProps={{ title: 'Configurations' }}
+            value={selectedConfiguration}
+            getLabel={
+              (value) => settings.configurations.find((config) => config.id === value)?.name || 'N/A'
+            }
+            showSearch
+            searchPlaceholder="Search a Configurations"
+            onChange={(value: any) => setSelectedConfiguration(value)}
+            style={{ ...Typography.text60, color: Colors.$textDefault }}
+            floatingPlaceholderStyle={{ ...Typography.text70, color: Colors.$textDefault }}
+            migrate
+            migrateTextField
+          >
+            {_.map(settings.configurations, (item) => (
+              <Picker.Item
+                key={item?.id}
+                value={item?.id || ''}
+                label={item?.name}
+              />
+            ))}
+          </Picker>
         </View>
-      </View>
-      <View style={[styles.subContainer, { flex: 1 }]}>
-        <View style={{ flex: 1 }}>
-          {!isStartButtonDisabled && <Button icon="play" mode="contained" style={{ flex: 1, justifyContent: 'center' }} color={colors.primary} disabled={isStartButtonDisabled} onPress={handleStart}>Start</Button>}
-          {!isStopButtonDisabled && <Button icon="stop" mode="contained" style={{ flex: 1, justifyContent: 'center' }} color={colors.error} disabled={isStopButtonDisabled} onPress={handleStop}>Stop</Button>}
+      )}
+      {!isWorking && (
+        <View absF right bottom padding-10>
+          <Button
+            size={Button.sizes.small}
+            onPress={handleStart}
+            label="Start"
+            iconSource={Assets.icons.start}
+            iconStyle={{
+              width: 8,
+              height: 10,
+              margin: 5,
+              marginRight: 10,
+              tintColor: Colors.$iconDefaultLight,
+            }}
+          />
         </View>
-      </View>
-    </View>
+      )}
+      {isWorking && (
+        <View padding-10 flex>
+          <Button
+            size={Button.sizes.medium}
+            backgroundColor={Colors.$backgroundDangerHeavy}
+            onPress={handleStop}
+            label="Stop"
+            iconSource={Assets.icons.stop}
+            iconStyle={{
+              width: 15,
+              height: 15,
+              margin: 5,
+              marginRight: 10,
+              tintColor: Colors.$iconDefaultLight,
+            }}
+            text65
+          />
+        </View>
+      )}
+      {!selectedConfiguration && (
+        <AnimatedScanner
+          backgroundColor={Colors.$backgroundWarning}
+          progress={100}
+          duration={3000}
+        />
+      )}
+    </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 15,
-    padding: 0,
-    height: 66,
-  },
-  subContainer: {
-    flexDirection: 'column',
-    flex: 1,
-  },
-  dropdownContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 15,
-  },
-  buttonIcon: {
-    width: 38,
-    height: 38,
-  },
-});

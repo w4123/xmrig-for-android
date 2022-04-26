@@ -45,7 +45,7 @@ public class MiningService extends Service {
 
         Intent notificationIntent = new Intent(this, MiningService.class);
         PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+                PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
 
         notificationbuilder =
                 new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)

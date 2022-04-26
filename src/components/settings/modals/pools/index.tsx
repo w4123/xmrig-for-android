@@ -1,3 +1,6 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from 'react-native-ui-lib';
+
 export type IPoolState = {
     hostname: string;
     port: number;
@@ -100,3 +103,11 @@ export {
 export {
   Hashcity,
 } from './hashcity';
+
+export const sharedStyles = StyleSheet.create({
+  withUnderline: {
+    borderBottomWidth: 1,
+    borderColor: Colors.$outlineDisabled,
+    paddingBottom: 4,
+  },
+});

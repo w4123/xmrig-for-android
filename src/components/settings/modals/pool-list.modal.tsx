@@ -1,12 +1,8 @@
+import _ from 'lodash';
 import React from 'react';
-import { View } from 'react-native';
 import {
-  Badge,
-  Button,
-  Dialog,
-  Portal,
-} from 'react-native-paper';
-import DropDown from 'react-native-paper-dropdown';
+  Button, Chip, Colors, Incubator, Picker, Typography, View,
+} from 'react-native-ui-lib';
 import { IConfiguratioPropertiesPool } from '../../../core/settings/settings.interface';
 import {
   C3Pool,
@@ -25,17 +21,15 @@ import {
   XMRPoolEU,
 } from './pools';
 
-export type PoolListModalProps = {
-    onAdd: (pool: IConfiguratioPropertiesPool) => void;
-    onClose: () => void;
-    isVisible: boolean;
+export type PoolListModalProps = Incubator.DialogProps & {
+  onAdd: (pool: IConfiguratioPropertiesPool) => void;
 }
 
 const PoolListModal:React.FC<PoolListModalProps> = (
   {
     onAdd,
-    onClose,
-    isVisible = false,
+    onDismiss,
+    ...rest
   },
 ) => {
   const [selected, setSelected] = React.useState<string>();
@@ -64,82 +58,96 @@ const PoolListModal:React.FC<PoolListModalProps> = (
     [selected],
   );
 
-  const [visible, setVisible] = React.useState(isVisible);
-  const [showDropDown, setShowDropDown] = React.useState(false);
-
-  React.useEffect(() => {
-    setVisible(isVisible);
-  }, [isVisible]);
-
-  React.useEffect(() => { if (!visible) { onClose(); } }, [visible]);
-
   const hide = (isOk: boolean = false) => {
     if (isOk === true) {
       onAdd(pool);
     }
-    setVisible(false);
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={hide}>
-        <Dialog.Title>Pools Presets</Dialog.Title>
-        <Dialog.Content>
-          <View style={{ marginBottom: 10 }}>
-            <DropDown
-              label="Pool"
-              mode="flat"
+    <Incubator.Dialog
+      onDismiss={onDismiss}
+      center
+      headerProps={{
+        text: {
+          title: 'Pools Presets',
+        },
+      }}
+      containerStyle={{ width: '100%', minWidth: 300 }}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...rest}
+    >
+      <View spread style={{ flexGrow: 1 }}>
+        <View paddingH-20>
+          <View height={50} paddingT-10>
+            <Picker
+              floatingPlaceholder={selected === null}
+              placeholder="Select a Pool"
+              topBarProps={{ title: 'Pools' }}
               value={selected}
-              setValue={(item) => setSelected(item)}
-              list={pools.map(
-                (item: IPredefinedPool) => (
-                  { label: item.info.displayName, value: item.name }
-                ),
-              )}
-              visible={showDropDown}
-              showDropDown={() => setShowDropDown(true)}
-              onDismiss={() => setShowDropDown(false)}
-            />
+              showSearch
+              searchPlaceholder="Search a Configurations"
+              onChange={(value: any) => setSelected(value)}
+              style={{ ...Typography.text60, color: Colors.$textDefault }}
+              floatingPlaceholderStyle={{ ...Typography.text70, color: Colors.$textDefault }}
+              migrate
+              migrateTextField
+            >
+              {_.map(pools, (item: IPredefinedPool) => (
+                <Picker.Item
+                  key={item.name}
+                  value={item.name}
+                  label={item.info.displayName}
+                />
+              ))}
+            </Picker>
           </View>
 
           {poolInfo && (
-            <View style={{ marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Badge size={26}>
-                {`{${poolInfo.fee}}% fee`}
-              </Badge>
-              <Badge size={26}>
-                {`{${poolInfo.threshold}} XMR min. payout`}
-              </Badge>
-              <Badge size={26}>
-                {poolInfo.method}
-              </Badge>
+            <View row paddingB-10 spread>
+              <Chip size={10} label={`${poolInfo.fee}% fee`} />
+              <Chip size={10} label={`${poolInfo.threshold} min. payout`} marginH-10 />
+              <Chip size={10} label={poolInfo.method} />
             </View>
           )}
 
-          {selected && selected === PredefinedPoolName.MoneroOcean
-            && <MoneroOcean onChange={onChange} />}
-          {selected && selected === PredefinedPoolName.MineXMR
-            && <MineXMR onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.SupportXMR
-            && <SupportXMR onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.nanopool
-            && <Nano onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.C3Pool
-            && <C3Pool onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.XMRPoolEU
-            && <XMRPoolEU onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.HashVault
-            && <HashVault onChange={onChange} /> }
-          {selected && selected === PredefinedPoolName.Hashcity
-            && <Hashcity onChange={onChange} /> }
+          <View spread paddingB-20>
+            {selected && selected === PredefinedPoolName.MoneroOcean
+              && <MoneroOcean onChange={onChange} />}
+            {selected && selected === PredefinedPoolName.MineXMR
+              && <MineXMR onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.SupportXMR
+              && <SupportXMR onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.nanopool
+              && <Nano onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.C3Pool
+              && <C3Pool onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.XMRPoolEU
+              && <XMRPoolEU onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.HashVault
+              && <HashVault onChange={onChange} /> }
+            {selected && selected === PredefinedPoolName.Hashcity
+              && <Hashcity onChange={onChange} /> }
+          </View>
 
-        </Dialog.Content>
-        <Dialog.Actions style={{ paddingBottom: 20 }}>
-          <Button mode="contained" onPress={() => hide(true)} icon="check" style={{ marginRight: 10 }}>Add</Button>
-          <Button onPress={hide} icon="close">Cancel</Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
+        </View>
+        <View bottom>
+          <View height={1.5} bg-grey70 />
+          <View paddingV-15 paddingH-20 right row centerV>
+            <Button
+              onPress={() => hide(true)}
+              marginR-10
+              label="Save"
+              size={Button.sizes.medium}
+            />
+            <Button onPress={onDismiss} label="Cancel" backgroundColor={Colors.$backgroundDangerHeavy} size={Button.sizes.medium} />
+          </View>
+        </View>
+      </View>
+    </Incubator.Dialog>
   );
 };
 

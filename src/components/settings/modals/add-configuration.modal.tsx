@@ -1,34 +1,27 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
-  Avatar,
-  Button,
-  Caption,
+  Text,
+  View,
   Colors,
-  Dialog,
-  Divider,
-  HelperText,
-  Portal,
+  Incubator,
+  RadioGroup,
   RadioButton,
-  Subheading,
-  TextInput,
-} from 'react-native-paper';
-import Shimmer from 'react-native-shimmer';
+  Button,
+} from 'react-native-ui-lib';
 import { SettingsContext } from '../../../core/settings';
 import { ConfigurationMode } from '../../../core/settings/settings.interface';
 import { getConfigurationNameValidator, getConfigurationValidator } from '../../../core/utils/validators';
 
-export type AddConfigurationsModalProps = {
+export type AddConfigurationsModalProps = Incubator.DialogProps & {
     onAdd: (name: string, mode: ConfigurationMode) => void;
-    onClose: () => void;
-    isVisible: boolean;
 }
 
 const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
   {
     onAdd,
-    onClose,
-    isVisible = false,
+    onDismiss,
+    ...rest
   },
 ) => {
   const { settings } = React.useContext(SettingsContext);
@@ -40,112 +33,91 @@ const AddConfigurationsModal:React.FC<AddConfigurationsModalProps> = (
   );
 
   const [name, setName] = React.useState('');
-  const [configMode, setConfigMode] = React.useState(ConfigurationMode.SIMPLE);
-
-  const [visible, setVisible] = React.useState(isVisible);
-
-  React.useEffect(() => {
-    setVisible(isVisible);
-  }, [isVisible]);
-
-  React.useEffect(() => { if (!visible) { onClose(); } }, [visible]);
+  const [configMode, setConfigMode] = React.useState<ConfigurationMode>(ConfigurationMode.SIMPLE);
 
   const isValid = React.useMemo(() => getConfigurationValidator(existsNames).validate({
     name,
     mode: configMode,
   }).error == null, [name, configMode]);
 
-  const hide = (isOk: boolean = false) => {
-    if (isOk === true) {
-      onAdd(name, configMode);
-    }
-    setVisible(false);
-  };
+  const RenderRadioGroup = React.useCallback(() => (
+    <RadioGroup
+      onValueChange={(value: ConfigurationMode) => setConfigMode(value)}
+      initialValue={configMode}
+    >
+      <RadioButton label="Simple Mode" value={ConfigurationMode.SIMPLE} marginB-10 />
+      <RadioButton label="Advanced Mode" value={ConfigurationMode.ADVANCE} />
+    </RadioGroup>
+  ), [configMode]);
 
   return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={hide}>
-        <Dialog.Title>New Configuration</Dialog.Title>
-        <Dialog.Content>
-          <TextInput
-            label="Name"
-            dense
-            placeholder="Friendly name for identification"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <Incubator.Dialog
+      onDismiss={onDismiss}
+      center
+      headerProps={{
+        text: {
+          title: 'New Configuration',
+        },
+      }}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...rest}
+      containerStyle={{ width: '100%', minWidth: 300, minHeight: 350 }}
+    >
+      <View spread flex-1>
+        <View padding-20 style={{ flexGrow: 1 }}>
+          <Incubator.TextField
+            placeholder="Name"
+            floatingPlaceholder
             value={name}
             onChangeText={(text) => setName(text)}
-            error={getConfigurationNameValidator(existsNames).validate(name).error != null}
+            validate={
+              (value: string) => getConfigurationNameValidator(existsNames)
+                .validate(value)
+                .error === null
+            }
+            validationMessage={
+              getConfigurationNameValidator(existsNames).validate(name).error?.message
+            }
+            validateOnChange
+            enableErrors
+            floatOnFocus
+            showCharCounter
+            maxLength={30}
+            fieldStyle={styles.withUnderline}
+            hint="Friendly configuration name"
           />
-          {getConfigurationNameValidator(existsNames).validate(name).error != null
-                        && (
-                        <HelperText type="error" visible={getConfigurationNameValidator(existsNames).validate(name).error != null}>
-                          {getConfigurationNameValidator(existsNames).validate(name).error?.message}
-                        </HelperText>
-                        )}
-          <Divider style={styles.divider} />
-          <Subheading>Editor Mode</Subheading>
-          <RadioButton.Group
-            onValueChange={(value) => setConfigMode(value as ConfigurationMode)}
-            value={configMode}
+          <Text text85 $textNeutralLight marginT-10 marginB-15>Editor Mode</Text>
+          <RadioGroup
+            onValueChange={(value: ConfigurationMode) => setConfigMode(value)}
           >
-            <RadioButton.Item label="Simple Mode" value={ConfigurationMode.SIMPLE} style={styles.radioItem} />
-            <RadioButton.Item label="Advanced Mode" value={ConfigurationMode.ADVANCE} style={styles.radioItem} />
-          </RadioButton.Group>
-          {configMode === ConfigurationMode.ADVANCE && (
-            <View style={styles.warningContainer}>
-              <Avatar.Icon style={styles.warningIcon} size={24} icon="information-variant" />
-              <Shimmer opacity={0.7}>
-                <Caption style={styles.warningText}>
-                  Warning for Advanced mode: Direct XMRig`s configuration JSON file edit.
-                </Caption>
-              </Shimmer>
-            </View>
-          )}
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button
-            disabled={!isValid}
-            mode="contained"
-            onPress={() => hide(true)}
-            icon="check"
-            style={{ marginRight: 10 }}
-          >
-            Add
-          </Button>
-          <Button onPress={hide} icon="close">Cancel</Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
+            <RadioButton label="Simple Mode" value={ConfigurationMode.SIMPLE} marginB-10 />
+            <RadioButton label="Advanced Mode" value={ConfigurationMode.ADVANCE} />
+          </RadioGroup>
+        </View>
+        <View>
+          <View height={1.5} bg-grey70 />
+          <View paddingV-15 paddingH-20 right row>
+            <Button
+              disabled={!isValid}
+              onPress={() => onAdd(name, configMode)}
+              marginR-10
+              label="Add"
+              size={Button.sizes.medium}
+            />
+            <Button onPress={onDismiss} label="Cancel" backgroundColor={Colors.$backgroundDangerHeavy} size={Button.sizes.medium} />
+          </View>
+        </View>
+      </View>
+    </Incubator.Dialog>
   );
 };
 
 const styles = StyleSheet.create({
-  layout: {
-    flex: 1,
-    padding: 15,
-  },
-  cards: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  radioItem: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
-  warningText: {
-    color: Colors.deepOrange900,
-  },
-  warningContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  warningIcon: {
-    backgroundColor: Colors.deepOrange900,
-    marginRight: 10,
-  },
-  divider: {
-    marginBottom: 10,
-    marginTop: 15,
+  withUnderline: {
+    borderBottomWidth: 1,
+    borderColor: Colors.$outlineDisabled,
+    paddingBottom: 4,
   },
 });
 

@@ -1,7 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, Colors, Title } from 'react-native-paper';
-import { StyleSheet, View, ViewProps } from 'react-native';
-import Shimmer from 'react-native-shimmer';
+import {
+  View,
+  ViewProps,
+  LoaderScreen,
+  Colors,
+} from 'react-native-ui-lib';
 
 export const Lazy = (componentImportFn:Function) => React.lazy(async () => {
   const obj = await componentImportFn();
@@ -9,13 +12,8 @@ export const Lazy = (componentImportFn:Function) => React.lazy(async () => {
 });
 
 export const SpinnerLayout:React.FC<ViewProps> = () => (
-  <View style={styles.spinnerContainer}>
-    <ActivityIndicator animating color={Colors.red800} size="large">
-      {' '}
-    </ActivityIndicator>
-    <Shimmer>
-      <Title>Loading</Title>
-    </Shimmer>
+  <View flex center>
+    <LoaderScreen message="Loading" color={Colors.grey40} />
   </View>
 );
 
@@ -24,14 +22,3 @@ export const LazyLoader:React.FC = ({ children }) => (
     {children}
   </React.Suspense>
 );
-
-const styles = StyleSheet.create({
-  spinnerContainer: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-});

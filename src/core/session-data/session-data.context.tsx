@@ -1,4 +1,5 @@
 import React from 'react';
+import { Incubator } from 'react-native-ui-lib';
 import { NativeModules, NativeEventEmitter, EmitterSubscription } from 'react-native';
 import { useHashrateHistory } from '../hooks';
 import {
@@ -12,6 +13,7 @@ import { PowerContext } from '../power/power.context';
 import { IMinerSummary, useMinerSummary } from '../hooks/use-miner-summary.hook';
 import { useMinerStatus } from '../hooks/use-miner-status.hook';
 import { useThermal } from '../hooks/use-thermal.hook';
+import { useToaster } from '../hooks/use-toaster/use-toaster.hook';
 
 const { XMRigForAndroid } = NativeModules;
 
@@ -20,7 +22,6 @@ type SessionDataContextType = {
   workingState: string,
   minerData: IMinerSummary | null,
   hashrateTotals: IHashrateHistory,
-  hashrateTotalsMA: IHashrateHistory,
   minerActions: {
     pause: () => {},
     resume: () => {},
@@ -32,6 +33,7 @@ type SessionDataContextType = {
 export const SessionDataContext:React.Context<SessionDataContextType> = React.createContext();
 
 export const SessionDataContextProvider:React.FC = ({ children }) => {
+  const toaster = useToaster();
   const { settings, settingsDispatcher } = React.useContext(SettingsContext);
   const { log } = React.useContext(LoggerContext);
   const { isLowBattery, isPowerConnected } = React.useContext(PowerContext);
@@ -134,6 +136,13 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   }, []);
 
   React.useEffect(() => {
+    if (isLowBattery) {
+      toaster({
+        message: 'Battery is low',
+        position: 'top',
+        preset: Incubator.ToastPresets.FAILURE,
+      });
+    }
     if (settings.power.pauseOnLowBattery && isLowBattery === true) {
       pauseMiner();
     } else if (settings.power.resumeOnBatteryOk && isLowBattery === false) {
@@ -142,6 +151,19 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
   }, [isLowBattery]);
 
   React.useEffect(() => {
+    if (!isPowerConnected) {
+      toaster({
+        message: 'Charger is disconnected',
+        position: 'top',
+        preset: Incubator.ToastPresets.FAILURE,
+      });
+    } else {
+      toaster({
+        message: 'Charger is connected',
+        position: 'top',
+        preset: Incubator.ToastPresets.SUCCESS,
+      });
+    }
     if (
       settings.power.resumeOnChargerConnected
       && isPowerConnected === true
@@ -186,13 +208,6 @@ export const SessionDataContextProvider:React.FC = ({ children }) => {
         history60s: hashrateHistory60s.history,
         history15m: hashrateHistory15m.history,
         historyMax: hashrateHistoryMax.history,
-      },
-      hashrateTotalsMA: {
-        historyCurrent: hashrateHistory.sma,
-        history10s: hashrateHistory10s.sma,
-        history60s: hashrateHistory60s.sma,
-        history15m: hashrateHistory15m.sma,
-        historyMax: hashrateHistoryMax.sma,
       },
       minerActions: {
         pause: pauseMiner,
