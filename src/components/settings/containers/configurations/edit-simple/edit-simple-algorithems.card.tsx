@@ -83,8 +83,9 @@ export const EditSimpleAlgorithemsCard: React.FC<EditSimpleCardProps> = (
 const EditSimpleAlgorithemsCardSkeleton: React.FC<EditSimpleCardProps> = (props) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInterval(() => setLoaded(true), 800);
+    const interval = setTimeout(() => setLoaded(true), 800);
     return () => {
+      clearTimeout(interval);
       setLoaded(false);
     };
   }, []);

@@ -5,8 +5,9 @@ import { EditSimpleForkCard, EditSimpleCardProps } from '../edit-simple/index';
 const EditAdvanceForkCardSkeleton: React.FC<EditSimpleCardProps> = (props) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInterval(() => setLoaded(true), 500);
+    const interval = setTimeout(() => setLoaded(true), 500);
     return () => {
+      clearTimeout(interval);
       setLoaded(false);
     };
   }, []);

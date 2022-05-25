@@ -189,8 +189,9 @@ const styles = StyleSheet.create({
 const EditSimpleCPUCardSkeleton: React.FC<EditSimpleCardProps> = (props) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInterval(() => setLoaded(true), 700);
+    const interval = setTimeout(() => setLoaded(true), 800);
     return () => {
+      clearTimeout(interval);
       setLoaded(false);
     };
   }, []);

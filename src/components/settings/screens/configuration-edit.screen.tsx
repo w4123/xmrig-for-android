@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { Suspense } from 'react';
 import {
   Assets, Button, ButtonProps, Colors, FloatingButton, LoaderScreen, Text, View,
@@ -22,6 +22,7 @@ const actionsButtonDefault: ButtonProps = {
 
 const ConfigurationEditScreen = () => {
   const route = useRoute();
+  const navigation = useNavigation();
 
   const [changesCount, setChangesCount] = React.useState<number>(0);
 
@@ -42,10 +43,13 @@ const ConfigurationEditScreen = () => {
     }
   }, [configuration]);
 
-  const handleUpdate = (data: Configuration) => settingsDispatcher({
-    type: SettingsActionType.UPDATE_CONFIGURATION,
-    value: data,
-  });
+  const handleUpdate = (data: Configuration) => {
+    settingsDispatcher({
+      type: SettingsActionType.UPDATE_CONFIGURATION,
+      value: data,
+    });
+    navigation.goBack();
+  };
 
   const [actionsVisible, setActionVisible] = React.useState<boolean>(false);
   const [actionsButtonProps, setActionButtonProps] = React.useState<ButtonProps>({
