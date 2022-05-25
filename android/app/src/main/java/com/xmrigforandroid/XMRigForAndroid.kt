@@ -92,7 +92,7 @@ class XMRigForAndroid(context: ReactApplicationContext) : ReactContextBaseJavaMo
     private val fileObserver: FileObserver = object : FileObserver(File(configBuilder.getConfigPath()), MODIFY) {
         override fun onEvent(event: Int, path: String?) {
             Log.d("FileObserver", "fileObserver: ${event} ${path} | isMining: ${isMining}")
-                if (!isMining)  {
+            if (!isMining)  {
                 return
             }
             val payload = Arguments.createMap()

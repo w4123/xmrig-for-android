@@ -3,7 +3,7 @@
 buildscript {
     ext {
         buildToolsVersion = "31.0.0"
-        minSdkVersion = 26
+        minSdkVersion = 29
         compileSdkVersion = 31
         targetSdkVersion = 31
         ndkVersion = "21.4.7075529"
@@ -19,12 +19,6 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
         classpath("de.undercouch:gradle-download-task:4.1.2")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
-
-
-
-        //classpath('com.google.gms:google-services:4.3.8')
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
