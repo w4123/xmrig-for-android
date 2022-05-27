@@ -77,6 +77,7 @@
     "react-native-vector-icons": "^9.0.0",
     "redeyed": "^2.1.1",
     "text-encoding-polyfill": "^0.6.7",
+    "use-debounce": "^8.0.1",
     "victory-native": "^36.2.0"
   },
   "devDependencies": {
