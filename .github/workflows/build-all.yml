@@ -44,12 +44,6 @@ jobs:
         node-version: '17.1.0'
         cache: 'yarn'
         
-    - name: Bump version
-      id: bump_version
-      uses: oflynned/Android-Semantic-Release@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
     - run: yarn
     - run: node update_version.js
     
@@ -70,28 +64,10 @@ jobs:
     - run: mv ./android/app/build/outputs/bundle/release/app-release.apk ./android/app/build/outputs/bundle/release/xmrig-for-android_v${{ steps.bump_version.outputs.new_tag }}.apk
     - run: mv ./android/app/build/outputs/bundle/release/app-release.aab ./android/app/build/outputs/bundle/release/xmrig-for-android_v${{ steps.bump_version.outputs.new_tag }}.aab
     
-    - name: Sign app APK
-      uses: r0adkll/sign-android-release@v1
-      # ID used to access action output
-      id: sign_app
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.2
       with:
-        releaseDirectory: ./android/app/build/outputs/bundle/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
-      env:
-        BUILD_TOOLS_VERSION: "30.0.2"
-        
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: true
-        automatic_release_tag: ${{ steps.bump_version.outputs.new_tag }}
-        title: ${{ steps.bump_version.outputs.new_tag }}
-        files: |
-          ./android/app/build/outputs/bundle/release/*.apk
-          ./android/app/build/outputs/bundle/release/*.aab
+        path: ./android/app/build/outputs/bundle/release
         
     #- name: Install hub
     #  uses: geertvdc/setup-hub@master
